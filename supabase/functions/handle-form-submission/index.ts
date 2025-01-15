@@ -31,10 +31,15 @@ serve(async (req) => {
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    if (!resendApiKey) {
+      throw new Error('RESEND_API_KEY is not set')
+    }
+    
+    const resend = new Resend(resendApiKey)
     const { name, email, business, phone, about, honeypot } = await req.json() as FormSubmission
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown'
 
@@ -84,33 +89,57 @@ serve(async (req) => {
       })
       .single()
 
-    if (templateError) throw templateError
+    let emailSubject = `Welcome to Parascape - Let's Transform Your Digital Presence`
+    let emailBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #10B981;">Welcome to Parascape, ${name}!</h1>
+        <p>Thank you for reaching out about ${business}. We're excited to explore how we can help transform your digital presence.</p>
+        <p>Our team will review your message and get back to you shortly.</p>
+      </div>
+    `
 
-    // Send welcome email
-    await resend.emails.send({
-      from: 'Parascape <hello@parascape.com>',
-      to: email,
-      subject: welcomeTemplate.subject,
-      html: welcomeTemplate.body
-    })
+    if (!templateError && welcomeTemplate && welcomeTemplate.body) {
+      emailSubject = welcomeTemplate.subject
+      emailBody = welcomeTemplate.body
+    } else {
+      console.log('Using fallback template - database template not found')
+    }
 
-    // Send admin notification
-    await resend.emails.send({
-      from: 'Parascape Forms <forms@parascape.com>',
-      to: 'recordsparascape@gmail.com',
-      subject: `New Contact Form: ${business}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <ul>
-          <li><strong>Name:</strong> ${name}</li>
-          <li><strong>Business:</strong> ${business}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Phone:</strong> ${phone || 'Not provided'}</li>
-        </ul>
-        <h3>Message:</h3>
-        <p>${about}</p>
-      `
-    })
+    try {
+      // Send welcome email
+      await resend.emails.send({
+        from: 'Parascape <onboarding@resend.dev>',
+        to: email,
+        subject: emailSubject,
+        html: emailBody
+      })
+    } catch (emailError) {
+      console.error('Error sending welcome email:', emailError)
+      throw new Error(`Email sending failed: ${emailError instanceof Error ? emailError.message : 'Unknown error'}`)
+    }
+
+    // Send admin notification with error handling
+    try {
+      await resend.emails.send({
+        from: 'Parascape Forms <onboarding@resend.dev>',
+        to: 'recordsparascape@gmail.com',
+        subject: `New Contact Form: ${business}`,
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <ul>
+            <li><strong>Name:</strong> ${name}</li>
+            <li><strong>Business:</strong> ${business}</li>
+            <li><strong>Email:</strong> ${email}</li>
+            <li><strong>Phone:</strong> ${phone || 'Not provided'}</li>
+          </ul>
+          <h3>Message:</h3>
+          <p>${about}</p>
+        `
+      })
+    } catch (adminEmailError) {
+      console.error('Error sending admin notification:', adminEmailError)
+      // Continue execution - don't throw here as the user submission was successful
+    }
 
     // Schedule follow-up email (24 hours)
     await fetch('https://api.resend.com/v1/emails/schedule', {
@@ -120,7 +149,7 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Parascape <hello@parascape.com>',
+        from: 'Parascape <onboarding@resend.dev>',
         to: email,
         subject: `Quick Follow-up: Your Digital Journey with ${business}`,
         html: (await supabase
@@ -141,7 +170,7 @@ serve(async (req) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'Parascape <hello@parascape.com>',
+        from: 'Parascape <onboarding@resend.dev>',
         to: email,
         subject: `Digital Growth Tips for ${business}`,
         html: (await supabase
@@ -160,9 +189,16 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error processing form submission:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ 
+        error: 'Failed to process form submission',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
+      }
     )
   }
 }) 
