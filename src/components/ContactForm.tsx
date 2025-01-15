@@ -13,14 +13,15 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { apiClient } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  businessName: z.string().min(1, "Business name is required"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
+  business: z.string().min(1, "Business name is required"),
+  phone: z.string().optional(),
+  about: z.string().min(10, "Message must be at least 10 characters"),
+  honeypot: z.string().optional() // Hidden field for spam detection
 })
 
 export function ContactForm() {
@@ -29,25 +30,41 @@ export function ContactForm() {
     defaultValues: {
       name: "",
       email: "",
-      businessName: "",
-      message: "",
+      business: "",
+      phone: "",
+      about: "",
+      honeypot: ""
     },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await apiClient.submitContactForm(values);
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/handle-form-submission`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(values)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to submit form');
+      }
+
       analytics.track({
         name: 'form_submission',
         properties: {
           form: 'contact',
-          businessName: values.businessName
+          business: values.business
         }
       });
+
       toast.success("Thank you for your message! We'll be in touch soon.");
       form.reset();
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
       console.error(error);
     }
   }
@@ -93,7 +110,7 @@ export function ContactForm() {
           
           <FormField
             control={form.control}
-            name="businessName"
+            name="business"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Business Name</FormLabel>
@@ -104,10 +121,24 @@ export function ContactForm() {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone (Optional)</FormLabel>
+                <FormControl>
+                  <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           
           <FormField
             control={form.control}
-            name="message"
+            name="about"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Message</FormLabel>
@@ -121,6 +152,15 @@ export function ContactForm() {
                 <FormMessage />
               </FormItem>
             )}
+          />
+
+          {/* Honeypot field - hidden from users */}
+          <input
+            type="text"
+            tabIndex={-1}
+            {...form.register("honeypot")}
+            style={{ position: 'absolute', left: '-9999px' }}
+            aria-hidden="true"
           />
           
           <Button 
