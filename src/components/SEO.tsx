@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { config } from '@/config/environment';
 
 interface SEOProps {
   title: string;
@@ -8,6 +9,7 @@ interface SEOProps {
 }
 
 export function SEO({ title, description, image, url }: SEOProps) {
+  const fullUrl = `${config.baseUrl}${url}`;
   const siteUrl = "https://parascape.com"; // Replace with your domain
 
   return (

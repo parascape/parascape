@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getAssetPath } from "../utils/getAssetPath";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -21,7 +22,12 @@ const Hero = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-parascape-green/10 to-white">
-      <div className="absolute inset-0 overflow-hidden">
+      <div 
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          backgroundImage: `url(${getAssetPath('/images/hero-bg.jpg')})`
+        }}
+      >
         <img
           src="https://images.unsplash.com/photo-1433086966358-54859d0ed716"
           alt="Humboldt County landscape"

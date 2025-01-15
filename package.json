@@ -5,11 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run generate:sitemap && vite build",
+    "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:sitemap": "tsx scripts/generate-sitemap.ts"
+    "generate:sitemap": "tsx scripts/generate-sitemap.ts",
+    "dev:codespace": "vite --host",
+    "lint:fix": "eslint --fix .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

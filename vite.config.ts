@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
     host: mode === 'development' ? 'localhost' : '::',
@@ -21,6 +20,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
   build: {
     sourcemap: mode === 'development',
     outDir: 'dist',
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -30,5 +30,5 @@ export default defineConfig(({ mode }: { mode: string }) => ({
       },
     },
   },
-  base: '/', // This ensures assets are loaded correctly
+  base: mode === 'production' ? '/parascape/' : '/',
 }));

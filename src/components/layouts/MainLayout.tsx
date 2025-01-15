@@ -1,19 +1,13 @@
-import { type ReactNode } from "react";
-import Navbar from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { ScrollToTop } from "@/components/ScrollToTop";
+import { PropsWithChildren } from "react";
+import Navbar from "../Navbar";
+import Footer from "../Footer";
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
-
-export function MainLayout({ children }: MainLayoutProps) {
+export const MainLayout = ({ children }: PropsWithChildren) => {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main className="flex-grow">{children}</main>
       <Footer />
-      <ScrollToTop />
     </div>
   );
-} 
+}; 

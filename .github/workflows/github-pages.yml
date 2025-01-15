@@ -23,11 +23,11 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_BASE_URL: /parascape
+          NODE_ENV: production
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          cname: parascape.org  # If you have a custom domain 
+          publish_dir: ./dist 
