@@ -10,5 +10,3 @@ This project is built with .
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## I want to use a custom domain - is that possible?
