@@ -1,18 +1,15 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Loading, Toaster, TooltipProvider } from "@ui/index";
+import { Toaster as Sonner } from "@ui/core/sonner";
 import { HelmetProvider } from 'react-helmet-async';
-import ErrorBoundary from "./components/ErrorBoundary";
-import Loading from "@/components/ui/loading";
-import { MainLayout } from "./components/layouts/MainLayout";
-import { CookieConsent } from "@/components/CookieConsent";
-import { useAnalytics } from '@/hooks/useAnalytics';
-import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import ErrorBoundary from "@features/error/ErrorBoundary";
+import { CookieConsent } from "@features/cookies/CookieConsent";
+import { AnalyticsProvider } from "@features/analytics/AnalyticsProvider";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
+import { MainLayout } from "@layouts/MainLayout";
 
 // Lazy load pages
 const Index = lazy(() => import("./pages/Index"));

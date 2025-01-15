@@ -1,5 +1,6 @@
 import { PropsWithChildren } from "react";
-import { Navbar, Footer } from "@/components/features/navigation";
+import { Navbar } from "@features/navigation/Navbar";
+import { Footer } from "@features/navigation/Footer";
 
 export const MainLayout = ({ children }: PropsWithChildren) => {
   return (

@@ -6,13 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:dev": "vite build --mode development",
-    "lint": "eslint .",
+    "build:analyze": "vite build --mode analyze",
     "preview": "vite preview",
-    "generate:sitemap": "tsx scripts/generate-sitemap.ts",
-    "dev:codespace": "vite --host",
-    "lint:fix": "eslint --fix .",
-    "format": "prettier --write ."
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

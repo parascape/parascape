@@ -1,34 +1,37 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 
-export default defineConfig(({ mode }: { mode: string }) => ({
-  server: {
-    host: mode === 'development' ? 'localhost' : '::',
-    port: 8080,
-  },
-  plugins: [
-    react(),
-    mode === 'development' && componentTagger(),
-  ].filter(Boolean),
+export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+      '@': path.resolve(__dirname, './src'),
+      '@ui': path.resolve(__dirname, './src/components/ui'),
+      '@features': path.resolve(__dirname, './src/components/features'),
+      '@layouts': path.resolve(__dirname, './src/components/layouts'),
+    }
   },
   build: {
-    sourcemap: mode === 'development',
     outDir: 'dist',
-    assetsDir: 'assets',
+    sourcemap: mode === 'development',
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@/components/ui'],
-        },
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
       },
-    },
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+          if (id.includes('src/components/ui')) {
+            return 'ui';
+          }
+          if (id.includes('src/components/features')) {
+            return 'features';
+          }
+        }
+      }
+    }
   },
-  base: mode === 'production' ? '/parascape/' : '/',
+  base: mode === 'production' ? '/parascape/' : '/'
 }));
