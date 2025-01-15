@@ -1,12 +1,6 @@
-// Core UI components
-export * from './core/button';
-export * from './core/input';
-export * from './core/toast';
-export * from './core/tooltip';
-
-// Custom components
-export { Loading } from './custom/loading';
-
-// Type exports
-export type { ButtonProps } from './core/button';
-export type { InputProps } from './core/input'; 
+export { Button } from "./button";
+export { Input } from "./input";
+export { Toast, ToastProvider, ToastViewport } from "./toast";
+export { TooltipProvider } from "./tooltip";
+export { Loading } from "./loading";
+export { Toaster as Sonner } from "./sonner"; 

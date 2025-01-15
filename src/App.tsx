@@ -1,15 +1,16 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Loading, Toaster, TooltipProvider } from "@ui/index";
-import { Toaster as Sonner } from "@ui/core/sonner";
+import { Loading, TooltipProvider } from "@/components/ui";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { HelmetProvider } from 'react-helmet-async';
-import ErrorBoundary from "@features/error/ErrorBoundary";
-import { CookieConsent } from "@features/cookies/CookieConsent";
-import { AnalyticsProvider } from "@features/analytics/AnalyticsProvider";
+import { ErrorBoundary } from "@/components/features/error";
+import { CookieConsent } from "@/components/features/cookies";
+import { AnalyticsProvider } from "@/components/features/analytics";
 import { AnimatePresence } from "framer-motion";
 import { PageTransition } from "@/components/PageTransition";
-import { MainLayout } from "@layouts/MainLayout";
+import { MainLayout } from "@/components/layouts/MainLayout";
 
 // Lazy load pages
 const Index = lazy(() => import("./pages/Index"));
@@ -33,7 +34,7 @@ function AppContent() {
           <TooltipProvider>
             <AnalyticsProvider>
               <Toaster />
-              <Sonner />
+              <SonnerToaster />
               <MainLayout>
                 <AnimatePresence mode="wait">
                   <Routes location={location} key={location.pathname}>

@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { LinkedInIcon } from "@/components/icons/icons";
 import { config } from '@/config/environment';
 
-const Navbar = () => {
+export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -88,6 +88,4 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
-
-export default Navbar; 
+}; 
