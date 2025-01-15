@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { getAssetPath } from "../utils/getAssetPath";
+import { getAssetPath } from '@/utils/assetPath';
 
 const Hero = () => {
   const navigate = useNavigate();

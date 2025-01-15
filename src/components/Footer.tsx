@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import { LinkedInIcon, TwitterIcon } from "./icons/icons";
 
-export function Footer() {
+export const Footer = () => {
   return (
     <footer className="bg-white border-t">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -23,18 +24,18 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="/services#web">Web Development</a></li>
-              <li><a href="/services#brand">Branding</a></li>
-              <li><a href="/services#content">Content Creation</a></li>
+              <li><Link to="/services#web">Web Development</Link></li>
+              <li><Link to="/services#brand">Branding</Link></li>
+              <li><Link to="/services#content">Content Creation</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li><a href="/about">About Us</a></li>
-              <li><a href="/success-stories">Success Stories</a></li>
-              <li><a href="/contact">Contact</a></li>
+              <li><Link to="/about">About Us</Link></li>
+              <li><Link to="/success-stories">Success Stories</Link></li>
+              <li><Link to="/contact">Contact</Link></li>
             </ul>
           </div>
           
@@ -54,4 +55,4 @@ export function Footer() {
       </div>
     </footer>
   );
-} 
+}; 

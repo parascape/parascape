@@ -1,6 +1,6 @@
 import { PropsWithChildren } from "react";
 import Navbar from "../Navbar";
-import Footer from "../Footer";
+import { Footer } from "../Footer";
 
 export const MainLayout = ({ children }: PropsWithChildren) => {
   return (
