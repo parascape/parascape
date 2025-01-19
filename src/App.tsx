@@ -59,7 +59,7 @@ function AppContent() {
 
 // Main App component that provides Router context
 const App = () => (
-  <BrowserRouter basename="/parascape">
+  <BrowserRouter>
     <AppContent />
   </BrowserRouter>
 );
