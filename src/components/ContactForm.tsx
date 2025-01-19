@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { analytics } from '@/lib/analytics';
+import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -37,6 +39,15 @@ export function ContactForm() {
     },
   })
 
+  const location = useLocation();
+  const isAuditRequest = location.state?.auditRequest;
+
+  useEffect(() => {
+    if (isAuditRequest) {
+      form.setValue('about', 'I would like to request a free digital presence audit for my business.');
+    }
+  }, [isAuditRequest, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await fetch('https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission', {
@@ -45,7 +56,10 @@ export function ContactForm() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
         },
-        body: JSON.stringify(values)
+        body: JSON.stringify({
+          ...values,
+          type: isAuditRequest ? 'audit_request' : 'contact'
+        })
       });
 
       if (!response.ok) {
@@ -56,12 +70,16 @@ export function ContactForm() {
       analytics.track({
         name: 'form_submission',
         properties: {
-          form: 'contact',
+          form: isAuditRequest ? 'audit_request' : 'contact',
           business: values.business
         }
       });
 
-      toast.success("Thank you for your message! We'll be in touch soon.");
+      toast.success(
+        isAuditRequest
+          ? "Thank you! We'll send your audit within 24 hours."
+          : "Thank you for your message! We'll be in touch soon."
+      );
       form.reset();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
@@ -72,9 +90,14 @@ export function ContactForm() {
   return (
     <div className="w-full max-w-xl mx-auto p-6 space-y-8 bg-white rounded-lg shadow-lg animate-fade-up">
       <div className="space-y-2 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-parascape-green">Get in Touch</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-parascape-green">
+          {isAuditRequest ? 'Request Your Free Audit' : 'Get in Touch'}
+        </h2>
         <p className="text-gray-500">
-          Ready to transform your business? Let's start a conversation.
+          {isAuditRequest
+            ? "We'll analyze your digital presence and provide actionable insights."
+            : "Ready to transform your business? Let's start a conversation."
+          }
         </p>
         <p className="text-sm text-gray-400">* Required fields</p>
       </div>
