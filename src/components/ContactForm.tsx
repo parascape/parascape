@@ -76,6 +76,7 @@ export function ContactForm() {
         <p className="text-gray-500">
           Ready to transform your business? Let's start a conversation.
         </p>
+        <p className="text-sm text-gray-400">* Required fields</p>
       </div>
       
       <Form {...form}>
@@ -85,9 +86,14 @@ export function ContactForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input 
+                    placeholder="John Doe" 
+                    {...field} 
+                    aria-required="true"
+                    autoComplete="name"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -99,9 +105,15 @@ export function ContactForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email *</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="john@example.com" {...field} />
+                  <Input 
+                    type="email" 
+                    placeholder="john@example.com" 
+                    {...field} 
+                    aria-required="true"
+                    autoComplete="email"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -113,9 +125,14 @@ export function ContactForm() {
             name="business"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Business Name</FormLabel>
+                <FormLabel>Business Name *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your Business LLC" {...field} />
+                  <Input 
+                    placeholder="Your Business LLC" 
+                    {...field} 
+                    aria-required="true"
+                    autoComplete="organization"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -127,11 +144,17 @@ export function ContactForm() {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone (Optional)</FormLabel>
+                <FormLabel>Phone</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                  <Input 
+                    type="tel" 
+                    placeholder="(555) 123-4567" 
+                    {...field} 
+                    autoComplete="tel"
+                  />
                 </FormControl>
                 <FormMessage />
+                <p className="text-xs text-gray-500">Optional, but recommended for faster communication</p>
               </FormItem>
             )}
           />
@@ -141,12 +164,13 @@ export function ContactForm() {
             name="about"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Message</FormLabel>
+                <FormLabel>Message *</FormLabel>
                 <FormControl>
                   <Textarea 
-                    placeholder="Tell us about your business and what you're looking for..."
+                    placeholder="Tell us about your business goals and how we can help..."
                     className="min-h-[120px]"
                     {...field}
+                    aria-required="true"
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,12 +187,19 @@ export function ContactForm() {
             aria-hidden="true"
           />
           
-          <Button 
-            type="submit" 
-            className="w-full bg-parascape-green hover:bg-parascape-green/90"
-          >
-            Send Message
-          </Button>
+          <div className="space-y-4">
+            <p className="text-xs text-gray-500 text-center">
+              By submitting this form, you agree to our{" "}
+              <a href="/privacy" className="text-parascape-green hover:underline">Privacy Policy</a>
+            </p>
+            
+            <Button 
+              type="submit" 
+              className="w-full bg-parascape-green hover:bg-parascape-green/90 transition-all duration-200 transform hover:scale-[1.02]"
+            >
+              Start Your Digital Transformation
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
