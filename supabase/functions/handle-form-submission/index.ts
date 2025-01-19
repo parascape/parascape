@@ -107,21 +107,29 @@ serve(async (req) => {
 
     try {
       // Send welcome email
-      await resend.emails.send({
-        from: 'Parascape <onboarding@resend.dev>',
+      console.log('Attempting to send welcome email to:', email)
+      const welcomeResult = await resend.emails.send({
+        from: 'Parascape <hello@parascape.com>',
         to: email,
         subject: emailSubject,
         html: emailBody
       })
+      console.log('Welcome email sent successfully:', welcomeResult)
     } catch (emailError) {
       console.error('Error sending welcome email:', emailError)
+      console.error('Error details:', {
+        to: email,
+        subject: emailSubject,
+        error: emailError instanceof Error ? emailError.message : 'Unknown error'
+      })
       throw new Error(`Email sending failed: ${emailError instanceof Error ? emailError.message : 'Unknown error'}`)
     }
 
     // Send admin notification with error handling
     try {
-      await resend.emails.send({
-        from: 'Parascape Forms <onboarding@resend.dev>',
+      console.log('Attempting to send admin notification')
+      const adminResult = await resend.emails.send({
+        from: 'Parascape Forms <forms@parascape.com>',
         to: 'recordsparascape@gmail.com',
         subject: `New Contact Form: ${business}`,
         html: `
@@ -136,52 +144,12 @@ serve(async (req) => {
           <p>${about}</p>
         `
       })
+      console.log('Admin notification sent successfully:', adminResult)
     } catch (adminEmailError) {
       console.error('Error sending admin notification:', adminEmailError)
+      console.error('Admin notification error details:', adminEmailError instanceof Error ? adminEmailError.message : 'Unknown error')
       // Continue execution - don't throw here as the user submission was successful
     }
-
-    // Schedule follow-up email (24 hours)
-    await fetch('https://api.resend.com/v1/emails/schedule', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Parascape <onboarding@resend.dev>',
-        to: email,
-        subject: `Quick Follow-up: Your Digital Journey with ${business}`,
-        html: (await supabase
-          .rpc('get_email_template', {
-            template_name: 'follow_up',
-            template_vars: { name, business }
-          })
-          .single()).data.body,
-        send_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-      })
-    })
-
-    // Schedule value-add email (3 days)
-    await fetch('https://api.resend.com/v1/emails/schedule', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'Parascape <onboarding@resend.dev>',
-        to: email,
-        subject: `Digital Growth Tips for ${business}`,
-        html: (await supabase
-          .rpc('get_email_template', {
-            template_name: 'value_add',
-            template_vars: { name, business }
-          })
-          .single()).data.body,
-        send_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
-      })
-    })
 
     return new Response(
       JSON.stringify({ message: 'Form submitted successfully', data: submission }),
