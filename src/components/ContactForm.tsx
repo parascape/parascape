@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { analytics } from '@/lib/analytics';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const formSchema = z.object({
@@ -26,7 +26,11 @@ const formSchema = z.object({
   honeypot: z.string().optional() // Hidden field for spam detection
 })
 
-export function ContactForm() {
+interface ContactFormProps {
+  type?: string;
+}
+
+export function ContactForm({ type }: ContactFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,10 +43,10 @@ export function ContactForm() {
     },
   })
 
-  const location = useLocation();
-  const isAuditRequest = location.state?.auditRequest;
+  const isAuditRequest = type === 'audit';
 
   useEffect(() => {
+    console.log('ContactForm: isAuditRequest =', isAuditRequest);
     if (isAuditRequest) {
       form.setValue('about', 'I would like to request a free digital presence audit for my business.');
     }

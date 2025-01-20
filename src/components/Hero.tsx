@@ -38,7 +38,7 @@ const Hero = () => {
         <OptimizedImage
           src={isMobile ? '/assets/images/hero-mobile.jpg' : '/assets/images/Hero.jpg'}
           alt="Humboldt landscape"
-          className="w-full h-full object-cover opacity-20"
+          className="w-full h-full object-cover"
           priority
         />
       </div>

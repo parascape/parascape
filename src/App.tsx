@@ -39,9 +39,9 @@ function AppContent() {
                 <AnimatePresence mode="wait">
                   <Routes location={location} key={location.pathname}>
                     <Route path="/" element={<Suspense fallback={<Loading />}><PageTransition><Index /></PageTransition></Suspense>} />
-                    <Route path="/contact" element={<Suspense fallback={<Loading />}><PageTransition><Contact /></PageTransition></Suspense>} />
+                    <Route path="/contact/:type?" element={<Suspense fallback={<Loading />}><PageTransition><Contact /></PageTransition></Suspense>} />
                     <Route path="/success-stories" element={<Suspense fallback={<Loading />}><PageTransition><SuccessStories /></PageTransition></Suspense>} />
-                    <Route path="/about/*" element={<Suspense fallback={<Loading />}><PageTransition><About /></PageTransition></Suspense>} />
+                    <Route path="/about" element={<Suspense fallback={<Loading />}><PageTransition><About /></PageTransition></Suspense>} />
                     <Route path="/services" element={<Suspense fallback={<Loading />}><PageTransition><Services /></PageTransition></Suspense>} />
                     <Route path="/privacy" element={<Suspense fallback={<Loading />}><PageTransition><Privacy /></PageTransition></Suspense>} />
                     <Route path="/terms" element={<Suspense fallback={<Loading />}><PageTransition><Terms /></PageTransition></Suspense>} />

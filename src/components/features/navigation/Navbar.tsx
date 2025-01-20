@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LinkedInIcon } from "@/components/icons/icons";
 import { config } from '@/config/environment';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const handleContactClick = () => {
-    navigate('/contact');
-    setIsOpen(false);
-  };
 
   return (
     <nav className="fixed w-full bg-white/90 backdrop-blur-sm z-50 shadow-sm">
@@ -32,12 +26,12 @@ export const Navbar = () => {
             <Link to="/success-stories" className="text-gray-700 hover:text-parascape-green transition-colors">
               Success Stories
             </Link>
-            <button 
-              onClick={handleContactClick}
+            <Link 
+              to="/contact"
               className="bg-parascape-green text-white px-6 py-2 rounded-md hover:bg-parascape-green/90 transition-colors"
             >
               Get in Touch
-            </button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -76,12 +70,13 @@ export const Navbar = () => {
               >
                 Success Stories
               </Link>
-              <button
-                onClick={handleContactClick}
-                className="w-full text-left px-3 py-2 text-parascape-green hover:bg-parascape-green/10 rounded-md transition-colors"
+              <Link
+                to="/contact"
+                className="block px-3 py-2 text-parascape-green hover:bg-parascape-green/10 rounded-md transition-colors"
+                onClick={() => setIsOpen(false)}
               >
                 Get in Touch
-              </button>
+              </Link>
             </div>
           </div>
         )}

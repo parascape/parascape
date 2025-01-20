@@ -1,64 +1,38 @@
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 
 export function DigitalAuditCTA() {
-  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  const handleClick = () => {
+  const handleAuditRequest = () => {
+    console.log('DigitalAuditCTA: Navigating to /contact/audit');
     analytics.track({
       name: 'audit_cta_click',
       properties: {
         location: 'site_audit_banner'
       }
     });
-    navigate('/contact', { state: { auditRequest: true } });
+    navigate('/contact/audit');
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-r from-parascape-green/10 to-parascape-green/5 rounded-lg p-6 shadow-lg border border-parascape-green/20">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <svg className="w-full h-full" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-          </pattern>
-          <rect width="100" height="100" fill="url(#grid)"/>
-        </svg>
-      </div>
-
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-4 text-center md:text-left">
-          <h3 className="text-2xl font-bold text-gray-900">
-            Get Your Free Digital Presence Audit
-          </h3>
-          <ul className="text-gray-600 space-y-2">
-            <li className="flex items-center gap-2">
-              <CheckIcon /> SEO Performance Analysis
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckIcon /> User Experience Review
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckIcon /> Competitor Comparison
-            </li>
-          </ul>
-        </div>
-
-        <div className="flex flex-col items-center gap-2">
-          <Button
-            onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            className="bg-parascape-green hover:bg-parascape-green/90 text-white px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105"
-          >
-            Get Your Free Audit
-            <ArrowIcon className={`ml-2 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
-          </Button>
-          <p className="text-xs text-gray-500">No commitment required</p>
-        </div>
+    <div className="bg-gradient-to-br from-parascape-green/10 to-parascape-green/5 rounded-2xl p-8 md:p-12">
+      <div className="max-w-3xl mx-auto text-center space-y-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+          Get Your Free Digital Presence Audit
+        </h2>
+        <p className="text-lg text-gray-700">
+          Discover how your business appears online and get actionable insights to improve your digital presence.
+        </p>
+        <Button
+          onClick={handleAuditRequest}
+          className="bg-parascape-green hover:bg-parascape-green/90 text-white group"
+        >
+          Request Your Free Audit
+          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Button>
       </div>
     </div>
   );

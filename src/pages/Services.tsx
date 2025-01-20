@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { X, Code, Palette, MessageSquare, LineChart, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DigitalAuditCTA } from "@/components/features/marketing";
 
 const services = [
   {
@@ -106,15 +107,8 @@ const Services = () => {
     setActiveService(null);
     document.body.style.overflow = 'unset';
     
-    // Reduced delay for navigation
-    setTimeout(() => {
-      navigate('/contact', {
-        state: { 
-          animation: 'slide-up',
-          prevPath: location.pathname 
-        }
-      });
-    }, 150); // Shorter delay
+    // Navigate directly without delay
+    navigate('/contact');
   };
 
   return (
@@ -129,6 +123,11 @@ const Services = () => {
             <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               Comprehensive digital solutions tailored for Humboldt County businesses
             </p>
+          </div>
+
+          {/* Digital Audit CTA */}
+          <div className="mb-16">
+            <DigitalAuditCTA />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
