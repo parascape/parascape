@@ -1,5 +1,5 @@
 import { ParallaxSection } from '../ui/parallax-section';
-import { CountUpCard } from '../ui/count-up-card';
+import { CountUpCard } from '../ui/count-up';
 
 const stats = [
   {
@@ -28,7 +28,7 @@ const stats = [
 export function StatsSection() {
   return (
     <ParallaxSection
-      image="/assets/images/sections/stats-bg.jpg"
+      image="/assets/images/Mountain-Vista.jpg"
       title="Our Impact"
       subtitle="Driving Digital Success Through Measurable Results"
       className="py-20"

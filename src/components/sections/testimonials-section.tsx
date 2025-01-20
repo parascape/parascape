@@ -75,7 +75,7 @@ export function TestimonialsSection() {
 
   return (
     <ParallaxSection
-      image="/assets/images/sections/testimonials-bg.jpg"
+      image="/assets/images/Forest.jpg"
       title="Client Success Stories"
       subtitle="Hear from businesses we've helped transform"
       className="py-20"
