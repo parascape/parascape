@@ -15,7 +15,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { analytics } from '@/lib/analytics';
 import { useLocation, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -30,7 +31,13 @@ interface ContactFormProps {
   type?: string;
 }
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
 export function ContactForm({ type }: ContactFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,7 +59,9 @@ export function ContactForm({ type }: ContactFormProps) {
     }
   }, [isAuditRequest, form]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function submitWithRetry(values: z.infer<typeof formSchema>, retryCount: number = 0): Promise<Response> {
     try {
       const response = await fetch('https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission', {
         method: 'POST',
@@ -65,6 +74,28 @@ export function ContactForm({ type }: ContactFormProps) {
           type: isAuditRequest ? 'audit_request' : 'contact'
         })
       });
+
+      if (!response.ok && retryCount < MAX_RETRIES) {
+        await delay(RETRY_DELAY * Math.pow(2, retryCount)); // Exponential backoff
+        return submitWithRetry(values, retryCount + 1);
+      }
+
+      return response;
+    } catch (error) {
+      if (retryCount < MAX_RETRIES) {
+        await delay(RETRY_DELAY * Math.pow(2, retryCount));
+        return submitWithRetry(values, retryCount + 1);
+      }
+      throw error;
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await submitWithRetry(values);
 
       if (!response.ok) {
         const error = await response.json();
@@ -87,7 +118,10 @@ export function ContactForm({ type }: ContactFormProps) {
       form.reset();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
-      console.error(error);
+      console.error('Form submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+      setRetryCount(0);
     }
   }
 
@@ -223,8 +257,16 @@ export function ContactForm({ type }: ContactFormProps) {
             <Button 
               type="submit" 
               className="w-full bg-parascape-green hover:bg-parascape-green/90 transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isSubmitting}
             >
-              Start Your Digital Transformation
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {retryCount > 0 ? `Retrying... (${retryCount}/${MAX_RETRIES})` : 'Submitting...'}
+                </>
+              ) : (
+                'Start Your Digital Transformation'
+              )}
             </Button>
           </div>
         </form>

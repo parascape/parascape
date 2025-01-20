@@ -1,4 +1,4 @@
-import Navbar from "@/components/Navbar";
+import { Navbar } from "@/components/features/navigation";
 import { ContactForm } from "@/components/ContactForm";
 import { useParams } from 'react-router-dom';
 
