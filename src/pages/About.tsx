@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { LinkedInIcon, TwitterIcon } from "@/components/icons/icons";
 import { OptimizedImage } from "@/components/ui/optimized-image";
+import { TeamSection } from "@/components/sections/team-section";
 
 const About = () => {
   return (
@@ -17,7 +18,7 @@ const About = () => {
             We stayed, we built, and we grew—blending creativity, strategy, and action to make a lasting impact.
           </p>
           <OptimizedImage 
-            src="/assets/images/landscapes/Mountain-Vista.jpg"
+            src="/assets/images/sections/Mountain-Vista.jpg"
             alt="Humboldt landscape" 
             className="rounded-lg shadow-xl max-w-3xl mx-auto"
             priority
@@ -73,59 +74,8 @@ const About = () => {
         </div>
       </section>
 
-      {/* Founders Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-parascape-green mb-12 text-center">Meet the Founders</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {[
-              {
-                name: "Brendan Balsley",
-                title: "CEO & Architect of Action",
-                description: "Brendan leads Parascape's execution, ensuring strategies transform into measurable success. His gift for action keeps us focused on tangible results and enduring impact.",
-                image: "/assets/images/sections/Shadows.jpg",
-                linkedin: "https://linkedin.com/in/brendan-balsley",
-                twitter: "https://twitter.com/brendanbalsley"
-              },
-              {
-                name: "Matthew Haines",
-                title: "Director of Media & Architect of Thought",
-                description: "Matthew drives the creative vision behind Parascape's media and storytelling. His deep understanding of art, strategy, and systems ensures each project resonates with clarity and purpose.",
-                image: "/assets/images/sections/Forest.jpg"
-              }
-            ].map((founder) => (
-              <Card key={founder.name} className="border-none shadow-lg overflow-hidden">
-                <div className="aspect-w-16 aspect-h-9">
-                  <OptimizedImage 
-                    src={founder.image}
-                    alt={founder.name}
-                    className="object-cover w-full h-64"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-xl text-parascape-green">{founder.name}</CardTitle>
-                  <p className="font-semibold text-gray-600">{founder.title}</p>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{founder.description}</p>
-                  <div className="flex gap-4">
-                    {founder.linkedin && (
-                      <a href={founder.linkedin} target="_blank" rel="noopener noreferrer" className="text-parascape-green hover:opacity-80">
-                        <LinkedInIcon className="w-5 h-5" />
-                      </a>
-                    )}
-                    {founder.twitter && (
-                      <a href={founder.twitter} target="_blank" rel="noopener noreferrer" className="text-parascape-green hover:opacity-80">
-                        <TwitterIcon className="w-5 h-5" />
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Team Section */}
+      <TeamSection />
 
       {/* CTA Section */}
       <section className="py-16 px-4 bg-parascape-green text-white">
