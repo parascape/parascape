@@ -16,6 +16,7 @@ interface FormSubmission {
   phone?: string
   about: string
   honeypot?: string
+  type?: 'audit_request' | 'contact'
 }
 
 interface EmailTemplate {
@@ -40,7 +41,7 @@ serve(async (req) => {
     }
     
     const resend = new Resend(resendApiKey)
-    const { name, email, business, phone, about, honeypot } = await req.json() as FormSubmission
+    const { name, email, business, phone, about, honeypot, type } = await req.json() as FormSubmission
     const clientIp = req.headers.get('x-forwarded-for') || 'unknown'
 
     // Spam checks
@@ -73,7 +74,8 @@ serve(async (req) => {
           phone,
           about,
           ip_address: clientIp,
-          status: 'pending'
+          status: 'pending',
+          type: type || 'contact'
         }
       ])
       .select()
@@ -81,26 +83,44 @@ serve(async (req) => {
 
     if (submissionError) throw submissionError
 
-    // Get welcome email template
-    const { data: welcomeTemplate, error: templateError } = await supabase
+    // Get appropriate email template
+    const templateName = type === 'audit_request' ? 'audit_welcome' : 'welcome'
+    const { data: emailTemplate, error: templateError } = await supabase
       .rpc('get_email_template', {
-        template_name: 'welcome',
+        template_name: templateName,
         template_vars: { name, business }
       })
       .single()
 
-    let emailSubject = `Welcome to Parascape - Let's Transform Your Digital Presence`
-    let emailBody = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #10B981;">Welcome to Parascape, ${name}!</h1>
-        <p>Thank you for reaching out about ${business}. We're excited to explore how we can help transform your digital presence.</p>
-        <p>Our team will review your message and get back to you shortly.</p>
-      </div>
-    `
+    let emailSubject = type === 'audit_request' 
+      ? `Your Digital Audit Request - Parascape`
+      : `Welcome to Parascape - Let's Transform Your Digital Presence`
+    
+    let emailBody = type === 'audit_request' 
+      ? `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #10B981;">Digital Audit Request Received</h1>
+          <p>Thank you for requesting a digital presence audit for ${business}.</p>
+          <p>Our team will conduct a thorough analysis of your digital presence and send you a detailed report within 24 hours.</p>
+          <p>The audit will include:</p>
+          <ul>
+            <li>SEO Performance Analysis</li>
+            <li>User Experience Review</li>
+            <li>Competitor Comparison</li>
+          </ul>
+        </div>
+      `
+      : `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #10B981;">Welcome to Parascape, ${name}!</h1>
+          <p>Thank you for reaching out about ${business}. We're excited to explore how we can help transform your digital presence.</p>
+          <p>Our team will review your message and get back to you shortly.</p>
+        </div>
+      `
 
-    if (!templateError && welcomeTemplate && welcomeTemplate.body) {
-      emailSubject = welcomeTemplate.subject
-      emailBody = welcomeTemplate.body
+    if (!templateError && emailTemplate && emailTemplate.body) {
+      emailSubject = emailTemplate.subject
+      emailBody = emailTemplate.body
     } else {
       console.log('Using fallback template - database template not found')
     }
@@ -131,14 +151,17 @@ serve(async (req) => {
       const adminResult = await resend.emails.send({
         from: 'Parascape Forms <forms@parascape.com>',
         to: 'recordsparascape@gmail.com',
-        subject: `New Contact Form: ${business}`,
+        subject: type === 'audit_request' 
+          ? `New Audit Request: ${business}`
+          : `New Contact Form: ${business}`,
         html: `
-          <h2>New Contact Form Submission</h2>
+          <h2>${type === 'audit_request' ? 'New Audit Request' : 'New Contact Form Submission'}</h2>
           <ul>
             <li><strong>Name:</strong> ${name}</li>
             <li><strong>Business:</strong> ${business}</li>
             <li><strong>Email:</strong> ${email}</li>
             <li><strong>Phone:</strong> ${phone || 'Not provided'}</li>
+            <li><strong>Type:</strong> ${type || 'contact'}</li>
           </ul>
           <h3>Message:</h3>
           <p>${about}</p>

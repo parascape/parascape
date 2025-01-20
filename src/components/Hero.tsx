@@ -1,9 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { getAssetPath } from '@/utils/assetPath';
+import { useEffect, useState } from 'react';
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const Hero = () => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleGetStarted = () => {
     // Navigate to services page with a smooth scroll to top first
@@ -22,16 +34,12 @@ const Hero = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-parascape-green/10 to-white">
-      <div 
-        className="absolute inset-0 overflow-hidden"
-        style={{
-          backgroundImage: `url(${getAssetPath('/images/hero-bg.jpg')})`
-        }}
-      >
-        <img
-          src="https://images.unsplash.com/photo-1433086966358-54859d0ed716"
-          alt="Humboldt County landscape"
+      <div className="absolute inset-0 overflow-hidden">
+        <OptimizedImage
+          src={isMobile ? '/assets/images/hero/hero-mobile.jpg' : '/assets/images/hero/Hero.jpg'}
+          alt="Humboldt landscape"
           className="w-full h-full object-cover opacity-20"
+          priority
         />
       </div>
       

@@ -1,8 +1,8 @@
 import { SEO } from "@/components/SEO";
 import Hero from "@/components/Hero";
 import Services from "@/components/Services";
-import Testimonial from "@/components/Testimonial";
-import { getAssetPath } from '@/utils/assetPath';
+import { StatsSection } from "@/components/sections/stats-section";
+import { TestimonialsSection } from "@/components/sections/testimonials-section";
 
 const Index = () => {
   return (
@@ -14,7 +14,8 @@ const Index = () => {
       />
       <Hero />
       <Services />
-      <Testimonial />
+      <StatsSection />
+      <TestimonialsSection />
     </>
   );
 };

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { LinkedInIcon, TwitterIcon } from "@/components/icons/icons";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const About = () => {
   return (
@@ -18,10 +19,11 @@ const About = () => {
           <p className="text-lg md:text-xl text-gray-600 mb-8">
             We stayed, we built, and we grew—blending creativity, strategy, and action to make a lasting impact.
           </p>
-          <img 
-            src="/images/humboldt-landscape.jpg" 
+          <OptimizedImage 
+            src="/assets/images/landscapes/Mountain-Vista.jpg"
             alt="Humboldt landscape" 
             className="rounded-lg shadow-xl max-w-3xl mx-auto"
+            priority
           />
         </div>
       </section>
@@ -84,7 +86,7 @@ const About = () => {
                 name: "Brendan Balsley",
                 title: "CEO & Architect of Action",
                 description: "Brendan leads Parascape's execution, ensuring strategies transform into measurable success. His gift for action keeps us focused on tangible results and enduring impact.",
-                image: "/images/brendan-balsley.jpg",
+                image: "/assets/images/sections/Shadows.jpg",
                 linkedin: "https://linkedin.com/in/brendan-balsley",
                 twitter: "https://twitter.com/brendanbalsley"
               },
@@ -92,13 +94,13 @@ const About = () => {
                 name: "Matthew Haines",
                 title: "Director of Media & Architect of Thought",
                 description: "Matthew drives the creative vision behind Parascape's media and storytelling. His deep understanding of art, strategy, and systems ensures each project resonates with clarity and purpose.",
-                image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158"
+                image: "/assets/images/sections/Forest.jpg"
               }
             ].map((founder) => (
               <Card key={founder.name} className="border-none shadow-lg overflow-hidden">
                 <div className="aspect-w-16 aspect-h-9">
-                  <img 
-                    src={founder.image} 
+                  <OptimizedImage 
+                    src={founder.image}
                     alt={founder.name}
                     className="object-cover w-full h-64"
                   />
