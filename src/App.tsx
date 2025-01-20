@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Loading, TooltipProvider } from "@/components/ui";
 import { Toaster } from "@/components/ui/toaster";
@@ -41,10 +41,11 @@ function AppContent() {
                     <Route path="/" element={<Suspense fallback={<Loading />}><PageTransition><Index /></PageTransition></Suspense>} />
                     <Route path="/contact" element={<Suspense fallback={<Loading />}><PageTransition><Contact /></PageTransition></Suspense>} />
                     <Route path="/success-stories" element={<Suspense fallback={<Loading />}><PageTransition><SuccessStories /></PageTransition></Suspense>} />
-                    <Route path="/about" element={<Suspense fallback={<Loading />}><PageTransition><About /></PageTransition></Suspense>} />
+                    <Route path="/about/*" element={<Suspense fallback={<Loading />}><PageTransition><About /></PageTransition></Suspense>} />
                     <Route path="/services" element={<Suspense fallback={<Loading />}><PageTransition><Services /></PageTransition></Suspense>} />
                     <Route path="/privacy" element={<Suspense fallback={<Loading />}><PageTransition><Privacy /></PageTransition></Suspense>} />
                     <Route path="/terms" element={<Suspense fallback={<Loading />}><PageTransition><Terms /></PageTransition></Suspense>} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </AnimatePresence>
               </MainLayout>

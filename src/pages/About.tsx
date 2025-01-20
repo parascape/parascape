@@ -1,15 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import Navbar from "@/components/Navbar";
 import { LinkedInIcon, TwitterIcon } from "@/components/icons/icons";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const About = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
-      
       {/* Hero Section */}
       <section className="pt-32 pb-16 px-4 bg-gradient-to-b from-parascape-green/10 to-transparent">
         <div className="max-w-4xl mx-auto text-center">

@@ -36,7 +36,7 @@ const Hero = () => {
     <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-parascape-green/10 to-white">
       <div className="absolute inset-0 overflow-hidden">
         <OptimizedImage
-          src={isMobile ? '/assets/images/hero/hero-mobile.jpg' : '/assets/images/hero/Hero.jpg'}
+          src={isMobile ? '/assets/images/hero-mobile.jpg' : '/assets/images/Hero.jpg'}
           alt="Humboldt landscape"
           className="w-full h-full object-cover opacity-20"
           priority
