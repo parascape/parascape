@@ -1,0 +1,1 @@
+import{j as s}from"./vendor-FxCG3Xtn.js";import{S as e}from"./SEO-DYcBn-G4.js";function a(){return s.jsxs(s.Fragment,{children:[s.jsx(e,{title:"Terms of Service - Parascape",description:"Terms and conditions for using Parascape's services"}),s.jsx("div",{className:"prose max-w-3xl mx-auto py-16 px-4",children:s.jsx("h1",{children:"Terms of Service"})})]})}export{a as default};
