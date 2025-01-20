@@ -1,0 +1,1 @@
+import{j as a}from"./vendor-BeURxZ8R.js";import{S as r}from"./SEO-Z2wL3Vvv.js";function t(){return a.jsxs(a.Fragment,{children:[a.jsx(r,{title:"Privacy Policy - Parascape",description:"Learn about how Parascape handles and protects your data"}),a.jsx("div",{className:"prose max-w-3xl mx-auto py-16 px-4",children:a.jsx("h1",{children:"Privacy Policy"})})]})}export{t as default};
