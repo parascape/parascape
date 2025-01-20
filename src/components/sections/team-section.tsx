@@ -12,27 +12,27 @@ const teamMembers: TeamMember[] = [
   {
     name: "Matthew Haines",
     role: "Co-founder",
-    bio: "From digital experience specialist at Adobe to guitarist for Famous in Russia and vocalist for Template, Matthew's journey embodies the intersection of technology and artistry. His transition from corporate tech to the vibrant music scene led to a serendipitous partnership with Brendan, where his expertise in digital solutions meets his passion for creative expression.",
-    image: "/assets/images/team/matthew-haines.jpg"
+    bio: "After a brief time at Adobe, Matthew left the tech world behind to pursue his true calling in music with Famous in Russia and Template. The corporate path never felt right, but the technical knowledge proved invaluable. Now he channels that experience into building platforms that help artists thrive in a digital world that often feels stacked against them.",
+    image: "/assets/images/team/Matthew.jpg"
   },
   {
     name: "Parascape Records",
     role: "The Vision",
     bio: "\"Parascape became everything a Humboldt artist needed to launch their art beyond the Redwood Curtain. Parascape became what I needed when I was 18, playing every show I could, and then on top of that organizing and throwing more shows so that my musicians could play more.\" - Brendan Balsley",
-    image: "/assets/images/sections/Redwood.jpg"
+    image: "/assets/images/sections/Mountain-Vista.jpg"
   },
   {
     name: "Brendan Balsley",
     role: "Co-founder",
     bio: "A musician at heart and entrepreneur by necessity, Brendan recognized early on that art doesn't sustain itself without industry support. Surrounded by talented musicians with dreams bigger than their resources, he founded Parascape to bridge the gap between artistic vision and commercial success. His mission is to provide fellow artists with the tools and platform they need to share their music with the world.",
-    image: "/assets/images/team/brendan-balsley.jpg"
+    image: "/assets/images/team/Brendan.jpg"
   }
 ];
 
 export function TeamSection() {
   return (
     <ParallaxSection
-      image="/assets/images/Shadows.jpg"
+      image="/assets/images/sections/Shadows.jpg"
       title="Our Story"
       subtitle="Where Technology Meets Artistry"
       className="py-20"
