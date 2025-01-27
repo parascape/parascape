@@ -76,8 +76,8 @@ export function initErrorTracking() {
       return response;
     } catch (error) {
       sendErrorToAnalytics({
-        message: error.message,
-        stack: error.stack,
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        stack: error instanceof Error ? error.stack : undefined,
         type: 'network',
         url: args[0].toString(),
         timestamp: Date.now(),

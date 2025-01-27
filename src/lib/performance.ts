@@ -1,4 +1,4 @@
-import { getCLS, getFID, getLCP, getFCP, getTTFB } from 'web-vitals';
+import { getCLS, getFID, getLCP, getFCP, getTTFB, Metric } from 'web-vitals';
 
 interface MetricReport {
   name: string;
@@ -57,7 +57,7 @@ export function initPerformanceMonitoring() {
   const navigationType = getNavigationType();
 
   // Core Web Vitals
-  getCLS(metric => {
+  getCLS((metric: Metric) => {
     sendToAnalytics({
       name: 'CLS',
       value: metric.value,
@@ -66,7 +66,7 @@ export function initPerformanceMonitoring() {
     });
   });
 
-  getFID(metric => {
+  getFID((metric: Metric) => {
     sendToAnalytics({
       name: 'FID',
       value: metric.value,
@@ -75,7 +75,7 @@ export function initPerformanceMonitoring() {
     });
   });
 
-  getLCP(metric => {
+  getLCP((metric: Metric) => {
     sendToAnalytics({
       name: 'LCP',
       value: metric.value,
@@ -85,7 +85,7 @@ export function initPerformanceMonitoring() {
   });
 
   // Additional metrics
-  getFCP(metric => {
+  getFCP((metric: Metric) => {
     sendToAnalytics({
       name: 'FCP',
       value: metric.value,
@@ -94,7 +94,7 @@ export function initPerformanceMonitoring() {
     });
   });
 
-  getTTFB(metric => {
+  getTTFB((metric: Metric) => {
     sendToAnalytics({
       name: 'TTFB',
       value: metric.value,

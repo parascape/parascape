@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Hero } from "@/components/Hero";
-import { Services } from "@/components/Services";
+import Services from "@/components/Services";
 import { StatsSection } from "@/components/sections/stats-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
 import { TeamSection } from "@/components/sections/team-section";

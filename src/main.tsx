@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
-import { initPerformanceMonitoring } from './lib/performance-monitoring'
+import { initPerformanceMonitoring } from './lib/performance'
 import { initErrorTracking } from './lib/error-tracking'
 import { initInteractionTracking } from './lib/interaction-monitoring'
 
