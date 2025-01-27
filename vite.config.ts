@@ -16,26 +16,20 @@ export default defineConfig(({ mode }) => ({
     cors: {
       origin: [
         'http://localhost:5173',
-        'http://localhost:3000',
-        'https://plausible.io',
-        'https://parascape.org'
+        'http://localhost:3000'
       ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      credentials: true,
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Plausible-Script']
+      credentials: true
     },
     // Only allow specific hosts
-    allowedHosts: ['localhost', '*.localhost', 'plausible.io'],
+    allowedHosts: ['localhost', '*.localhost'],
     // Enable HTTPS for better security
     https: mode === 'development',
     // Add security headers
     headers: {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Plausible-Script'
+      'X-XSS-Protection': '1; mode=block'
     }
   },
   build: {
