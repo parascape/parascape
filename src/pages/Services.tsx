@@ -15,43 +15,70 @@ interface Service {
   title: string;
   description: string;
   image: string;
-  features: string[];
   icon: LucideIcon;
+  features: string[];
   details: string[];
 }
 
-const services = [
+const services: Service[] = [
   {
     title: 'Web Development',
     description: 'Custom websites and web applications built with modern technologies.',
     image: '/images/services/web-development.jpg',
+    icon: Code,
     features: [
       'Responsive Design',
       'Performance Optimization',
       'SEO Best Practices',
       'Modern UI/UX'
+    ],
+    details: [
+      'Custom website development',
+      'Progressive Web Applications (PWA)',
+      'Website maintenance and updates',
+      'Performance optimization',
+      'Technical SEO implementation',
+      'Cross-browser compatibility'
     ]
   },
   {
     title: 'Digital Marketing',
     description: 'Strategic digital marketing solutions to grow your online presence.',
     image: '/images/services/digital-marketing.jpg',
+    icon: LineChart,
     features: [
       'SEO Strategy',
       'Content Marketing',
       'Social Media Management',
       'Analytics & Reporting'
+    ],
+    details: [
+      'Search Engine Optimization (SEO)',
+      'Social media marketing',
+      'Content strategy and creation',
+      'Email marketing campaigns',
+      'Analytics and reporting',
+      'Local SEO optimization'
     ]
   },
   {
     title: 'E-commerce Solutions',
     description: 'End-to-end e-commerce solutions for your business.',
     image: '/images/services/ecommerce.jpg',
+    icon: MessageSquare,
     features: [
       'Custom Shopping Cart',
       'Payment Integration',
       'Inventory Management',
       'Order Processing'
+    ],
+    details: [
+      'Custom e-commerce development',
+      'Shopping cart integration',
+      'Payment gateway setup',
+      'Inventory management system',
+      'Order processing automation',
+      'Customer account management'
     ]
   }
 ];
