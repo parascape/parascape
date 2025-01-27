@@ -8,7 +8,7 @@ const stories = [
   {
     title: 'Local Restaurant Chain',
     subtitle: 'Digital Transformation Success',
-    image: '/images/success-stories/restaurant.jpg',
+    image: '/assets/images/sections/Forest.jpg',
     description: 'How we helped a local restaurant chain increase online orders by 200% through a new website and digital marketing strategy.',
     results: [
       'Online orders increased by 200%',
@@ -20,7 +20,7 @@ const stories = [
   {
     title: 'Retail Boutique',
     subtitle: 'E-commerce Growth Story',
-    image: '/images/success-stories/boutique.jpg',
+    image: '/assets/images/sections/Mountain-Vista.jpg',
     description: 'Transforming a local boutique into a thriving online store with nationwide reach.',
     results: [
       'Revenue increased by 150%',
@@ -32,7 +32,7 @@ const stories = [
   {
     title: 'Professional Services Firm',
     subtitle: 'Brand Modernization',
-    image: '/images/success-stories/professional.jpg',
+    image: '/assets/images/sections/Shadows.jpg',
     description: 'Modernizing a traditional firm\'s brand and digital presence for the contemporary market.',
     results: [
       'Lead generation increased by 120%',

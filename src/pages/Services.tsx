@@ -24,7 +24,7 @@ const services: Service[] = [
   {
     title: 'Web Development',
     description: 'Custom websites and web applications built with modern technologies.',
-    image: '/images/services/web-development.jpg',
+    image: '/assets/images/sections/Mountain-Vista.jpg',
     icon: Code,
     features: [
       'Responsive Design',
@@ -44,7 +44,7 @@ const services: Service[] = [
   {
     title: 'Digital Marketing',
     description: 'Strategic digital marketing solutions to grow your online presence.',
-    image: '/images/services/digital-marketing.jpg',
+    image: '/assets/images/sections/Forest.jpg',
     icon: LineChart,
     features: [
       'SEO Strategy',
@@ -64,7 +64,7 @@ const services: Service[] = [
   {
     title: 'E-commerce Solutions',
     description: 'End-to-end e-commerce solutions for your business.',
-    image: '/images/services/ecommerce.jpg',
+    image: '/assets/images/sections/Shadows.jpg',
     icon: MessageSquare,
     features: [
       'Custom Shopping Cart',
