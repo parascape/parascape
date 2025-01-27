@@ -109,7 +109,6 @@ export function ContactForm({ type }: ContactFormProps) {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Prevent multiple submissions
     if (submitLock.current) return;
     submitLock.current = true;
     
@@ -124,7 +123,8 @@ export function ContactForm({ type }: ContactFormProps) {
         name: 'form_submission',
         properties: {
           form: isAuditRequest ? 'audit_request' : 'contact',
-          business: values.business
+          business: values.business,
+          source: 'contact_form'
         }
       });
 
@@ -142,10 +142,16 @@ export function ContactForm({ type }: ContactFormProps) {
       setSubmitError(errorMessage);
       toast.error(errorMessage);
       console.error('Form submission error:', error);
+      analytics.track({
+        name: 'form_error',
+        properties: {
+          type: isAuditRequest ? 'audit_request' : 'contact',
+          error: errorMessage
+        }
+      });
     } finally {
       setIsSubmitting(false);
       setRetryCount(0);
-      // Release the lock after a short delay to prevent double submissions
       setTimeout(() => {
         submitLock.current = false;
       }, 1000);
