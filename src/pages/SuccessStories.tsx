@@ -1,96 +1,111 @@
-import { Navbar } from "@/components/features/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Quote } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Helmet } from 'react-helmet-async';
+import { Image } from '@/components/ui/image';
+import { Loading } from '@/components/ui/loading';
+import { Suspense } from 'react';
+import { DigitalAuditCTA } from '@/components/features/marketing';
 
-const SuccessStories = () => {
-  const caseStudies = [
-    {
-      id: 1,
-      business: "Local Cafe",
-      owner: "Sarah Johnson",
-      before: "Struggling with outdated website and minimal online presence",
-      after: "300% increase in online orders and improved customer engagement",
-      quote: "Parascape transformed our online presence completely. Their team understood our local market and created a website that perfectly represents our brand.",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      business: "Humboldt Artisan Gallery",
-      owner: "Michael Chen",
-      before: "Limited reach beyond local community",
-      after: "Expanded customer base nationwide through e-commerce integration",
-      quote: "Thanks to Parascape's expertise, we've been able to share our local artists' work with customers across the country.",
-      image: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      business: "Redwood Fitness",
-      owner: "Emily Rodriguez",
-      before: "Manual class booking system and paper-based management",
-      after: "Streamlined digital booking platform and 50% increase in class attendance",
-      quote: "The digital transformation has revolutionized how we operate. Our members love the new system!",
-      image: "/placeholder.svg"
-    }
-  ];
+const stories = [
+  {
+    title: 'Local Restaurant Chain',
+    subtitle: 'Digital Transformation Success',
+    image: '/images/success-stories/restaurant.jpg',
+    description: 'How we helped a local restaurant chain increase online orders by 200% through a new website and digital marketing strategy.',
+    results: [
+      'Online orders increased by 200%',
+      'Social media following grew by 5x',
+      'Customer engagement up 150%',
+      'Reduced marketing costs by 30%'
+    ]
+  },
+  {
+    title: 'Retail Boutique',
+    subtitle: 'E-commerce Growth Story',
+    image: '/images/success-stories/boutique.jpg',
+    description: 'Transforming a local boutique into a thriving online store with nationwide reach.',
+    results: [
+      'Revenue increased by 150%',
+      'New customer acquisition up 80%',
+      'Cart abandonment reduced by 40%',
+      'Return customer rate improved by 60%'
+    ]
+  },
+  {
+    title: 'Professional Services Firm',
+    subtitle: 'Brand Modernization',
+    image: '/images/success-stories/professional.jpg',
+    description: 'Modernizing a traditional firm\'s brand and digital presence for the contemporary market.',
+    results: [
+      'Lead generation increased by 120%',
+      'Website traffic up by 200%',
+      'Conversion rate improved by 45%',
+      'Brand recognition enhanced significantly'
+    ]
+  }
+];
 
+export default function SuccessStories() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <div className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Success Stories</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See how we've helped local businesses transform their digital presence and achieve remarkable growth.
-            </p>
-          </div>
+    <>
+      <Helmet>
+        <title>Success Stories - Parascape</title>
+        <meta 
+          name="description" 
+          content="Discover how we've helped businesses achieve their digital goals through our web development and marketing services." 
+        />
+      </Helmet>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {caseStudies.map((study) => (
-              <Card key={study.id} className="group hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <img
-                    src={study.image}
-                    alt={study.business}
-                    className="w-full h-48 object-cover rounded-t-lg mb-4"
+      <div className="py-12 space-y-16">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-gray-900">Success Stories</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Real results for real businesses. See how we've helped our clients achieve their digital goals.
+          </p>
+        </div>
+
+        <Suspense fallback={<Loading variant="skeleton" />}>
+          <div className="space-y-12">
+            {stories.map((story, index) => (
+              <div 
+                key={story.title}
+                className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 ${
+                  index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+                } lg:flex`}
+              >
+                <div className="lg:w-1/2">
+                  <Image
+                    src={story.image}
+                    alt={story.title}
+                    aspectRatio="16:9"
+                    className="h-full w-full"
                   />
-                  <CardTitle className="text-2xl text-parascape-green">{study.business}</CardTitle>
-                  <CardDescription className="text-gray-600">{study.owner}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Before</h3>
-                      <p className="text-gray-600">{study.before}</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">After</h3>
-                      <p className="text-gray-600">{study.after}</p>
-                    </div>
-                    <div className="pt-4 border-t">
-                      <Quote className="text-parascape-amber w-8 h-8 mb-2" />
-                      <p className="italic text-gray-700">{study.quote}</p>
-                    </div>
+                </div>
+                <div className="p-8 lg:w-1/2 space-y-4">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-semibold text-gray-900">{story.title}</h3>
+                    <p className="text-parascape-green font-medium">{story.subtitle}</p>
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-gray-600">{story.description}</p>
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-gray-900">Key Results:</h4>
+                    <ul className="space-y-2">
+                      {story.results.map((result) => (
+                        <li key={result} className="flex items-center text-gray-600">
+                          <span className="w-1.5 h-1.5 bg-parascape-green rounded-full mr-2" />
+                          {result}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
+        </Suspense>
 
-          <div className="text-center mt-16">
-            <Link to="/contact">
-              <Button className="bg-parascape-green hover:bg-parascape-green/90 text-white px-8 py-6 text-lg">
-                Start Your Success Story
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          </div>
+        <div className="mt-16">
+          <DigitalAuditCTA />
         </div>
       </div>
-    </div>
+    </>
   );
-};
-
-export default SuccessStories;
+}

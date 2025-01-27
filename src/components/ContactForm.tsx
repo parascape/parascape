@@ -13,18 +13,30 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { analytics } from '@/lib/analytics';
-import { useLocation, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { analytics } from '@/lib/analytics'
+import { useLocation, useParams } from 'react-router-dom'
+import { useEffect, useState, useRef } from 'react'
+import { Loader2, AlertCircle } from 'lucide-react'
+import { config } from '@/config/environment'
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  business: z.string().min(1, "Business name is required"),
-  phone: z.string().optional(),
-  about: z.string().min(10, "Message must be at least 10 characters"),
-  honeypot: z.string().optional() // Hidden field for spam detection
+  name: z.string()
+    .min(2, "Please enter your full name")
+    .max(100, "Name is too long"),
+  email: z.string()
+    .email("Please enter a valid email address")
+    .max(100, "Email is too long"),
+  business: z.string()
+    .min(1, "Please enter your business name")
+    .max(100, "Business name is too long"),
+  phone: z.string()
+    .max(20, "Phone number is too long")
+    .optional()
+    .transform(val => val === "" ? undefined : val),
+  about: z.string()
+    .min(10, "Please provide more details about your request")
+    .max(1000, "Message is too long"),
+  honeypot: z.string().optional()
 })
 
 interface ContactFormProps {
@@ -32,11 +44,13 @@ interface ContactFormProps {
 }
 
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second
+const RETRY_DELAY = 1000;
 
 export function ContactForm({ type }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const submitLock = useRef(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,12 +62,12 @@ export function ContactForm({ type }: ContactFormProps) {
       about: "",
       honeypot: ""
     },
-  })
+    mode: "onBlur"
+  });
 
   const isAuditRequest = type === 'audit';
 
   useEffect(() => {
-    console.log('ContactForm: isAuditRequest =', isAuditRequest);
     if (isAuditRequest) {
       form.setValue('about', 'I would like to request a free digital presence audit for my business.');
     }
@@ -63,7 +77,7 @@ export function ContactForm({ type }: ContactFormProps) {
 
   async function submitWithRetry(values: z.infer<typeof formSchema>, retryCount: number = 0): Promise<Response> {
     try {
-      const response = await fetch('https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission', {
+      const response = await fetch(config.api.formSubmission, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,14 +89,18 @@ export function ContactForm({ type }: ContactFormProps) {
         })
       });
 
-      if (!response.ok && retryCount < MAX_RETRIES) {
-        await delay(RETRY_DELAY * Math.pow(2, retryCount)); // Exponential backoff
-        return submitWithRetry(values, retryCount + 1);
+      if (!response.ok) {
+        const error = await response.json();
+        if (error.error === 'Too many submissions. Please try again later.') {
+          throw new Error('Rate limit exceeded. Please try again in a few minutes.');
+        }
+        throw new Error(error.message || 'Failed to submit form');
       }
 
       return response;
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
+        setRetryCount(retryCount + 1);
         await delay(RETRY_DELAY * Math.pow(2, retryCount));
         return submitWithRetry(values, retryCount + 1);
       }
@@ -91,16 +109,16 @@ export function ContactForm({ type }: ContactFormProps) {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (isSubmitting) return;
+    // Prevent multiple submissions
+    if (submitLock.current) return;
+    submitLock.current = true;
     
-    setIsSubmitting(true);
     try {
-      const response = await submitWithRetry(values);
+      setIsSubmitting(true);
+      setSubmitError(null);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to submit form');
-      }
+      const response = await submitWithRetry(values);
+      const data = await response.json();
 
       analytics.track({
         name: 'form_submission',
@@ -117,11 +135,20 @@ export function ContactForm({ type }: ContactFormProps) {
       );
       form.reset();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "We're having trouble submitting your form. Please try again.";
+      
+      setSubmitError(errorMessage);
+      toast.error(errorMessage);
       console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
       setRetryCount(0);
+      // Release the lock after a short delay to prevent double submissions
+      setTimeout(() => {
+        submitLock.current = false;
+      }, 1000);
     }
   }
 
@@ -139,7 +166,19 @@ export function ContactForm({ type }: ContactFormProps) {
         </p>
         <p className="text-sm text-gray-400">* Required fields</p>
       </div>
-      
+
+      {submitError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md flex items-start space-x-3">
+          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-red-700">{submitError}</p>
+            <p className="text-xs text-red-500 mt-1">
+              Please try again or contact us directly at contact@parascape.com
+            </p>
+          </div>
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -154,6 +193,7 @@ export function ContactForm({ type }: ContactFormProps) {
                     {...field} 
                     aria-required="true"
                     autoComplete="name"
+                    className={form.formState.errors.name ? "border-red-500" : ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -174,6 +214,7 @@ export function ContactForm({ type }: ContactFormProps) {
                     {...field} 
                     aria-required="true"
                     autoComplete="email"
+                    className={form.formState.errors.email ? "border-red-500" : ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -193,13 +234,14 @@ export function ContactForm({ type }: ContactFormProps) {
                     {...field} 
                     aria-required="true"
                     autoComplete="organization"
+                    className={form.formState.errors.business ? "border-red-500" : ""}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
+          
           <FormField
             control={form.control}
             name="phone"
@@ -212,6 +254,7 @@ export function ContactForm({ type }: ContactFormProps) {
                     placeholder="(555) 123-4567" 
                     {...field} 
                     autoComplete="tel"
+                    className={form.formState.errors.phone ? "border-red-500" : ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -229,7 +272,7 @@ export function ContactForm({ type }: ContactFormProps) {
                 <FormControl>
                   <Textarea 
                     placeholder="Tell us about your business goals and how we can help..."
-                    className="min-h-[120px]"
+                    className={`min-h-[120px] ${form.formState.errors.about ? "border-red-500" : ""}`}
                     {...field}
                     aria-required="true"
                   />
@@ -256,8 +299,8 @@ export function ContactForm({ type }: ContactFormProps) {
             
             <Button 
               type="submit" 
-              className="w-full bg-parascape-green hover:bg-parascape-green/90 transition-all duration-200 transform hover:scale-[1.02]"
-              disabled={isSubmitting}
+              className="w-full bg-parascape-green hover:bg-parascape-green/90 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              disabled={isSubmitting || !form.formState.isValid}
             >
               {isSubmitting ? (
                 <>
@@ -272,5 +315,5 @@ export function ContactForm({ type }: ContactFormProps) {
         </form>
       </Form>
     </div>
-  )
+  );
 }
