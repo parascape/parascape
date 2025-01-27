@@ -28,7 +28,7 @@ const Contact = () => {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             {type === 'audit'
               ? 'Let us analyze your digital presence and identify opportunities for growth.'
-              : 'Have a project in mind? We'd love to hear from you.'}
+              : 'Have a project in mind? We\'d love to hear from you.'}
           </p>
         </div>
 
