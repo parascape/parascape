@@ -3,13 +3,17 @@ type AnalyticsEvent = {
   properties?: Record<string, any>;
 }
 
-// Simple wrapper for Google Analytics 4 gtag
+// Analytics interfaces
 declare global {
   interface Window {
     gtag: (
       command: 'config' | 'event' | 'js',
       targetId: string,
       config?: Record<string, any>
+    ) => void;
+    plausible: (
+      eventName: string,
+      options?: { props?: Record<string, any> }
     ) => void;
   }
 }
@@ -24,8 +28,14 @@ export const analytics = {
     }
 
     try {
-      window.gtag('config', GA_TRACKING_ID, {
+      // Google Analytics
+      window.gtag?.('config', GA_TRACKING_ID, {
         page_path: path,
+      });
+
+      // Plausible
+      window.plausible?.('pageview', {
+        props: { path }
       });
     } catch (error) {
       console.error('Analytics Error:', error);
@@ -39,7 +49,13 @@ export const analytics = {
     }
 
     try {
-      window.gtag('event', event.name, event.properties);
+      // Google Analytics
+      window.gtag?.('event', event.name, event.properties);
+
+      // Plausible
+      window.plausible?.(event.name, {
+        props: event.properties
+      });
     } catch (error) {
       console.error('Analytics Error:', error);
     }

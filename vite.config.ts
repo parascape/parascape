@@ -12,21 +12,30 @@ export default defineConfig(({ mode }) => ({
     }
   },
   server: {
-    // Restrict CORS to only allow localhost
+    // CORS configuration
     cors: {
-      origin: ['http://localhost:5173', 'http://localhost:3000'],
+      origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://plausible.io',
+        'https://parascape.org'
+      ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      credentials: true
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Plausible-Script']
     },
     // Only allow specific hosts
-    allowedHosts: ['localhost', '*.localhost'],
+    allowedHosts: ['localhost', '*.localhost', 'plausible.io'],
     // Enable HTTPS for better security
     https: mode === 'development',
     // Add security headers
     headers: {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block'
+      'X-XSS-Protection': '1; mode=block',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Plausible-Script'
     }
   },
   build: {
