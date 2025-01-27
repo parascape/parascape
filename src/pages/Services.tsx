@@ -9,6 +9,16 @@ import { ErrorBoundary } from "@/components/features/error/ErrorBoundary";
 import { Helmet } from 'react-helmet-async';
 import { Image } from '@/components/ui/image';
 import { Loading } from '@/components/ui/loading';
+import { LucideIcon } from 'lucide-react';
+
+interface Service {
+  title: string;
+  description: string;
+  image: string;
+  features: string[];
+  icon: LucideIcon;
+  details: string[];
+}
 
 const services = [
   {
@@ -46,7 +56,13 @@ const services = [
   }
 ];
 
-const ServiceCard = ({ service, onClick }: { service: typeof services[0], onClick: () => void }) => (
+const ServiceCard = ({ 
+  service, 
+  onClick 
+}: { 
+  service: Service;
+  onClick: () => void;
+}) => (
   <motion.div
     className="p-6 rounded-2xl cursor-pointer bg-white border-2 border-parascape-green/20 hover:border-parascape-green transition-all duration-200"
     onClick={onClick}
@@ -69,9 +85,9 @@ const ServiceDetail = ({
   onClose, 
   onContact 
 }: { 
-  service: typeof services[0], 
-  onClose: () => void, 
-  onContact: () => void 
+  service: Service;
+  onClose: () => void;
+  onContact: () => void;
 }) => (
   <div className="space-y-8">
     <div className="flex items-center gap-4">
@@ -88,7 +104,7 @@ const ServiceDetail = ({
       <div className="space-y-6 bg-white p-8 rounded-2xl border border-gray-100">
         <h3 className="text-2xl font-semibold text-gray-900">What we offer:</h3>
         <ul className="space-y-4">
-          {service.details.map((detail, index) => (
+          {service.details.map((detail: string, index: number) => (
             <motion.li
               key={index}
               initial={{ opacity: 0, x: -10 }}
