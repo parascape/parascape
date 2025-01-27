@@ -1,5 +1,4 @@
 import { useState, useEffect, Suspense } from "react";
-import { Navbar } from "@/components/features/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { X, Code, Palette, MessageSquare, LineChart, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
@@ -226,7 +225,6 @@ const Services = () => {
       </Helmet>
 
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="py-12 space-y-16">
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-bold text-gray-900">Our Services</h1>
