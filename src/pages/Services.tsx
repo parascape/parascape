@@ -181,19 +181,28 @@ const Services = () => {
 
   useEffect(() => {
     if (location.state?.activeService) {
-      setActiveService(location.state.activeService);
-      document.body.style.overflow = 'hidden';
+      const serviceExists = services.some(s => s.title === location.state.activeService);
+      if (serviceExists) {
+        setActiveService(location.state.activeService);
+        document.body.style.overflow = 'hidden';
+      }
     }
-  }, [location]);
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [location.state]);
 
   const handleServiceClick = (serviceId: string) => {
     setActiveService(serviceId);
     document.body.style.overflow = 'hidden';
+    window.history.replaceState({ activeService: serviceId }, '', `/services`);
   };
 
   const handleClose = () => {
     setActiveService(null);
     document.body.style.overflow = 'unset';
+    window.history.replaceState(null, '', `/services`);
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -203,7 +212,7 @@ const Services = () => {
   const handleContactClick = () => {
     setActiveService(null);
     document.body.style.overflow = 'unset';
-    navigate('/contact');
+    navigate('/contact', { replace: true });
   };
 
   if (isLoading) {
