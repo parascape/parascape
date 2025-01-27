@@ -39,6 +39,12 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: (id) => {
           if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('lucide') || id.includes('framer-motion')) {
+              return 'vendor-ui';
+            }
             return 'vendor';
           }
           if (id.includes('src/components/ui')) {
@@ -46,6 +52,10 @@ export default defineConfig(({ mode }) => ({
           }
           if (id.includes('src/components/features')) {
             return 'features';
+          }
+          if (id.includes('src/pages')) {
+            const pageName = id.split('src/pages/')[1].split('.')[0].toLowerCase();
+            return `page-${pageName}`;
           }
         }
       }

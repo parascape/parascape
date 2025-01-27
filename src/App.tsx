@@ -11,7 +11,7 @@ import { RouteTransition } from '@/components/ui/route-transition';
 
 // Lazy load pages
 const Home = lazy(() => import('@/pages/Index'));
-const Services = lazy(() => import('@/pages/Services'));
+const Services = lazy(() => import('./pages/Services'));
 const About = lazy(() => import('@/pages/About'));
 const SuccessStories = lazy(() => import('@/pages/SuccessStories'));
 const Contact = lazy(() => import('@/pages/Contact'));
