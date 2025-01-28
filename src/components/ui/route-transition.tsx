@@ -2,9 +2,14 @@ import { lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { Loading } from "./loading";
 
+interface MotionWrapperProps {
+  children: React.ReactNode;
+  [key: string]: any;
+}
+
 // Lazy load Framer Motion components
 const MotionWrapper = lazy(() => import('framer-motion').then(mod => ({
-  default: ({ children, ...props }) => {
+  default: ({ children, ...props }: MotionWrapperProps) => {
     const { motion, AnimatePresence } = mod;
     return (
       <AnimatePresence mode="wait">
