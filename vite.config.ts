@@ -45,7 +45,10 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('react') || id.includes('react-dom')) {
               return 'vendor-react';
             }
-            if (id.includes('lucide') || id.includes('framer-motion')) {
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer-motion';
+            }
+            if (id.includes('lucide') || id.includes('@radix-ui')) {
               return 'vendor-ui';
             }
             if (id.includes('@vitejs') || id.includes('vite')) {

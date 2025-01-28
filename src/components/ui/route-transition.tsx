@@ -1,6 +1,20 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { Loading } from "./loading";
+
+// Lazy load Framer Motion components
+const MotionWrapper = lazy(() => import('framer-motion').then(mod => ({
+  default: ({ children, ...props }) => {
+    const { motion, AnimatePresence } = mod;
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div {...props}>
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+})));
 
 interface RouteTransitionProps {
   children: React.ReactNode;
@@ -33,8 +47,8 @@ export function RouteTransition({ children }: RouteTransitionProps) {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
+    <Suspense fallback={<Loading />}>
+      <MotionWrapper
         key={location.pathname}
         initial="initial"
         animate="enter"
@@ -43,7 +57,7 @@ export function RouteTransition({ children }: RouteTransitionProps) {
         className="min-h-screen"
       >
         {children}
-      </motion.div>
-    </AnimatePresence>
+      </MotionWrapper>
+    </Suspense>
   );
 } 
