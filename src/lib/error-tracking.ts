@@ -10,22 +10,24 @@ interface ErrorReport {
 
 // Send error to analytics
 function sendErrorToAnalytics(error: ErrorReport) {
-  // Check if Plausible is available
-  const plausible = (window as any).plausible;
-  if (plausible) {
-    plausible('Error', {
-      props: {
-        errorType: error.type,
-        message: error.message,
-        url: error.url,
-        routePath: error.routePath
-      }
-    });
-  }
-
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
     console.error('[Error Tracking]', error);
+  }
+
+  // Send to GA4
+  try {
+    if (typeof gtag === 'function') {
+      gtag('event', 'error', {
+        error_type: error.type,
+        error_message: error.message,
+        error_url: error.url,
+        error_path: error.routePath
+      });
+    }
+  } catch (e) {
+    // Silently fail if analytics is not available
+    console.debug('GA4 not available for error tracking');
   }
 }
 

@@ -1,49 +1,43 @@
 interface InteractionEvent {
   type: string;
   target: string;
-  timestamp: number;
-  routePath: string;
   metadata?: Record<string, any>;
 }
 
 // Send interaction event to analytics
 function sendInteractionToAnalytics(event: InteractionEvent) {
-  // Check if Plausible is available
-  const plausible = (window as any).plausible;
-  if (plausible) {
-    plausible('Interaction', {
-      props: {
-        eventType: event.type,
-        target: event.target,
-        routePath: event.routePath,
-        ...event.metadata
-      }
-    });
-  }
-
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
     console.log('[Interaction Tracking]', event);
+  }
+
+  // Send to GA4
+  try {
+    if (typeof gtag === 'function') {
+      gtag('event', event.type, {
+        interaction_target: event.target,
+        ...event.metadata
+      });
+    }
+  } catch (e) {
+    console.debug('GA4 not available for interaction tracking');
   }
 }
 
 // Initialize interaction tracking
 export function initInteractionTracking() {
-  // Track clicks
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
+  // Track clicks on interactive elements
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
     if (!target) return;
-
-    // Get data attributes
-    const dataset = { ...target.dataset };
-    delete dataset.trackingTarget; // Remove tracking target from metadata
 
     sendInteractionToAnalytics({
       type: 'click',
-      target: target.dataset.trackingTarget || target.tagName.toLowerCase(),
-      timestamp: Date.now(),
-      routePath: window.location.pathname,
-      metadata: Object.keys(dataset).length > 0 ? dataset : undefined
+      target: target.tagName.toLowerCase(),
+      metadata: {
+        element_id: target.id || undefined,
+        element_class: target.className || undefined
+      }
     });
   });
 
@@ -55,10 +49,8 @@ export function initInteractionTracking() {
     sendInteractionToAnalytics({
       type: 'form_submit',
       target: form.dataset.trackingTarget || form.id || 'unknown_form',
-      timestamp: Date.now(),
-      routePath: window.location.pathname,
       metadata: {
-        formAction: form.action
+        form_action: form.action
       }
     });
   });
@@ -79,8 +71,6 @@ export function initInteractionTracking() {
           sendInteractionToAnalytics({
             type: 'scroll_depth',
             target: 'page',
-            timestamp: Date.now(),
-            routePath: window.location.pathname,
             metadata: {
               depth: scrollDepth
             }
@@ -96,8 +86,6 @@ export function trackInteraction(type: string, target: string, metadata?: Record
   sendInteractionToAnalytics({
     type,
     target,
-    timestamp: Date.now(),
-    routePath: window.location.pathname,
     metadata
   });
 } 
