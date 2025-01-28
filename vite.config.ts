@@ -48,6 +48,9 @@ export default defineConfig(({ mode }) => ({
             if (id.includes('lucide') || id.includes('framer-motion')) {
               return 'vendor-ui';
             }
+            if (id.includes('@vitejs') || id.includes('vite')) {
+              return 'vendor-vite';
+            }
             return 'vendor';
           }
           if (id.includes('src/components/ui')) {
@@ -64,5 +67,10 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  base: '/'
+  base: '/',
+  // Handle environment variables
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+    'import.meta.env.VITE_GA4_MEASUREMENT_ID': JSON.stringify(process.env.VITE_GA4_MEASUREMENT_ID)
+  }
 }));

@@ -8,6 +8,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CookieConsent } from '@/components/features/cookies/CookieConsent';
 import { AnalyticsProvider } from '@/components/features/analytics';
 import { RouteTransition } from '@/components/ui/route-transition';
+import { analytics } from '@/lib/analytics';
 
 // Lazy load pages
 const Home = lazy(() => import('@/pages/Index'));
@@ -26,12 +27,27 @@ function ScrollToTop() {
       top: 0,
       behavior: 'smooth'
     });
+    // Track page view
+    analytics.pageView(pathname);
   }, [pathname]);
 
   return null;
 }
 
+// Handle 404 redirects for GitHub Pages
+function handleGitHubPages() {
+  const redirect = sessionStorage.getItem('redirect');
+  if (redirect) {
+    sessionStorage.removeItem('redirect');
+    window.history.replaceState(null, '', redirect);
+  }
+}
+
 export default function App() {
+  useEffect(() => {
+    handleGitHubPages();
+  }, []);
+
   return (
     <HelmetProvider>
       <ErrorBoundary>
@@ -43,7 +59,7 @@ export default function App() {
                 <RouteTransition>
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/services" element={<Services />} />
+                    <Route path="/services/*" element={<Services />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/success-stories" element={<SuccessStories />} />
                     <Route path="/contact/:type?" element={<Contact />} />
