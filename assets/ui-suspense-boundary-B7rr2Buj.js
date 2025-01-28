@@ -1,0 +1,1 @@
+import{j as s,r as o}from"./vendor-react-BbpXkAOK.js";import{L as p}from"./ui-loading-OBgFkkL5.js";function x({children:a,fallback:r,loadingText:t,fullscreen:e=!1}){const n=s.jsx(p,{variant:"spinner",text:t,fullscreen:e});return s.jsx(o.Suspense,{fallback:r||n,children:a})}export{x as S};
