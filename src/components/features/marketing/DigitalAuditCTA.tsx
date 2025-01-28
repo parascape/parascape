@@ -7,11 +7,11 @@ export function DigitalAuditCTA() {
   const navigate = useNavigate();
 
   const handleAuditRequest = () => {
+    console.log('DigitalAuditCTA: Navigating to /contact/audit');
     analytics.track({
-      name: 'cta_click',
+      name: 'audit_cta_click',
       properties: {
-        type: 'audit_request',
-        location: 'digital_audit_cta'
+        location: 'site_audit_banner'
       }
     });
     navigate('/contact/audit');

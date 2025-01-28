@@ -9,7 +9,6 @@ import { Helmet } from 'react-helmet-async';
 import { Image } from '@/components/ui/image';
 import { Loading } from '@/components/ui/loading';
 import { LucideIcon } from 'lucide-react';
-import { analytics } from '@/lib/analytics';
 
 interface Service {
   title: string;
@@ -194,31 +193,10 @@ const Services = () => {
     };
   }, [location.state]);
 
-  useEffect(() => {
-    if (activeService) {
-      analytics.track({
-        name: 'service_view',
-        properties: {
-          service: activeService,
-          source: 'services_page'
-        }
-      });
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [activeService]);
-
-  const handleServiceClick = (service: string) => {
-    analytics.track({
-      name: 'service_click',
-      properties: {
-        service,
-        source: 'services_page'
-      }
-    });
-    setActiveService(service);
+  const handleServiceClick = (serviceId: string) => {
+    setActiveService(serviceId);
+    document.body.style.overflow = 'hidden';
+    window.history.replaceState({ activeService: serviceId }, '', `/services`);
   };
 
   const handleClose = () => {

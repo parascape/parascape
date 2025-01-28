@@ -23,8 +23,10 @@ export default defineConfig(({ mode }) => ({
     },
     // Only allow specific hosts
     allowedHosts: ['localhost', '*.localhost'],
-    // Enable HTTPS for better security
-    https: mode === 'development',
+    // Disable HTTPS for development
+    https: false,
+    // Enable network access
+    host: true,
     // Add security headers
     headers: {
       'X-Content-Type-Options': 'nosniff',
@@ -41,23 +43,46 @@ export default defineConfig(({ mode }) => ({
       },
       output: {
         manualChunks: (id) => {
+          // React and related packages should be bundled together
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            if (id.includes('react') || 
+                id.includes('react-dom') || 
+                id.includes('scheduler') ||
+                id.includes('prop-types')) {
               return 'vendor-react';
             }
+            // Keep Framer Motion separate as it's a large dependency
             if (id.includes('framer-motion')) {
               return 'vendor-framer-motion';
             }
-            if (id.includes('lucide') || id.includes('@radix-ui')) {
+            // Group UI-related packages together
+            if (id.includes('lucide') || 
+                id.includes('@radix-ui') || 
+                id.includes('@floating-ui') ||
+                id.includes('@radix-ui/react')) {
               return 'vendor-ui';
             }
-            if (id.includes('@vitejs') || id.includes('vite')) {
+            // Bundle build tools together
+            if (id.includes('@vitejs') || 
+                id.includes('vite') || 
+                id.includes('@swc')) {
               return 'vendor-vite';
             }
-            return 'vendor';
+            // Split remaining vendors into common and async
+            if (id.includes('@supabase') || 
+                id.includes('analytics') || 
+                id.includes('gtag')) {
+              return 'vendor-async';
+            }
+            return 'vendor-common';
           }
+          // Group UI components more granularly
           if (id.includes('src/components/ui')) {
-            return 'ui';
+            const component = id.split('src/components/ui/')[1]?.split('.')[0];
+            if (component) {
+              return `ui-${component}`;
+            }
+            return 'ui-shared';
           }
           if (id.includes('src/components/features')) {
             return 'features';
