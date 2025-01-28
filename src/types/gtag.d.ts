@@ -1,5 +1,9 @@
 // Type definitions for Google Analytics gtag
-declare function gtag(...args: any[]): void;
+declare function gtag(
+  command: 'config' | 'event' | 'js',
+  targetId: string,
+  config?: Record<string, any> | undefined
+): void;
 
 interface Window {
   gtag: typeof gtag;
@@ -8,5 +12,5 @@ interface Window {
 
 // Declare gtag as a global function
 declare global {
-  function gtag(...args: any[]): void;
+  const gtag: typeof gtag;
 } 

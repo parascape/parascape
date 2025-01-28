@@ -3,17 +3,6 @@ type AnalyticsEvent = {
   properties?: Record<string, any>;
 }
 
-// Analytics interfaces
-declare global {
-  interface Window {
-    gtag: (
-      command: 'config' | 'event' | 'js',
-      targetId: string,
-      config?: Record<string, any>
-    ) => void;
-  }
-}
-
 const GA_TRACKING_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID || '';
 
 export const analytics = {
@@ -24,7 +13,7 @@ export const analytics = {
     }
 
     try {
-      window.gtag?.('config', GA_TRACKING_ID, {
+      window.gtag('config', GA_TRACKING_ID, {
         page_path: path,
       });
     } catch (error) {
@@ -39,7 +28,7 @@ export const analytics = {
     }
 
     try {
-      window.gtag?.('event', event.name, event.properties);
+      window.gtag('event', event.name, event.properties);
     } catch (error) {
       console.error('Analytics Error:', error);
     }
