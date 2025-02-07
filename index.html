@@ -38,34 +38,48 @@
     <!-- Google Analytics -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){
+        try {
+          dataLayer.push(arguments);
+        } catch (e) {
+          console.warn('GA4 Error:', e);
+        }
+      }
       window.gtag = gtag;
       gtag('js', new Date());
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=undefined"></script>
+    <script 
+      async 
+      src="https://www.googletagmanager.com/gtag/js?id=undefined" 
+      onerror="console.warn('Failed to load GA4')"
+    ></script>
     <script>
       // Initialize GA4 after the script loads
       window.addEventListener('load', function() {
         if (typeof gtag === 'function') {
-          gtag('config', 'undefined', {
-            send_page_view: false // We'll handle this in the router
-          });
+          try {
+            gtag('config', 'undefined', {
+              send_page_view: false // We'll handle this in the router
+            });
+          } catch (e) {
+            console.warn('GA4 Config Error:', e);
+          }
         }
       });
     </script>
-    <script type="module" crossorigin src="/parascape/assets/main-CWRXyFdn.js"></script>
+    <script type="module" crossorigin src="/parascape/assets/main-B3sqlkP3.js"></script>
     <link rel="modulepreload" crossorigin href="/parascape/assets/vendor-common-B01BXthH.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/vendor-react-BbpXkAOK.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-button-DahdLBA6.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-loading-OBgFkkL5.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-route-transition-CSJ7jKs1.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-suspense-boundary-B7rr2Buj.js">
-    <link rel="modulepreload" crossorigin href="/parascape/assets/features-Zwqvsh10.js">
+    <link rel="modulepreload" crossorigin href="/parascape/assets/features-20bwZNYJ.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-label-QUCiRVEA.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-form-BQtLIqXc.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-input-n72V4FZ-.js">
     <link rel="modulepreload" crossorigin href="/parascape/assets/ui-textarea-4GjhHJks.js">
-    <link rel="modulepreload" crossorigin href="/parascape/assets/page-contact-B6rzsLep.js">
+    <link rel="modulepreload" crossorigin href="/parascape/assets/page-contact-Dxs9hR5b.js">
     <link rel="stylesheet" crossorigin href="/parascape/assets/main-Cfs8UYG-.css">
   </head>
   <body>
