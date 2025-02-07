@@ -5,10 +5,22 @@ type AnalyticsEvent = {
 
 const GA_TRACKING_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID || '';
 
+// Check if GA4 is properly loaded
+const isGA4Available = () => {
+  return typeof window !== 'undefined' && 
+         typeof window.gtag === 'function' && 
+         GA_TRACKING_ID;
+};
+
 export const analytics = {
   pageView: (path: string) => {
     if (import.meta.env.DEV) {
       console.log('Page View:', path);
+      return;
+    }
+
+    if (!isGA4Available()) {
+      console.warn('GA4 not available');
       return;
     }
 
@@ -17,7 +29,7 @@ export const analytics = {
         page_path: path,
       });
     } catch (error) {
-      console.error('Analytics Error:', error);
+      console.warn('Analytics Page View Error:', error);
     }
   },
   
@@ -27,10 +39,15 @@ export const analytics = {
       return;
     }
 
+    if (!isGA4Available()) {
+      console.warn('GA4 not available');
+      return;
+    }
+
     try {
       window.gtag('event', event.name, event.properties);
     } catch (error) {
-      console.error('Analytics Error:', error);
+      console.warn('Analytics Track Error:', error);
     }
   }
 }; 

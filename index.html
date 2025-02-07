@@ -38,18 +38,32 @@
     <!-- Google Analytics -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){
+        try {
+          dataLayer.push(arguments);
+        } catch (e) {
+          console.warn('GA4 Error:', e);
+        }
+      }
       window.gtag = gtag;
       gtag('js', new Date());
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA4_MEASUREMENT_ID%"></script>
+    <script 
+      async 
+      src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA4_MEASUREMENT_ID%" 
+      onerror="console.warn('Failed to load GA4')"
+    ></script>
     <script>
       // Initialize GA4 after the script loads
       window.addEventListener('load', function() {
         if (typeof gtag === 'function') {
-          gtag('config', '%VITE_GA4_MEASUREMENT_ID%', {
-            send_page_view: false // We'll handle this in the router
-          });
+          try {
+            gtag('config', '%VITE_GA4_MEASUREMENT_ID%', {
+              send_page_view: false // We'll handle this in the router
+            });
+          } catch (e) {
+            console.warn('GA4 Config Error:', e);
+          }
         }
       });
     </script>

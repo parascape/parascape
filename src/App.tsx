@@ -24,12 +24,16 @@ function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    // Track page view
-    analytics.pageView(pathname);
+    try {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      // Track page view
+      analytics.pageView(pathname);
+    } catch (error) {
+      console.warn('ScrollToTop Error:', error);
+    }
   }, [pathname]);
 
   return null;
@@ -37,10 +41,14 @@ function ScrollToTop() {
 
 // Handle 404 redirects for GitHub Pages
 function handleGitHubPages() {
-  const redirect = sessionStorage.getItem('redirect');
-  if (redirect) {
-    sessionStorage.removeItem('redirect');
-    window.history.replaceState(null, '', redirect);
+  try {
+    const redirect = sessionStorage.getItem('redirect');
+    if (redirect) {
+      sessionStorage.removeItem('redirect');
+      window.history.replaceState(null, '', redirect);
+    }
+  } catch (error) {
+    console.warn('GitHub Pages Redirect Error:', error);
   }
 }
 
