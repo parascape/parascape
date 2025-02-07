@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -68,7 +70,6 @@ export default defineConfig(({ mode }) => ({
             : 'assets/[name][extname]';
         },
         manualChunks: (id) => {
-          // React and related packages should be bundled together
           if (id.includes('node_modules')) {
             if (id.includes('react') || 
                 id.includes('react-dom') || 
@@ -76,24 +77,20 @@ export default defineConfig(({ mode }) => ({
                 id.includes('prop-types')) {
               return 'vendor-react';
             }
-            // Keep Framer Motion separate as it's a large dependency
             if (id.includes('framer-motion')) {
               return 'vendor-framer-motion';
             }
-            // Group UI-related packages together
             if (id.includes('lucide') || 
                 id.includes('@radix-ui') || 
                 id.includes('@floating-ui') ||
                 id.includes('@radix-ui/react')) {
               return 'vendor-ui';
             }
-            // Bundle build tools together
             if (id.includes('@vitejs') || 
                 id.includes('vite') || 
                 id.includes('@swc')) {
               return 'vendor-vite';
             }
-            // Split remaining vendors into common and async
             if (id.includes('@supabase') || 
                 id.includes('analytics') || 
                 id.includes('gtag')) {
@@ -101,7 +98,6 @@ export default defineConfig(({ mode }) => ({
             }
             return 'vendor-common';
           }
-          // Group UI components more granularly
           if (id.includes('src/components/ui')) {
             const component = id.split('src/components/ui/')[1]?.split('.')[0];
             if (component) {
@@ -129,8 +125,8 @@ export default defineConfig(({ mode }) => ({
     },
     postcss: {
       plugins: [
-        require('tailwindcss'),
-        require('autoprefixer'),
+        tailwindcss,
+        autoprefixer,
       ]
     }
   },
