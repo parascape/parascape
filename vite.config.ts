@@ -95,7 +95,7 @@ export default defineConfig(({ mode }) => ({
       }
     }
   },
-  base: '/',
+  base: mode === 'production' ? '/parascape/' : '/',
   // Handle environment variables
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
