@@ -1,3 +1,5 @@
+import { config } from '@/config/environment';
+
 type ContactFormData = {
   name: string;
   email: string;
@@ -7,7 +9,7 @@ type ContactFormData = {
 
 export const apiClient = {
   async submitContactForm(data: ContactFormData) {
-    const response = await fetch('/api/contact', {
+    const response = await fetch(`${config.apiUrl}/contact`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

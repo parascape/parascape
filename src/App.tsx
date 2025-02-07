@@ -9,6 +9,7 @@ import { CookieConsent } from '@/components/features/cookies/CookieConsent';
 import { AnalyticsProvider } from '@/components/features/analytics';
 import { RouteTransition } from '@/components/ui/route-transition';
 import { analytics } from '@/lib/analytics';
+import { config } from '@/config/environment';
 
 // Lazy load pages
 const Home = lazy(() => import('@/pages/Index'));
@@ -28,7 +29,7 @@ function ScrollToTop() {
       behavior: 'smooth'
     });
     // Track page view
-    analytics.pageView(pathname);
+    analytics.trackPageView(pathname);
   }, [pathname]);
 
   return null;
@@ -51,26 +52,26 @@ export default function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
-        <Router>
-          <ScrollToTop />
+        <Router basename={config.baseUrl}>
           <AnalyticsProvider>
+            <ScrollToTop />
             <MainLayout>
-              <SuspenseBoundary loadingText="Loading page...">
-                <RouteTransition>
+              <RouteTransition>
+                <SuspenseBoundary>
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/services/*" element={<Services />} />
+                    <Route path="/services" element={<Services />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/success-stories" element={<SuccessStories />} />
-                    <Route path="/contact/:type?" element={<Contact />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
-                </RouteTransition>
-              </SuspenseBoundary>
+                </SuspenseBoundary>
+              </RouteTransition>
             </MainLayout>
-            <Toaster position="top-right" />
+            <Toaster position="bottom-right" />
             <CookieConsent />
           </AnalyticsProvider>
         </Router>
