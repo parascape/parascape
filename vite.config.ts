@@ -38,6 +38,7 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     sourcemap: mode === 'development',
     assetsDir: 'assets',
+    cssCodeSplit: true,
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
@@ -45,14 +46,27 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Ensure consistent chunk names
         chunkFileNames: mode === 'production' 
-          ? 'assets/[name]-[hash].js'
-          : 'assets/[name].js',
+          ? 'assets/js/[name]-[hash].js'
+          : 'assets/js/[name].js',
         entryFileNames: mode === 'production'
-          ? 'assets/[name]-[hash].js'
-          : 'assets/[name].js',
-        assetFileNames: mode === 'production'
-          ? 'assets/[name]-[hash][extname]'
-          : 'assets/[name][extname]',
+          ? 'assets/js/[name]-[hash].js'
+          : 'assets/js/[name].js',
+        assetFileNames: (assetInfo) => {
+          const extType = assetInfo.name.split('.')[1];
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+            return mode === 'production' 
+              ? 'assets/images/[name]-[hash][extname]'
+              : 'assets/images/[name][extname]';
+          }
+          if (/css/i.test(extType)) {
+            return mode === 'production'
+              ? 'assets/css/[name]-[hash][extname]'
+              : 'assets/css/[name][extname]';
+          }
+          return mode === 'production'
+            ? 'assets/[name]-[hash][extname]'
+            : 'assets/[name][extname]';
+        },
         manualChunks: (id) => {
           // React and related packages should be bundled together
           if (id.includes('node_modules')) {
@@ -104,6 +118,20 @@ export default defineConfig(({ mode }) => ({
           }
         }
       }
+    }
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+      generateScopedName: mode === 'production'
+        ? '[hash:base64:8]'
+        : '[name]__[local]'
+    },
+    postcss: {
+      plugins: [
+        require('tailwindcss'),
+        require('autoprefixer'),
+      ]
     }
   },
   base: mode === 'production' ? '/parascape/' : '/',
