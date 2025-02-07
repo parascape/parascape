@@ -29,7 +29,7 @@ function ScrollToTop() {
       behavior: 'smooth'
     });
     // Track page view
-    analytics.trackPageView(pathname);
+    analytics.pageView(pathname);
   }, [pathname]);
 
   return null;
