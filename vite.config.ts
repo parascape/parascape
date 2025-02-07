@@ -5,6 +5,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ mode }) => ({
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -42,9 +43,7 @@ export default defineConfig(({ mode }) => ({
     assetsDir: 'assets',
     cssCodeSplit: true,
     rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
+      input: path.resolve(__dirname, 'index.html'),
       output: {
         // Ensure consistent chunk names
         chunkFileNames: mode === 'production' 
