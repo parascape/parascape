@@ -37,11 +37,22 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist',
     sourcemap: mode === 'development',
+    assetsDir: 'assets',
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
       },
       output: {
+        // Ensure consistent chunk names
+        chunkFileNames: mode === 'production' 
+          ? 'assets/[name]-[hash].js'
+          : 'assets/[name].js',
+        entryFileNames: mode === 'production'
+          ? 'assets/[name]-[hash].js'
+          : 'assets/[name].js',
+        assetFileNames: mode === 'production'
+          ? 'assets/[name]-[hash][extname]'
+          : 'assets/[name][extname]',
         manualChunks: (id) => {
           // React and related packages should be bundled together
           if (id.includes('node_modules')) {
