@@ -2,7 +2,7 @@ import { lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
-import { ErrorBoundary } from '@/components/features/error/ErrorBoundary';
+import { ErrorBoundary } from '@/components/features/error';
 import { MainLayout } from '@/components/layouts/MainLayout';
 import { HelmetProvider } from 'react-helmet-async';
 import { CookieConsent } from '@/components/features/cookies/CookieConsent';
