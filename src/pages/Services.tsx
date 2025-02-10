@@ -9,6 +9,7 @@ import { Helmet } from 'react-helmet-async';
 import { Image } from '@/components/ui/image';
 import { Loading } from '@/components/ui/loading';
 import { LucideIcon } from 'lucide-react';
+import { analytics } from '@/lib/analytics';
 
 interface Service {
   title: string;
@@ -202,6 +203,15 @@ export default function Services() {
   }, [location.state]);
 
   const handleServiceClick = (serviceId: string) => {
+    // Track service card click
+    analytics.track({
+      name: 'service_view',
+      properties: {
+        service_id: serviceId,
+        location: 'services_page'
+      }
+    });
+
     setActiveService(serviceId);
     document.body.style.overflow = 'hidden';
     window.history.replaceState({ activeService: serviceId }, '', `/services`);
@@ -218,6 +228,17 @@ export default function Services() {
   };
 
   const handleContactClick = () => {
+    // Track contact button click from service detail
+    analytics.track({
+      name: 'cta_click',
+      properties: {
+        location: 'service_detail',
+        button_text: 'Start Your Project',
+        service: activeService,
+        destination: '/contact'
+      }
+    });
+
     setActiveService(null);
     document.body.style.overflow = 'unset';
     navigate('/contact', { replace: true });

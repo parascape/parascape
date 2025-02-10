@@ -1,53 +1,46 @@
-type AnalyticsEvent = {
+interface AnalyticsEvent {
   name: string;
   properties?: Record<string, any>;
 }
 
-const GA_TRACKING_ID = import.meta.env.VITE_GA4_MEASUREMENT_ID || '';
+class Analytics {
+  private initialized = false;
 
-// Check if GA4 is properly loaded
-const isGA4Available = () => {
-  return typeof window !== 'undefined' && 
-         typeof window.gtag === 'function' && 
-         GA_TRACKING_ID;
-};
-
-export const analytics = {
-  pageView: (path: string) => {
-    if (import.meta.env.DEV) {
-      console.log('Page View:', path);
-      return;
+  init() {
+    if (this.initialized) return;
+    
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || [];
+    function gtag(...args: any[]) {
+      window.dataLayer.push(arguments);
     }
-
-    if (!isGA4Available()) {
-      console.warn('GA4 not available');
-      return;
-    }
-
-    try {
-      window.gtag('config', GA_TRACKING_ID, {
-        page_path: path,
-      });
-    } catch (error) {
-      console.warn('Analytics Page View Error:', error);
-    }
-  },
-  
-  track: (event: AnalyticsEvent) => {
-    if (import.meta.env.DEV) {
-      console.log('Track Event:', event);
-      return;
-    }
-
-    if (!isGA4Available()) {
-      console.warn('GA4 not available');
-      return;
-    }
-
-    try {
-      window.gtag('event', event.name, event.properties);
-    } catch (error) {
-      console.warn('Analytics Track Error:', error);
-    }
+    gtag('js', new Date());
+    gtag('config', 'G-NQLRXMREDQ');
+    
+    this.initialized = true;
   }
-}; 
+
+  pageView(path: string) {
+    if (!this.initialized) return;
+    
+    window.gtag?.('event', 'page_view', {
+      page_path: path,
+    });
+  }
+
+  track({ name, properties = {} }: AnalyticsEvent) {
+    if (!this.initialized) return;
+
+    window.gtag?.('event', name, properties);
+  }
+}
+
+export const analytics = new Analytics();
+
+// Type declarations for Google Analytics
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+} 

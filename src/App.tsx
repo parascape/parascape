@@ -54,6 +54,8 @@ function handleGitHubPages() {
 export default function App() {
   useEffect(() => {
     handleGitHubPages();
+    // Initialize analytics
+    analytics.init();
   }, []);
 
   return (

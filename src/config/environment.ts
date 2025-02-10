@@ -1,12 +1,17 @@
 export const config = {
-  baseUrl: '',  // Empty string since we're using a custom domain
-  apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseUrl: import.meta.env.MODE === 'production' ? '/parascape' : '',
+  apiUrl: 'https://hpuqzerpfylevdfwembv.supabase.co',
   isProduction: import.meta.env.MODE === 'production',
   isDevelopment: import.meta.env.MODE === 'development',
   api: {
-    formSubmission: import.meta.env.VITE_FORM_SUBMISSION_URL || 'https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission'
+    formSubmission: 'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/handle-form-submission'
+  },
+  supabase: {
+    url: 'https://hpuqzerpfylevdfwembv.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4NzI5NjAsImV4cCI6MjAyNjQ0ODk2MH0.Ij9XFqQFEFVGGfOEGQRbYxZGmxn_Wd_zVH_HsHrYaYo',
   },
   getAssetPath: (path: string) => {
-    return path.startsWith('/') ? path : `/${path}`;
+    const base = import.meta.env.MODE === 'production' ? '/parascape' : '';
+    return path.startsWith('/') ? `${base}${path}` : `${base}/${path}`;
   }
 } as const; 

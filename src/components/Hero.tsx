@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from 'react';
 import { Image } from "@/components/ui/image";
 import { Loading } from "@/components/ui/loading";
+import { analytics } from "@/lib/analytics";
 
 export const Hero = () => {
   const navigate = useNavigate();
@@ -20,6 +21,16 @@ export const Hero = () => {
   }, []);
 
   const handleGetStarted = () => {
+    // Track the button click
+    analytics.track({
+      name: 'cta_click',
+      properties: {
+        location: 'hero',
+        button_text: 'Get Started Today',
+        destination: '/contact'
+      }
+    });
+
     // Navigate to contact page with a smooth scroll to top first
     window.scrollTo({
       top: 0,

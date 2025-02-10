@@ -5,7 +5,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
-  base: mode === 'production' ? '/' : '/',
+  base: mode === 'production' ? '/parascape/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -16,7 +16,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
     }
   },
   server: {
-    port: 5173,
+    port: 5174,
     host: true,
     strictPort: true,
     headers: {
@@ -40,7 +40,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
     rollupOptions: {
       input: path.resolve(__dirname, 'index.html'),
       output: {
-        // Ensure consistent chunk names
         chunkFileNames: mode === 'production' 
           ? 'assets/js/[name]-[hash].js'
           : 'assets/js/[name].js',
@@ -84,9 +83,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
       ]
     }
   },
-  // Handle environment variables
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
-    'import.meta.env.VITE_GA4_MEASUREMENT_ID': JSON.stringify(process.env.VITE_GA4_MEASUREMENT_ID)
+    'import.meta.env.VITE_GA4_MEASUREMENT_ID': JSON.stringify('G-NQLRXMREDQ')
   }
 }));

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { config } from '@/config/environment';
+import { analytics } from '@/lib/analytics';
 
 interface FormData {
   name: string;
@@ -42,6 +43,15 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
         throw new Error(data.error || 'Failed to submit form');
       }
 
+      // Track successful form submission
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: true
+        }
+      });
+
       toast.success('Message sent successfully! We\'ll be in touch soon.');
       setFormData({
         name: '',
@@ -51,6 +61,17 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
       });
     } catch (error) {
       console.error('Form submission error:', error);
+      
+      // Track failed form submission
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+
       toast.error('Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
