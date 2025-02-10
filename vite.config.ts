@@ -5,7 +5,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
-  base: mode === 'production' ? '/parascape/' : '/',
+  base: mode === 'production' ? '/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -17,8 +17,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
   },
   server: {
     port: 5174,
+    strictPort: false,
     host: true,
-    strictPort: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',

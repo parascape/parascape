@@ -1,5 +1,5 @@
 export const config = {
-  baseUrl: import.meta.env.MODE === 'production' ? '/parascape' : '',
+  baseUrl: '',
   apiUrl: 'https://hpuqzerpfylevdfwembv.supabase.co',
   isProduction: import.meta.env.MODE === 'production',
   isDevelopment: import.meta.env.MODE === 'development',
@@ -11,7 +11,6 @@ export const config = {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4NzI5NjAsImV4cCI6MjAyNjQ0ODk2MH0.Ij9XFqQFEFVGGfOEGQRbYxZGmxn_Wd_zVH_HsHrYaYo',
   },
   getAssetPath: (path: string) => {
-    const base = import.meta.env.MODE === 'production' ? '/parascape' : '';
-    return path.startsWith('/') ? `${base}${path}` : `${base}/${path}`;
+    return path.startsWith('/') ? path : `/${path}`;
   }
 } as const; 
