@@ -41,6 +41,6 @@ export const analytics = new Analytics();
 declare global {
   interface Window {
     dataLayer: any[];
-    gtag: (...args: any[]) => void;
+    gtag: (command: 'js' | 'config' | 'event', targetId: string, config?: Record<string, any>) => void;
   }
 } 

@@ -6,7 +6,7 @@ import { Loading } from "@/components/ui/loading";
 import { ErrorBoundary } from "@/components/features/error";
 
 const Contact = () => {
-  const { type } = useParams();
+  const { type } = useParams<{ type?: 'contact' | 'audit' }>();
 
   return (
     <ErrorBoundary>
@@ -40,7 +40,7 @@ const Contact = () => {
           }
         >
           <div className="max-w-2xl mx-auto">
-            <ContactForm type={type} />
+            <ContactForm type={type as 'contact' | 'audit' | undefined} />
           </div>
         </Suspense>
       </div>
