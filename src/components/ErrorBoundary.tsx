@@ -28,17 +28,10 @@ class ErrorBoundary extends Component<Props, State> {
           <div className="text-center">
             <h1 className="text-2xl font-bold">Something went wrong</h1>
             <button
-<<<<<<< HEAD
               onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-blue-500 text-black rounded"
+              className="mt-4 px-4 py-2 bg-parascape-green text-white rounded"
             >
-              Try Again
-=======
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={() => this.setState({ hasError: false })}
-            >
-              Try again
->>>>>>> c0ca58a9a34fb9da5372b6efae6ad5f673e35e14
+              Reload Page
             </button>
           </div>
         </div>
