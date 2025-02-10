@@ -45,6 +45,11 @@ jobs:
           echo "Dependencies installed"
           pnpm list
 
+      - name: Check Vite config
+        run: |
+          echo "Vite config contents:"
+          cat vite.config.ts
+
       - name: TypeScript Check
         run: |
           echo "Running TypeScript compilation check..."
@@ -53,10 +58,11 @@ jobs:
       - name: Build
         run: |
           echo "Starting Vite build..."
-          pnpm vite build --verbose
+          pnpm exec vite build --mode production --debug
         env:
           CI: true
           NODE_ENV: production
+          DEBUG: vite:*
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
