@@ -83,7 +83,7 @@ export const Hero = () => {
           className="text-4xl md:text-6xl font-bold text-gray-900 mb-6"
         >
           Transform Your Business with a{" "}
-          <span className="text-parascape-green">Parascape Digital Makeover</span>
+          <span>Parascape Digital Makeover</span>
         </motion.h1>
         
         <motion.p 

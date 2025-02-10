@@ -41,9 +41,9 @@ export const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>Humboldt County, CA</li>
+              <li>Arcata, CA</li>
               <li>contact@parascape.com</li>
-              <li>(555) 123-4567</li>
+              <li>1(707)362-6816</li>
             </ul>
           </div>
         </div>
