@@ -1,2 +1,1 @@
-import ErrorBoundary from '@/components/ErrorBoundary';
-export { ErrorBoundary }; 
+export { ErrorBoundary } from './ErrorBoundary'; 
