@@ -4,6 +4,7 @@ CREATE TABLE public.contacts (
     created_at timestamptz DEFAULT now(),
     name text NOT NULL,
     email text NOT NULL,
+    phone text NOT NULL,
     message text NOT NULL,
     type text DEFAULT 'contact' CHECK (type IN ('contact', 'audit')),
     status text DEFAULT 'pending' CHECK (status IN ('pending', 'contacted', 'completed')),

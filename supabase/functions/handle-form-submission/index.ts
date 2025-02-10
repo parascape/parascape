@@ -1,28 +1,31 @@
 /// <reference types="https://deno.land/x/types/index.d.ts" />
 
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from '@supabase/supabase-js'
-import { Resend } from 'resend'
+import { serve } from "std/http/server";
+import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 
-// Initialize Resend with API key
-const resend = new Resend('re_H3gwg6YT_EKSmLHBE3fZCLd44Ngo1thXw')
+// Initialize Resend with API key from environment variable
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
-// Initialize Supabase client
-const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4NzI5NjAsImV4cCI6MjAyNjQ0ODk2MH0.Ij9XFqQFEFVGGfOEGQRbYxZGmxn_Wd_zVH_HsHrYaYo'
-const supabase = createClient(supabaseUrl, supabaseKey)
+// Initialize Supabase client with environment variables
+const supabaseUrl = Deno.env.get('SUPABASE_URL')
+const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')
+const supabase = createClient(supabaseUrl!, supabaseKey!)
 
 interface FormData {
   name: string
   email: string
+  phone: string
   message: string
   type?: 'contact' | 'audit'
 }
 
+// Updated CORS headers to allow both production and development
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': '*', // Allow during development, change to https://parascape.org in production
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400',
 }
 
 const getWelcomeEmailHtml = (name: string, type: string) => {
@@ -107,6 +110,10 @@ const getAdminNotificationHtml = (formData: FormData) => {
               <div>${formData.email}</div>
             </div>
             <div class="field">
+              <div class="label">Phone:</div>
+              <div>${formData.phone}</div>
+            </div>
+            <div class="field">
               <div class="label">Message:</div>
               <div>${formData.message}</div>
             </div>
@@ -134,6 +141,7 @@ serve(async (req) => {
         {
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           message: formData.message,
           type: formData.type || 'contact'
         }
@@ -146,37 +154,49 @@ serve(async (req) => {
 
     console.log('Successfully stored in database')
 
-    // Send welcome email
-    const { error: welcomeEmailError } = await resend.emails.send({
-      from: 'Parascape <hello@parascape.org>',
-      to: formData.email,
-      subject: formData.type === 'audit' 
-        ? 'Your Digital Audit Request - Parascape'
-        : 'Welcome to Parascape',
-      html: getWelcomeEmailHtml(formData.name, formData.type || 'contact'),
-    })
+    // Send welcome email with better error handling
+    try {
+      const { error: welcomeEmailError } = await resend.emails.send({
+        from: 'Parascape <onboarding@resend.dev>', // Use verified sender during setup
+        to: formData.email,
+        subject: formData.type === 'audit' 
+          ? 'Your Digital Audit Request - Parascape'
+          : 'Welcome to Parascape',
+        html: getWelcomeEmailHtml(formData.name, formData.type || 'contact'),
+        reply_to: 'contact@parascape.org'
+      })
 
-    if (welcomeEmailError) {
-      console.error('Welcome email error:', welcomeEmailError)
-      throw new Error(`Welcome email error: ${JSON.stringify(welcomeEmailError)}`)
+      if (welcomeEmailError) {
+        console.error('Welcome email error:', welcomeEmailError)
+        // Don't throw, continue with admin notification
+      } else {
+        console.log('Successfully sent welcome email')
+      }
+    } catch (emailError) {
+      console.error('Welcome email error:', emailError)
+      // Continue with admin notification
     }
 
-    console.log('Successfully sent welcome email')
+    // Send notification to admin with better error handling
+    try {
+      const { error: adminEmailError } = await resend.emails.send({
+        from: 'Parascape <onboarding@resend.dev>', // Use verified sender during setup
+        to: 'contact@parascape.org',
+        subject: `New ${formData.type || 'contact'} form submission`,
+        html: getAdminNotificationHtml(formData),
+        reply_to: formData.email
+      })
 
-    // Send notification to admin
-    const { error: adminEmailError } = await resend.emails.send({
-      from: 'Parascape <hello@parascape.org>',
-      to: 'contact@parascape.org',
-      subject: `New ${formData.type || 'contact'} form submission`,
-      html: getAdminNotificationHtml(formData),
-    })
-
-    if (adminEmailError) {
-      console.error('Admin notification email error:', adminEmailError)
-      throw new Error(`Admin notification email error: ${JSON.stringify(adminEmailError)}`)
+      if (adminEmailError) {
+        console.error('Admin notification email error:', adminEmailError)
+        // Don't throw, return success for form submission
+      } else {
+        console.log('Successfully sent admin notification')
+      }
+    } catch (emailError) {
+      console.error('Admin notification email error:', emailError)
+      // Continue with success response
     }
-
-    console.log('Successfully sent admin notification')
 
     return new Response(
       JSON.stringify({ 

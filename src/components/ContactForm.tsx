@@ -7,6 +7,7 @@ import { analytics } from '@/lib/analytics';
 interface FormData {
   name: string;
   email: string;
+  phone: string;
   message: string;
   type?: 'contact' | 'audit';
 }
@@ -20,6 +21,7 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
+    phone: '',
     message: '',
     type: type as 'contact' | 'audit'
   });
@@ -56,6 +58,7 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
       setFormData({
         name: '',
         email: '',
+        phone: '',
         message: '',
         type: type as 'contact' | 'audit'
       });
@@ -110,6 +113,21 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
           name="email"
           required
           value={formData.email}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-parascape-green focus:ring-parascape-green"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+          Phone Number
+        </label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          required
+          value={formData.phone}
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-parascape-green focus:ring-parascape-green"
         />
