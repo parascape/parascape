@@ -5,7 +5,12 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 // Initialize Resend with API key
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+const resend = new Resend('re_H3gwg6YT_EKSmLHBE3fZCLd44Ngo1thXw')
+
+// Initialize Supabase client
+const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTA4NzI5NjAsImV4cCI6MjAyNjQ0ODk2MH0.Ij9XFqQFEFVGGfOEGQRbYxZGmxn_Wd_zVH_HsHrYaYo'
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 interface FormData {
   name: string
@@ -119,12 +124,8 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') || '',
-      Deno.env.get('SUPABASE_ANON_KEY') || ''
-    )
-
     const formData: FormData = await req.json()
+    console.log('Received form data:', formData)
     
     // Store in Supabase
     const { error: dbError } = await supabase
@@ -140,8 +141,10 @@ serve(async (req) => {
 
     if (dbError) {
       console.error('Database error:', dbError)
-      throw dbError
+      throw new Error(`Database error: ${JSON.stringify(dbError)}`)
     }
+
+    console.log('Successfully stored in database')
 
     // Send welcome email
     const { error: welcomeEmailError } = await resend.emails.send({
@@ -155,8 +158,10 @@ serve(async (req) => {
 
     if (welcomeEmailError) {
       console.error('Welcome email error:', welcomeEmailError)
-      throw welcomeEmailError
+      throw new Error(`Welcome email error: ${JSON.stringify(welcomeEmailError)}`)
     }
+
+    console.log('Successfully sent welcome email')
 
     // Send notification to admin
     const { error: adminEmailError } = await resend.emails.send({
@@ -168,8 +173,10 @@ serve(async (req) => {
 
     if (adminEmailError) {
       console.error('Admin notification email error:', adminEmailError)
-      throw adminEmailError
+      throw new Error(`Admin notification email error: ${JSON.stringify(adminEmailError)}`)
     }
+
+    console.log('Successfully sent admin notification')
 
     return new Response(
       JSON.stringify({ 
@@ -190,7 +197,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
-        success: false 
+        success: false,
+        details: error instanceof Error ? error.stack : undefined
       }), 
       {
         status: 400,
