@@ -157,7 +157,7 @@ serve(async (req) => {
     // Send welcome email with better error handling
     try {
       const { error: welcomeEmailError } = await resend.emails.send({
-        from: 'Parascape <onboarding@resend.dev>', // Use verified sender during setup
+        from: 'Parascape <onboarding@resend.dev>',
         to: formData.email,
         subject: formData.type === 'audit' 
           ? 'Your Digital Audit Request - Parascape'
@@ -180,7 +180,7 @@ serve(async (req) => {
     // Send notification to admin with better error handling
     try {
       const { error: adminEmailError } = await resend.emails.send({
-        from: 'Parascape <onboarding@resend.dev>', // Use verified sender during setup
+        from: 'Parascape <onboarding@resend.dev>',
         to: 'contact@parascape.org',
         subject: `New ${formData.type || 'contact'} form submission`,
         html: getAdminNotificationHtml(formData),

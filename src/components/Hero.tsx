@@ -1,24 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Image } from "@/components/ui/image";
 import { Loading } from "@/components/ui/loading";
 import { analytics } from "@/lib/analytics";
 
 export const Hero = () => {
   const navigate = useNavigate();
-  const [isMobile, setIsMobile] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const handleGetStarted = () => {
     // Track the button click
@@ -77,7 +66,7 @@ export const Hero = () => {
           </div>
         )}
         <Image
-          src={isMobile ? '/assets/images/hero-mobile.jpg' : '/assets/images/Hero.jpg'}
+          src="/assets/images/Hero.jpg"
           alt="Humboldt landscape"
           className="w-full h-full object-cover opacity-90"
           onLoad={() => setIsImageLoaded(true)}
@@ -87,41 +76,45 @@ export const Hero = () => {
           }}
           aspectRatio="16:9"
         />
-        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
       
       <motion.div 
-        className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-32 text-center"
+        className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <motion.h1 
           variants={itemVariants}
-          className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight text-center"
         >
           Transform Your Business with a{" "}
-          <span className="text-gray-900">Parascape Digital Makeover</span>
+          <span className="text-parascape-green">Digital Makeover</span>
         </motion.h1>
         
         <motion.p 
           variants={itemVariants}
-          className="text-lg sm:text-xl md:text-2xl text-gray-700 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed"
+          className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed text-center"
         >
           Empowering your business through modern innovation and timeless creativity
         </motion.p>
         
-        <motion.button 
+        <motion.div
           variants={itemVariants}
-          onClick={handleGetStarted}
-          className="bg-parascape-green text-white px-6 sm:px-8 py-3 sm:py-4 rounded-md text-base sm:text-lg font-semibold 
-                   hover:bg-parascape-green/90 active:bg-parascape-green/80 
-                   transform hover:scale-105 active:scale-100
-                   transition-all duration-200 ease-in-out
-                   shadow-lg hover:shadow-xl"
+          className="flex justify-center"
         >
-          Get Started Today
-        </motion.button>
+          <button 
+            onClick={handleGetStarted}
+            className="bg-parascape-green text-white px-6 sm:px-8 py-3 sm:py-4 rounded-md text-base sm:text-lg font-semibold 
+                     hover:bg-parascape-green/90 active:bg-parascape-green/80 
+                     transform hover:scale-105 active:scale-100
+                     transition-all duration-200 ease-in-out
+                     shadow-lg hover:shadow-xl"
+          >
+            Get Started Today
+          </button>
+        </motion.div>
       </motion.div>
     </div>
   );

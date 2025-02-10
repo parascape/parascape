@@ -27,16 +27,26 @@ export function Navbar() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     // Prevent scroll when mobile menu is open
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'unset';
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
     };
   }, [location.pathname, isMobileMenuOpen]);
 
   return (
     <nav
-      className={`fixed w-full bg-white/80 backdrop-blur-xl z-50 transition-all duration-300 ${
-        isScrolled ? 'shadow-soft' : ''
+      className={`fixed w-full bg-white/95 backdrop-blur-xl z-50 transition-all duration-300 ${
+        isScrolled ? 'shadow-md' : ''
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -57,7 +67,7 @@ export function Navbar() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-sm font-medium transition-colors hover:text-parascape-green ${
+                className={`text-base font-medium transition-colors hover:text-parascape-green ${
                   location.pathname === item.path
                     ? 'text-parascape-green'
                     : 'text-gray-600'
@@ -72,7 +82,7 @@ export function Navbar() {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-600 hover:text-parascape-green transition-colors p-2"
+              className="text-gray-600 hover:text-parascape-green transition-colors p-2 -mr-2"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMobileMenuOpen ? (
@@ -93,9 +103,9 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 top-16 bg-white z-40"
+            className="fixed inset-0 top-16 bg-white/95 backdrop-blur-xl z-40 overflow-y-auto"
           >
-            <div className="flex flex-col items-center justify-center min-h-full py-8 px-4 space-y-6">
+            <div className="flex flex-col items-center justify-start min-h-[calc(100vh-4rem)] py-8 px-4 space-y-6">
               {navigation.map((item) => (
                 <motion.div
                   key={item.path}
@@ -106,7 +116,7 @@ export function Navbar() {
                   <Link
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`text-2xl font-medium transition-colors hover:text-parascape-green ${
+                    className={`text-xl font-medium transition-colors hover:text-parascape-green ${
                       location.pathname === item.path
                         ? 'text-parascape-green'
                         : 'text-gray-600'
