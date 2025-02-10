@@ -1,5 +1,5 @@
 export const config = {
-  baseUrl: import.meta.env.MODE === 'production' ? '/parascape' : '',
+  baseUrl: '',  // Empty string since we're using a custom domain
   apiUrl: import.meta.env.VITE_API_URL || 'http://localhost:3000',
   isProduction: import.meta.env.MODE === 'production',
   isDevelopment: import.meta.env.MODE === 'development',
@@ -7,7 +7,6 @@ export const config = {
     formSubmission: import.meta.env.VITE_FORM_SUBMISSION_URL || 'https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission'
   },
   getAssetPath: (path: string) => {
-    const base = import.meta.env.MODE === 'production' ? '/parascape' : '';
-    return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+    return path.startsWith('/') ? path : `/${path}`;
   }
 } as const; 

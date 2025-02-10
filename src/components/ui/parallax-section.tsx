@@ -40,7 +40,11 @@ export function ParallaxSection({
         <div className="absolute inset-0 bg-black/40" />
       </motion.div>
 
+<<<<<<< HEAD
       <div className="relative h-full flex flex-col items-center justify-center text-black p-8">
+=======
+      <div className="relative h-full flex flex-col items-center justify-center text-white p-8">
+>>>>>>> c0ca58a9a34fb9da5372b6efae6ad5f673e35e14
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

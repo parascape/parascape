@@ -1,10 +1,11 @@
-import { defineConfig } from "vite";
+import { defineConfig, type ConfigEnv, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
+  base: mode === 'production' ? '/' : '/',
   plugins: [react()],
   resolve: {
     alias: {
@@ -15,26 +16,13 @@ export default defineConfig(({ mode }) => ({
     }
   },
   server: {
-    // CORS configuration
-    cors: {
-      origin: [
-        'http://localhost:5173',
-        'http://localhost:3000'
-      ],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      credentials: true
-    },
-    // Only allow specific hosts
-    allowedHosts: ['localhost', '*.localhost'],
-    // Disable HTTPS for development
-    https: false,
-    // Enable network access
+    port: 5173,
     host: true,
-    // Add security headers
+    strictPort: true,
     headers: {
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block'
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     }
   },
   build: {
@@ -42,6 +30,13 @@ export default defineConfig(({ mode }) => ({
     sourcemap: true,
     assetsDir: 'assets',
     cssCodeSplit: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: mode === 'production',
+        drop_debugger: mode === 'production'
+      }
+    },
     rollupOptions: {
       input: path.resolve(__dirname, 'index.html'),
       output: {
@@ -68,49 +63,9 @@ export default defineConfig(({ mode }) => ({
             ? 'assets/[name]-[hash][extname]'
             : 'assets/[name][extname]';
         },
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || 
-                id.includes('react-dom') || 
-                id.includes('scheduler') ||
-                id.includes('prop-types')) {
-              return 'vendor-react';
-            }
-            if (id.includes('framer-motion')) {
-              return 'vendor-framer-motion';
-            }
-            if (id.includes('lucide') || 
-                id.includes('@radix-ui') || 
-                id.includes('@floating-ui') ||
-                id.includes('@radix-ui/react')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('@vitejs') || 
-                id.includes('vite') || 
-                id.includes('@swc')) {
-              return 'vendor-vite';
-            }
-            if (id.includes('@supabase') || 
-                id.includes('analytics') || 
-                id.includes('gtag')) {
-              return 'vendor-async';
-            }
-            return 'vendor-common';
-          }
-          if (id.includes('src/components/ui')) {
-            const component = id.split('src/components/ui/')[1]?.split('.')[0];
-            if (component) {
-              return `ui-${component}`;
-            }
-            return 'ui-shared';
-          }
-          if (id.includes('src/components/features')) {
-            return 'features';
-          }
-          if (id.includes('src/pages')) {
-            const pageName = id.split('src/pages/')[1].split('.')[0].toLowerCase();
-            return `page-${pageName}`;
-          }
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui': ['framer-motion', 'lucide-react'],
         }
       }
     }
@@ -129,7 +84,6 @@ export default defineConfig(({ mode }) => ({
       ]
     }
   },
-  base: '/',
   // Handle environment variables
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),

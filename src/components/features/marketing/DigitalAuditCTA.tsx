@@ -28,8 +28,7 @@ export function DigitalAuditCTA() {
         </p>
         <Button
           onClick={handleAuditRequest}
-          size="lg"
-          className="bg-parascape-green hover:bg-parascape-green/90 text-black group"
+          className="bg-parascape-green hover:bg-parascape-green/90 text-white group"
         >
           Request Your Free Audit
           <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

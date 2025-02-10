@@ -64,9 +64,9 @@ export default function About() {
         </div>
 
         <Suspense fallback={<Loading variant="skeleton" />}>
-          <div className="max-w-3xl mx-auto text-center px-4">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-            <div className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-12 items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-gray-900">Our Mission</h2>
               <p className="text-gray-600">
                 At Parascape, we're committed to helping Humboldt County businesses thrive in the digital landscape. We combine local expertise with cutting-edge technology to deliver solutions that drive real results.
               </p>
@@ -74,9 +74,17 @@ export default function About() {
                 Our team brings together years of experience in web development, digital marketing, and business strategy to provide comprehensive digital solutions tailored to your needs.
               </p>
             </div>
+            <div className="relative">
+              <Image
+                src="/assets/images/sections/Mountain-Vista.jpg"
+                alt="Humboldt landscape"
+                aspectRatio="4:3"
+                className="rounded-lg shadow-lg"
+              />
+            </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-gray-900 text-center">Our Values</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {values.map((value) => (
@@ -91,9 +99,9 @@ export default function About() {
             </div>
           </div>
 
-          <div className="space-y-8">
+          <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-gray-900 text-center">Our Team</h2>
-            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {team.map((member) => (
                 <div 
                   key={member.name}

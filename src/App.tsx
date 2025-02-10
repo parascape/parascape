@@ -13,9 +13,8 @@ import { config } from '@/config/environment';
 
 // Lazy load pages
 const Home = lazy(() => import('@/pages/Index'));
-const Services = lazy(() => import('./pages/Services'));
+const Services = lazy(() => import('@/pages/Services'));
 const About = lazy(() => import('@/pages/About'));
-// const SuccessStories = lazy(() => import('@/pages/SuccessStories'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
@@ -70,7 +69,6 @@ export default function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/services" element={<Services />} />
                     <Route path="/about" element={<About />} />
-                    {/* <Route path="/success-stories" element={<SuccessStories />} /> */}
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
