@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  form-submission:
+    build:
+      context: ./functions/handle-form-submission
+      dockerfile: Dockerfile
+    ports:
+      - "9000:9000"
+    environment:
+      - NODE_ENV=development
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - ./functions/handle-form-submission:/app
+      - /app/node_modules
+    command: npm run dev 
