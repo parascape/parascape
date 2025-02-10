@@ -69,6 +69,49 @@ const getWelcomeEmailHtml = (name: string, type: string) => {
   `
 }
 
+const getAdminNotificationHtml = (formData: FormData) => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { color: #10B981; font-size: 24px; margin-bottom: 20px; }
+          .content { margin-bottom: 30px; }
+          .field { margin-bottom: 15px; }
+          .label { font-weight: bold; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            New Form Submission
+          </div>
+          <div class="content">
+            <div class="field">
+              <div class="label">Type:</div>
+              <div>${formData.type || 'contact'}</div>
+            </div>
+            <div class="field">
+              <div class="label">Name:</div>
+              <div>${formData.name}</div>
+            </div>
+            <div class="field">
+              <div class="label">Email:</div>
+              <div>${formData.email}</div>
+            </div>
+            <div class="field">
+              <div class="label">Message:</div>
+              <div>${formData.message}</div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -95,10 +138,13 @@ serve(async (req) => {
         }
       ])
 
-    if (dbError) throw dbError
+    if (dbError) {
+      console.error('Database error:', dbError)
+      throw dbError
+    }
 
     // Send welcome email
-    const { error: emailError } = await resend.emails.send({
+    const { error: welcomeEmailError } = await resend.emails.send({
       from: 'Parascape <hello@parascape.org>',
       to: formData.email,
       subject: formData.type === 'audit' 
@@ -107,27 +153,28 @@ serve(async (req) => {
       html: getWelcomeEmailHtml(formData.name, formData.type || 'contact'),
     })
 
-    if (emailError) throw emailError
+    if (welcomeEmailError) {
+      console.error('Welcome email error:', welcomeEmailError)
+      throw welcomeEmailError
+    }
 
     // Send notification to admin
-    await resend.emails.send({
+    const { error: adminEmailError } = await resend.emails.send({
       from: 'Parascape <hello@parascape.org>',
-      to: 'contact@parascape.com',
+      to: 'contact@parascape.org',
       subject: `New ${formData.type || 'contact'} form submission`,
-      html: `
-        <h2>New form submission</h2>
-        <p><strong>Type:</strong> ${formData.type || 'contact'}</p>
-        <p><strong>Name:</strong> ${formData.name}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Message:</strong></p>
-        <p>${formData.message}</p>
-      `,
+      html: getAdminNotificationHtml(formData),
     })
+
+    if (adminEmailError) {
+      console.error('Admin notification email error:', adminEmailError)
+      throw adminEmailError
+    }
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'Form submitted successfully and welcome email sent'
+        message: 'Form submitted successfully and notifications sent'
       }), 
       { 
         headers: { 
@@ -138,7 +185,7 @@ serve(async (req) => {
     )
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    console.error('Error:', errorMessage)
+    console.error('Form submission error:', error)
     
     return new Response(
       JSON.stringify({ 
