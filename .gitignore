@@ -8,6 +8,11 @@ dist-ssr/
 .env.*
 !.env.example
 
+# Environment variables
+.env.local
+.env.*.local
+supabase/functions/.env
+
 # Logs
 logs
 *.log

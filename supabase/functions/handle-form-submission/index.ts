@@ -4,20 +4,14 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
+// Initialize Resend with API key from environment variable
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+
 interface FormData {
   name: string
   email: string
   message: string
   type?: 'contact' | 'audit'
-}
-
-interface RequestEvent {
-  request: Request
-  env: {
-    RESEND_API_KEY: string
-    SUPABASE_URL: string
-    SUPABASE_ANON_KEY: string
-  }
 }
 
 const corsHeaders = {
@@ -26,11 +20,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
-export default async function handler(event: RequestEvent) {
-  const { request, env } = event
-
-  // Handle CORS preflight requests
-  if (request.method === 'OPTIONS') {
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: corsHeaders,
     })
@@ -38,12 +29,11 @@ export default async function handler(event: RequestEvent) {
 
   try {
     const supabase = createClient(
-      env.SUPABASE_URL,
-      env.SUPABASE_ANON_KEY
+      Deno.env.get('SUPABASE_URL') || '',
+      Deno.env.get('SUPABASE_ANON_KEY') || ''
     )
 
-    const resend = new Resend(env.RESEND_API_KEY)
-    const formData: FormData = await request.json()
+    const formData: FormData = await req.json()
     
     // Store in Supabase
     const { error: dbError } = await supabase
@@ -85,4 +75,4 @@ export default async function handler(event: RequestEvent) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
-} 
+}) 
