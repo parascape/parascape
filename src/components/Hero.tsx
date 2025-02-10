@@ -20,15 +20,14 @@ export const Hero = () => {
   }, []);
 
   const handleGetStarted = () => {
-    // Navigate to services page with a smooth scroll to top first
+    // Navigate to contact page with a smooth scroll to top first
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
     
-    navigate('/services', {
+    navigate('/contact', {
       state: { 
-        animation: 'slide-up',
         fromHero: true 
       }
     });
