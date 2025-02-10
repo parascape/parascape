@@ -22,7 +22,7 @@ interface FormData {
 
 // Updated CORS headers to allow both production and development
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Allow during development, change to https://parascape.org in production
+  'Access-Control-Allow-Origin': 'https://parascape.org',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Max-Age': '86400',

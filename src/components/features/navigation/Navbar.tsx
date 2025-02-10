@@ -26,22 +26,28 @@ export function Navbar() {
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
-    // Prevent scroll when mobile menu is open
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
     } else {
       document.body.style.overflow = '';
+      document.body.style.height = '';
       document.body.style.position = '';
       document.body.style.width = '';
     }
+
     return () => {
       document.body.style.overflow = '';
+      document.body.style.height = '';
       document.body.style.position = '';
       document.body.style.width = '';
     };
-  }, [location.pathname, isMobileMenuOpen]);
+  }, [isMobileMenuOpen]);
 
   return (
     <nav
@@ -99,13 +105,14 @@ export function Navbar() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'calc(100vh - 4rem)' }}
+            exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 top-16 bg-white/95 backdrop-blur-xl z-40 overflow-y-auto"
+            className="fixed inset-x-0 top-16 bg-white/95 backdrop-blur-xl md:hidden overflow-hidden"
+            style={{ zIndex: 9999 }}
           >
-            <div className="flex flex-col items-center justify-start min-h-[calc(100vh-4rem)] py-8 px-4 space-y-6">
+            <div className="flex flex-col items-center justify-start p-8 space-y-8">
               {navigation.map((item) => (
                 <motion.div
                   key={item.path}
@@ -116,7 +123,7 @@ export function Navbar() {
                   <Link
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`text-xl font-medium transition-colors hover:text-parascape-green ${
+                    className={`text-2xl font-medium transition-colors hover:text-parascape-green ${
                       location.pathname === item.path
                         ? 'text-parascape-green'
                         : 'text-gray-600'
