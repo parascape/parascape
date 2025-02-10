@@ -31,6 +31,7 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
     setIsSubmitting(true);
 
     try {
+      console.log('Submitting to:', config.api.formSubmission);
       const response = await fetch(config.api.formSubmission, {
         method: 'POST',
         headers: {
@@ -40,9 +41,10 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
       });
 
       const data = await response.json();
+      console.log('Response:', { status: response.status, data });
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit form');
+        throw new Error(data.error || `Failed to submit form: ${response.status}`);
       }
 
       // Track successful form submission
@@ -75,7 +77,7 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
-      toast.error('Failed to send message. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
