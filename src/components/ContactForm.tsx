@@ -1,104 +1,23 @@
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { config } from '@/config/environment';
 import { analytics } from '@/lib/analytics';
-
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  type?: 'contact' | 'audit';
-}
+import { config } from '@/config/environment';
 
 interface ContactFormProps {
   type?: 'contact' | 'audit';
 }
 
-export function ContactForm({ type = 'contact' }: ContactFormProps) {
+export default function ContactForm({ type = 'contact' }: ContactFormProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     message: '',
-    type: type as 'contact' | 'audit'
+    type
   });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      console.log('Submitting to:', config.api.formSubmission);
-      const response = await fetch(config.api.formSubmission, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(formData),
-      });
-
-      let data;
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Unexpected response format:', text);
-        throw new Error('Unexpected response format from server');
-      }
-
-      console.log('Response:', { 
-        status: response.status, 
-        headers: Object.fromEntries(response.headers.entries()),
-        data 
-      });
-
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to submit form: ${response.status}`);
-      }
-
-      // Track successful form submission
-      analytics.track({
-        name: 'form_submit',
-        properties: {
-          form_type: type,
-          success: true
-        }
-      });
-
-      // Navigate to success page instead of showing toast
-      navigate('/success');
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        type: type as 'contact' | 'audit'
-      });
-    } catch (error) {
-      console.error('Form submission error:', error);
-      
-      // Track failed form submission
-      analytics.track({
-        name: 'form_submit',
-        properties: {
-          form_type: type,
-          success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        }
-      });
-
-      toast.error(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -107,7 +26,70 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-8 rounded-2xl shadow-sm">
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setIsSubmitting(true);
+
+          try {
+            const response = await fetch(config.api.formSubmission, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              const text = await response.text();
+              throw new Error('Unexpected response format from server');
+            }
+
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(data.error || `Failed to submit form: ${response.status}`);
+            }
+
+            analytics.track({
+              name: 'form_submit',
+              properties: {
+                form_type: type,
+                success: true
+              }
+            });
+
+            navigate('/success');
+            setFormData({
+              name: '',
+              email: '',
+              phone: '',
+              message: '',
+              type
+            });
+          } catch (error) {
+            analytics.track({
+              name: 'form_submit',
+              properties: {
+                form_type: type,
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+              }
+            });
+
+            toast.error(
+              error instanceof Error
+                ? error.message
+                : 'Failed to send message. Please try again.'
+            );
+          } finally {
+            setIsSubmitting(false);
+          }
+        }}
+        className="space-y-6 bg-white p-4 sm:p-8 rounded-2xl shadow-sm"
+      >
         <div className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">

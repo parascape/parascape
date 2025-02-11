@@ -9,7 +9,7 @@ type ContactFormData = {
 
 export const apiClient = {
   async submitContactForm(data: ContactFormData) {
-    const response = await fetch(`${config.apiUrl}/contact`, {
+    const response = await fetch(config.api.formSubmission, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

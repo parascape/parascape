@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ContactForm } from "@/components/ContactForm";
+import ContactForm from "@/components/ContactForm";
 import { Loading } from "@/components/ui/loading";
 import { ErrorBoundary } from "@/components/features/error";
 

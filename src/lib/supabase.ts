@@ -1,9 +1,6 @@
-import { createClient } from '@supabase/supabase-js'
-import { config } from '@/config/environment'
+// import { createClient } from '@supabase/supabase-js'
+// export const supabase = createClient(); // Removed due to missing configuration
 
-export const supabase = createClient(
-  config.supabase.url,
-  config.supabase.anonKey
-)
+// export default supabase // Removed due to undefined variable
 
-export default supabase 
+// ... existing code ... 
