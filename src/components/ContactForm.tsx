@@ -37,7 +37,9 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'x-client-info': 'parascape-website',
+          'apikey': config.supabase.anonKey
         },
         body: JSON.stringify(formData),
       });

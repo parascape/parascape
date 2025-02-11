@@ -1,4 +1,5 @@
 /// <reference types="https://deno.land/x/types/index.d.ts" />
+/// <reference lib="deno.ns" />
 
 import { serve } from "std/http/server";
 import { createClient } from "@supabase/supabase-js";
@@ -13,8 +14,8 @@ const resend = new Resend(RESEND_API_KEY);
 
 // Initialize Supabase client using built-in environment variables
 const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+  Deno.env.get('DB_URL') ?? '',
+  Deno.env.get('DB_ANON_KEY') ?? '',
   {
     auth: {
       persistSession: false,
@@ -32,11 +33,11 @@ interface FormData {
   type?: 'contact' | 'audit'
 }
 
-// Updated CORS headers to allow requests from both parascape.org and the Supabase functions domain
+// Updated CORS headers to be more permissive
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': '*',
   'Access-Control-Max-Age': '86400',
 }
 
@@ -139,41 +140,89 @@ const getAdminNotificationHtml = (formData: FormData) => {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    console.log('Handling CORS preflight request');
+    return new Response(null, { 
+      status: 204, 
+      headers: corsHeaders 
+    });
   }
 
   try {
+    const origin = req.headers.get('origin');
+    console.log('Request details:', {
+      method: req.method,
+      origin,
+      headers: Object.fromEntries(req.headers.entries()),
+      url: req.url
+    });
+
     const formData: FormData = await req.json();
     console.log('Received form data:', formData);
     
     // Store in Supabase with better error handling
     try {
-      console.log('Attempting database insert with URL:', Deno.env.get('SUPABASE_URL'));
-      console.log('Using anon key:', Deno.env.get('SUPABASE_ANON_KEY')?.substring(0, 10) + '...');
+      const supabaseUrl = Deno.env.get('DB_URL');
+      const supabaseKey = Deno.env.get('DB_ANON_KEY');
       
-      const { error: dbError } = await supabase
+      console.log('Database connection info:', {
+        url: supabaseUrl ? 'Set' : 'Not set',
+        key: supabaseKey ? 'Key present' : 'Key missing',
+        formData: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          type: formData.type || 'contact'
+        }
+      });
+
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Database credentials not properly configured');
+      }
+
+      // Test database connection
+      const { data: testData, error: testError } = await supabase
         .from('contacts')
-        .insert([
-          {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            message: formData.message,
-            type: formData.type || 'contact'
-          }
-        ]);
+        .select('id')
+        .limit(1);
+
+      if (testError) {
+        console.error('Database connection test failed:', testError);
+        throw new Error(`Database connection failed: ${testError.message}`);
+      }
+
+      console.log('Database connection test successful');
+      
+      // Proceed with insert
+      const { data, error: dbError } = await supabase
+        .from('contacts')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          type: formData.type || 'contact',
+          status: 'new'
+        })
+        .select()
+        .single();
 
       if (dbError) {
         console.error('Database error details:', {
           code: dbError.code,
           message: dbError.message,
           details: dbError.details,
-          hint: dbError.hint
+          hint: dbError.hint,
+          full: JSON.stringify(dbError)
         });
-        throw new Error(`Database error: ${JSON.stringify(dbError)}`);
+        throw new Error(`Database error: ${dbError.message}`);
       }
 
-      console.log('Successfully stored in database');
+      if (!data) {
+        console.error('No data returned from insert');
+        throw new Error('Failed to insert data - no error but no data returned');
+      }
+
+      console.log('Successfully stored in database:', data);
     } catch (error) {
       console.error('Database operation failed:', error);
       throw new Error('Failed to store form submission in database');
