@@ -41,9 +41,15 @@ jobs:
         name: Setup pnpm cache
         with:
           path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Clear build cache
+        run: |
+          rm -rf dist
+          rm -rf .vite
+          rm -rf node_modules/.vite
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
