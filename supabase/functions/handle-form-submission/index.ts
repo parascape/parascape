@@ -5,12 +5,24 @@ import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 
 // Initialize Resend with API key from environment variable
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+if (!RESEND_API_KEY) {
+  console.error('RESEND_API_KEY is not set');
+}
+const resend = new Resend(RESEND_API_KEY);
 
-// Initialize Supabase client with environment variables
-const supabaseUrl = Deno.env.get('SUPABASE_URL')
-const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')
-const supabase = createClient(supabaseUrl!, supabaseKey!)
+// Initialize Supabase client using built-in environment variables
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false
+    }
+  }
+);
 
 interface FormData {
   name: string
@@ -127,36 +139,42 @@ const getAdminNotificationHtml = (formData: FormData) => {
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const formData: FormData = await req.json()
-    console.log('Received form data:', formData)
+    const formData: FormData = await req.json();
+    console.log('Received form data:', formData);
     
-    // Store in Supabase
-    const { error: dbError } = await supabase
-      .from('contacts')
-      .insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-          type: formData.type || 'contact'
-        }
-      ])
+    // Store in Supabase with better error handling
+    try {
+      const { error: dbError } = await supabase
+        .from('contacts')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message,
+            type: formData.type || 'contact'
+          }
+        ]);
 
-    if (dbError) {
-      console.error('Database error:', dbError)
-      throw new Error(`Database error: ${JSON.stringify(dbError)}`)
+      if (dbError) {
+        console.error('Database error:', dbError);
+        throw new Error(`Database error: ${JSON.stringify(dbError)}`);
+      }
+
+      console.log('Successfully stored in database');
+    } catch (error) {
+      console.error('Database operation failed:', error);
+      throw new Error('Failed to store form submission in database');
     }
-
-    console.log('Successfully stored in database')
 
     // Send welcome email with better error handling
     try {
-      const { error: welcomeEmailError } = await resend.emails.send({
+      console.log('Attempting to send welcome email...');
+      const welcomeEmailResult = await resend.emails.send({
         from: 'Parascape <onboarding@resend.dev>',
         to: formData.email,
         subject: formData.type === 'audit' 
@@ -164,38 +182,40 @@ serve(async (req) => {
           : 'Welcome to Parascape',
         html: getWelcomeEmailHtml(formData.name, formData.type || 'contact'),
         reply_to: 'contact@parascape.org'
-      })
+      });
 
-      if (welcomeEmailError) {
-        console.error('Welcome email error:', welcomeEmailError)
-        // Don't throw, continue with admin notification
+      console.log('Welcome email result:', welcomeEmailResult);
+
+      if ('error' in welcomeEmailResult) {
+        console.error('Welcome email error:', welcomeEmailResult.error);
       } else {
-        console.log('Successfully sent welcome email')
+        console.log('Successfully sent welcome email');
       }
     } catch (emailError) {
-      console.error('Welcome email error:', emailError)
+      console.error('Welcome email error:', emailError);
       // Continue with admin notification
     }
 
     // Send notification to admin with better error handling
     try {
-      const { error: adminEmailError } = await resend.emails.send({
+      console.log('Attempting to send admin notification...');
+      const adminEmailResult = await resend.emails.send({
         from: 'Parascape <onboarding@resend.dev>',
         to: 'contact@parascape.org',
         subject: `New ${formData.type || 'contact'} form submission`,
         html: getAdminNotificationHtml(formData),
         reply_to: formData.email
-      })
+      });
 
-      if (adminEmailError) {
-        console.error('Admin notification email error:', adminEmailError)
-        // Don't throw, return success for form submission
+      console.log('Admin email result:', adminEmailResult);
+
+      if ('error' in adminEmailResult) {
+        console.error('Admin notification email error:', adminEmailResult.error);
       } else {
-        console.log('Successfully sent admin notification')
+        console.log('Successfully sent admin notification');
       }
     } catch (emailError) {
-      console.error('Admin notification email error:', emailError)
-      // Continue with success response
+      console.error('Admin notification email error:', emailError);
     }
 
     return new Response(
@@ -209,10 +229,10 @@ serve(async (req) => {
           'Content-Type': 'application/json' 
         } 
       }
-    )
+    );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
-    console.error('Form submission error:', error)
+    console.error('Form submission error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     return new Response(
       JSON.stringify({ 
@@ -221,12 +241,12 @@ serve(async (req) => {
         details: error instanceof Error ? error.stack : undefined
       }), 
       {
-        status: 400,
+        status: 500,
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json' 
         }
       }
-    )
+    );
   }
-}) 
+}); 
