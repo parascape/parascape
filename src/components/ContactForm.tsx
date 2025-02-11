@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { config } from '@/config/environment';
+import { sendContactEmails } from '@/lib/email';
 
 interface ContactFormProps {
   type?: 'contact' | 'audit';
@@ -32,26 +32,8 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
           setIsSubmitting(true);
 
           try {
-            const response = await fetch(config.api.formSubmission, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
-
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-              const text = await response.text();
-              throw new Error('Unexpected response format from server');
-            }
-
-            const data = await response.json();
-
-            if (!response.ok) {
-              throw new Error(data.error || `Failed to submit form: ${response.status}`);
-            }
+            // Send emails using our email service
+            await sendContactEmails(formData);
 
             analytics.track({
               name: 'form_submit',

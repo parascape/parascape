@@ -16,13 +16,26 @@ export default function Success() {
 
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center space-y-8">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className="inline-flex"
+          >
+            <CheckCircle className="w-16 h-16 text-green-500" />
+          </motion.div>
+          
           <div className="space-y-4">
             <h1 className="text-4xl font-bold text-gray-900">
               Message Received
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl">
-              Thank you for reaching out. We'll review your message and get back to you as soon as possible.
-            </p>
+            <div className="space-y-2">
+              <p className="text-xl text-gray-600 max-w-2xl">
+                Thank you for reaching out. We'll review your message and get back to you as soon as possible.
+              </p>
+              <p className="text-gray-600">
+                We've sent a confirmation email to your inbox with a copy of your message.
+              </p>
+            </div>
           </div>
 
           <Link
