@@ -1,6 +1,12 @@
-import { Resend } from 'resend';
+import { Resend } from '@resend/client';
 
-const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
+const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY, {
+  apiUrl: 'https://api.resend.com',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
+  }
+});
 
 interface ContactFormData {
   name: string;
@@ -11,42 +17,28 @@ interface ContactFormData {
 }
 
 export async function sendContactEmails(formData: ContactFormData) {
-  const { name, email, phone, message, type } = formData;
+  try {
+    console.log('Sending form data to Netlify function:', formData);
+    
+    const response = await fetch('/.netlify/functions/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
 
-  // Send confirmation email to user
-  await resend.emails.send({
-    from: 'Parascape <onboarding@resend.dev>',
-    to: email,
-    subject: 'Thank you for contacting Parascape',
-    html: `
-      <h1>Thank you for reaching out, ${name}!</h1>
-      <p>We've received your message and will get back to you as soon as possible.</p>
-      <p>Here's a copy of your message:</p>
-      <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-        ${message}
-      </div>
-      <p>Best regards,<br>The Parascape Team</p>
-    `,
-  });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to send emails');
+    }
 
-  // Send notification email to admin
-  await resend.emails.send({
-    from: 'Parascape Website <onboarding@resend.dev>',
-    to: import.meta.env.VITE_ADMIN_EMAIL,
-    subject: `New ${type} Form Submission from ${name}`,
-    html: `
-      <h1>New Contact Form Submission</h1>
-      <h2>Contact Details:</h2>
-      <ul>
-        <li><strong>Name:</strong> ${name}</li>
-        <li><strong>Email:</strong> ${email}</li>
-        <li><strong>Phone:</strong> ${phone}</li>
-        <li><strong>Form Type:</strong> ${type}</li>
-      </ul>
-      <h2>Message:</h2>
-      <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-        ${message}
-      </div>
-    `,
-  });
+    const data = await response.json();
+    console.log('Netlify function response:', data);
+
+    return data;
+  } catch (error) {
+    console.error('Error sending emails:', error);
+    throw error;
+  }
 } 

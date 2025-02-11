@@ -32,8 +32,11 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
           setIsSubmitting(true);
 
           try {
+            console.log('Form submission started with data:', formData);
+            
             // Send emails using our email service
-            await sendContactEmails(formData);
+            const response = await sendContactEmails(formData);
+            console.log('Email service response:', response);
 
             analytics.track({
               name: 'form_submit',
@@ -52,6 +55,8 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
               type
             });
           } catch (error) {
+            console.error('Form submission error:', error);
+            
             analytics.track({
               name: 'form_submit',
               properties: {
@@ -63,7 +68,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
 
             toast.error(
               error instanceof Error
-                ? error.message
+                ? `Error sending message: ${error.message}`
                 : 'Failed to send message. Please try again.'
             );
           } finally {
