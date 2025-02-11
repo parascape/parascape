@@ -20,9 +20,9 @@ interface FormData {
   type?: 'contact' | 'audit'
 }
 
-// Updated CORS headers to allow both production and development
+// Updated CORS headers to allow requests from both parascape.org and the Supabase functions domain
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://parascape.org',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Max-Age': '86400',

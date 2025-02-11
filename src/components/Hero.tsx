@@ -91,7 +91,7 @@ export const Hero = () => {
         >
           Transform Your Business with a{" "}
           <br className="hidden sm:block" />
-          <span className="text-parascape-green block mt-2">Digital Makeover</span>
+          <span className="text-gray-900 block mt-2">Digital Makeover</span>
         </motion.h1>
         
         <motion.p 

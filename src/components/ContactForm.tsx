@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { config } from '@/config/environment';
 import { analytics } from '@/lib/analytics';
@@ -17,6 +17,7 @@ interface ContactFormProps {
 }
 
 export function ContactForm({ type = 'contact' }: ContactFormProps) {
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -70,7 +71,9 @@ export function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
-      toast.success('Message sent successfully! We\'ll be in touch soon.');
+      // Navigate to success page instead of showing toast
+      navigate('/success');
+      
       setFormData({
         name: '',
         email: '',
