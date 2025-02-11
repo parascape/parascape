@@ -26,7 +26,7 @@ const handler: Handler = async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VITE_RESEND_API_KEY}`
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
       },
       body: JSON.stringify({
         from: 'Parascape <onboarding@resend.dev>',
@@ -54,11 +54,11 @@ const handler: Handler = async (event) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.VITE_RESEND_API_KEY}`
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
       },
       body: JSON.stringify({
         from: 'Parascape Website <onboarding@resend.dev>',
-        to: process.env.VITE_ADMIN_EMAIL,
+        to: process.env.ADMIN_EMAIL,
         subject: `New ${type} Form Submission from ${name}`,
         html: `
           <h1>New Contact Form Submission</h1>
