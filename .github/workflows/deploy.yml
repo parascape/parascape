@@ -54,6 +54,10 @@ jobs:
           CI: true
           NODE_ENV: production
           VITE_GA4_MEASUREMENT_ID: G-NQLRXMREDQ
+          VITE_API_URL: https://hjhpcawffvgcczhxcjsr.supabase.co
+          VITE_FORM_SUBMISSION_URL: https://hjhpcawffvgcczhxcjsr.supabase.co/functions/v1/handle-form-submission
+          VITE_SUPABASE_URL: https://hjhpcawffvgcczhxcjsr.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaHBjYXdmZnZnY2N6aHhjanNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4OTAyMDksImV4cCI6MjA1MjQ2NjIwOX0.GPBSmG_F06Uw0SzEwiaSGZ8xfuaU7dZj8k5WqfgjAf8
       
       - name: Copy CNAME
         run: cp CNAME dist/
