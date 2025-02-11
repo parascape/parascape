@@ -62,9 +62,9 @@ serve(async (req) => {
     }
 
     // Send admin notification
-    await resend.emails.send({
+    const { error: adminEmailError } = await resend.emails.send({
       from: 'Parascape <onboarding@resend.dev>',
-      to: 'contact@parascape.org',
+      to: ['contact@parascape.org'],
       subject: `New ${formData.type || 'contact'} form submission`,
       html: `
         <h2>New Form Submission</h2>
@@ -74,13 +74,18 @@ serve(async (req) => {
         <p><strong>Phone:</strong> ${formData.phone}</p>
         <p><strong>Message:</strong> ${formData.message}</p>
       `,
-      reply_to: formData.email
+      replyTo: formData.email
     });
 
+    if (adminEmailError) {
+      console.error('Admin email error:', adminEmailError);
+      throw new Error('Failed to send admin notification');
+    }
+
     // Send confirmation to user
-    await resend.emails.send({
+    const { error: userEmailError } = await resend.emails.send({
       from: 'Parascape <onboarding@resend.dev>',
-      to: formData.email,
+      to: [formData.email],
       subject: formData.type === 'audit' 
         ? 'Your Digital Audit Request - Parascape'
         : 'Thank you for contacting Parascape',
@@ -89,8 +94,13 @@ serve(async (req) => {
         <p>We've received your message and will get back to you soon.</p>
         <p>Best regards,<br>The Parascape Team</p>
       `,
-      reply_to: 'contact@parascape.org'
+      replyTo: 'contact@parascape.org'
     });
+
+    if (userEmailError) {
+      console.error('User email error:', userEmailError);
+      throw new Error('Failed to send confirmation email');
+    }
 
     // Return success
     return new Response(
