@@ -1,3 +1,5 @@
+import { Resend } from 'resend';
+
 interface ContactFormData {
   name: string;
   email: string;
@@ -6,39 +8,54 @@ interface ContactFormData {
   type: 'contact' | 'audit';
 }
 
+const resend = new Resend('re_5pDysxpv_9o1QmndZM9TkPyqEtBrPvy1E');
+
 export async function sendContactEmails(formData: ContactFormData) {
   try {
-    console.log('Sending form data to Supabase function:', formData);
+    console.log('Sending form data to Resend:', formData);
     
-    const response = await fetch('https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDc1OTI2NTcsImV4cCI6MjAyMzE2ODY1N30.vvuPFLgMOHHqBJxJOhHqfDJBEXXEBBSFEBOXPBxGXQE'
-      },
-      body: JSON.stringify(formData)
+    // Send confirmation email to user
+    const userEmailPromise = resend.emails.send({
+      from: 'Parascape <onboarding@resend.dev>',
+      to: formData.email,
+      subject: 'Thank you for contacting Parascape',
+      html: `
+        <h1>Thank you for reaching out, ${formData.name}!</h1>
+        <p>We've received your message and will get back to you as soon as possible.</p>
+        <p>Here's a copy of your message:</p>
+        <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
+          ${formData.message}
+        </div>
+        <p>Best regards,<br>The Parascape Team</p>
+      `
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    // Send notification email to admin
+    const adminEmailPromise = resend.emails.send({
+      from: 'Parascape Website <onboarding@resend.dev>',
+      to: 'contact@parascape.org',
+      subject: `New ${formData.type} Form Submission from ${formData.name}`,
+      html: `
+        <h1>New Contact Form Submission</h1>
+        <h2>Contact Details:</h2>
+        <ul>
+          <li><strong>Name:</strong> ${formData.name}</li>
+          <li><strong>Email:</strong> ${formData.email}</li>
+          <li><strong>Phone:</strong> ${formData.phone}</li>
+          <li><strong>Form Type:</strong> ${formData.type}</li>
+        </ul>
+        <h2>Message:</h2>
+        <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
+          ${formData.message}
+        </div>
+      `
+    });
 
-    const text = await response.text();
-    console.log('Response text:', text);
+    // Send both emails concurrently
+    const [userResponse, adminResponse] = await Promise.all([userEmailPromise, adminEmailPromise]);
+    console.log('Email responses:', { user: userResponse, admin: adminResponse });
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error('Failed to parse response as JSON:', e);
-      throw new Error('Received invalid response from server');
-    }
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to send emails');
-    }
-
-    console.log('Supabase function response:', data);
-    return data;
+    return { success: true };
   } catch (error) {
     console.error('Error sending emails:', error);
     throw error;
