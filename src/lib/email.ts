@@ -1,13 +1,3 @@
-import { Resend } from '@resend/client';
-
-const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY, {
-  apiUrl: 'https://api.resend.com',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
-  }
-});
-
 interface ContactFormData {
   name: string;
   email: string;
