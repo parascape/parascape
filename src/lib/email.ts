@@ -7,76 +7,37 @@ interface ContactFormData {
 }
 
 export async function sendContactEmails(formData: ContactFormData) {
-  const { name, email, phone, message, type } = formData;
-
   try {
-    console.log('Sending form data to Resend:', formData);
+    console.log('Sending form data to Netlify function:', formData);
     
-    // Send confirmation email to user
-    const userEmailResponse = await fetch('https://api.resend.com/emails', {
+    const response = await fetch('/.netlify/functions/send-email', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
+        'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        from: 'Parascape <onboarding@resend.dev>',
-        to: email,
-        subject: 'Thank you for contacting Parascape',
-        html: `
-          <h1>Thank you for reaching out, ${name}!</h1>
-          <p>We've received your message and will get back to you as soon as possible.</p>
-          <p>Here's a copy of your message:</p>
-          <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-            ${message}
-          </div>
-          <p>Best regards,<br>The Parascape Team</p>
-        `
-      })
+      body: JSON.stringify(formData)
     });
 
-    if (!userEmailResponse.ok) {
-      const errorData = await userEmailResponse.json();
-      console.error('User email error:', errorData);
-      throw new Error(`Failed to send confirmation email: ${JSON.stringify(errorData)}`);
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+    const text = await response.text();
+    console.log('Response text:', text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      console.error('Failed to parse response as JSON:', e);
+      throw new Error('Received invalid response from server');
     }
 
-    // Send notification email to admin
-    const adminEmailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`
-      },
-      body: JSON.stringify({
-        from: 'Parascape Website <onboarding@resend.dev>',
-        to: import.meta.env.VITE_ADMIN_EMAIL,
-        subject: `New ${type} Form Submission from ${name}`,
-        html: `
-          <h1>New Contact Form Submission</h1>
-          <h2>Contact Details:</h2>
-          <ul>
-            <li><strong>Name:</strong> ${name}</li>
-            <li><strong>Email:</strong> ${email}</li>
-            <li><strong>Phone:</strong> ${phone}</li>
-            <li><strong>Form Type:</strong> ${type}</li>
-          </ul>
-          <h2>Message:</h2>
-          <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-            ${message}
-          </div>
-        `
-      })
-    });
-
-    if (!adminEmailResponse.ok) {
-      const errorData = await adminEmailResponse.json();
-      console.error('Admin email error:', errorData);
-      throw new Error(`Failed to send notification email: ${JSON.stringify(errorData)}`);
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to send emails');
     }
 
-    console.log('Emails sent successfully');
-    return { success: true };
+    console.log('Netlify function response:', data);
+    return data;
   } catch (error) {
     console.error('Error sending emails:', error);
     throw error;
