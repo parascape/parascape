@@ -1,11 +1,10 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
-import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://www.parascape.org',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-info',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-client-info, Accept',
   'Access-Control-Max-Age': '86400'
 };
 
@@ -27,64 +26,18 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-
-    if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
-      throw new Error('Missing environment variables');
+    if (!resendApiKey) {
+      throw new Error('Missing Resend API key');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resend = new Resend(resendApiKey);
-
-    // Parse form data
     const formData = await req.json() as FormData;
     console.log('Received data:', formData);
 
-    // Store in Supabase
-    const { data: submission, error: dbError } = await supabase
-      .from('contact_submissions')
-      .insert([{
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        type: formData.type || 'contact'
-      }])
-      .select()
-      .single();
-
-    if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Failed to store submission');
-    }
-
-    // Send admin notification
-    const { error: adminEmailError } = await resend.emails.send({
-      from: 'Parascape <onboarding@resend.dev>',
-      to: ['contact@parascape.org'],
-      subject: `New ${formData.type || 'contact'} form submission`,
-      html: `
-        <h2>New Form Submission</h2>
-        <p><strong>Type:</strong> ${formData.type || 'contact'}</p>
-        <p><strong>Name:</strong> ${formData.name}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Phone:</strong> ${formData.phone}</p>
-        <p><strong>Message:</strong> ${formData.message}</p>
-      `,
-      replyTo: formData.email
-    });
-
-    if (adminEmailError) {
-      console.error('Admin email error:', adminEmailError);
-      throw new Error('Failed to send admin notification');
-    }
-
-    // Send confirmation to user
+    // Send confirmation to user first
     const { error: userEmailError } = await resend.emails.send({
-      from: 'Parascape <onboarding@resend.dev>',
+      from: 'Parascape <no-reply@parascape.org>',
       to: [formData.email],
       subject: formData.type === 'audit' 
         ? 'Your Digital Audit Request - Parascape'
@@ -102,12 +55,33 @@ serve(async (req) => {
       throw new Error('Failed to send confirmation email');
     }
 
+    // Send admin notification
+    const { error: adminEmailError } = await resend.emails.send({
+      from: 'Parascape <no-reply@parascape.org>',
+      to: ['contact@parascape.org'],
+      subject: `New ${formData.type || 'contact'} form submission`,
+      html: `
+        <h2>New Form Submission</h2>
+        <p><strong>Type:</strong> ${formData.type || 'contact'}</p>
+        <p><strong>Name:</strong> ${formData.name}</p>
+        <p><strong>Email:</strong> ${formData.email}</p>
+        <p><strong>Phone:</strong> ${formData.phone}</p>
+        <p><strong>Message:</strong> ${formData.message}</p>
+      `,
+      replyTo: formData.email
+    });
+
+    if (adminEmailError) {
+      console.error('Admin email error:', adminEmailError);
+      // Don't throw here, just log the error since user already got confirmation
+      console.warn('Failed to send admin notification, but user was notified');
+    }
+
     // Return success
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Form submitted successfully',
-        data: submission
+        message: 'Form submitted successfully'
       }), 
       { 
         status: 200,
