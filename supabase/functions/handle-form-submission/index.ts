@@ -148,6 +148,9 @@ serve(async (req) => {
     
     // Store in Supabase with better error handling
     try {
+      console.log('Attempting database insert with URL:', Deno.env.get('SUPABASE_URL'));
+      console.log('Using anon key:', Deno.env.get('SUPABASE_ANON_KEY')?.substring(0, 10) + '...');
+      
       const { error: dbError } = await supabase
         .from('contacts')
         .insert([
@@ -161,7 +164,12 @@ serve(async (req) => {
         ]);
 
       if (dbError) {
-        console.error('Database error:', dbError);
+        console.error('Database error details:', {
+          code: dbError.code,
+          message: dbError.message,
+          details: dbError.details,
+          hint: dbError.hint
+        });
         throw new Error(`Database error: ${JSON.stringify(dbError)}`);
       }
 

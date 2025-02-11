@@ -4,7 +4,7 @@ export const config = {
   isProduction: import.meta.env.MODE === 'production',
   isDevelopment: import.meta.env.MODE === 'development',
   api: {
-    formSubmission: 'https://hpuqzerpfylevdfwembv.functions.supabase.co/handle-form-submission'
+    formSubmission: 'https://hpuqzerpfylevdfwembv.functions.supabase.co/v1/handle-form-submission'
   },
   supabase: {
     url: 'https://hpuqzerpfylevdfwembv.supabase.co',
