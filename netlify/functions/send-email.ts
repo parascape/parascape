@@ -58,7 +58,7 @@ const handler: Handler = async (event) => {
       },
       body: JSON.stringify({
         from: 'Parascape Website <onboarding@resend.dev>',
-        to: process.env.ADMIN_EMAIL,
+        to: 'contact@parascape.org',
         subject: `New ${type} Form Submission from ${name}`,
         html: `
           <h1>New Contact Form Submission</h1>
