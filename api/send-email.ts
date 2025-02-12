@@ -12,6 +12,58 @@ export const config = {
   runtime: 'edge'
 };
 
+const userEmailTemplate = (name: string, message: string) => `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Thank you for contacting Parascape</title>
+  </head>
+  <body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; color: #1f2937;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+      <h1 style="color: #059669; margin-bottom: 24px;">Thank you for reaching out, ${name}!</h1>
+      <p style="margin-bottom: 16px; line-height: 1.5;">We've received your message and will get back to you as soon as possible.</p>
+      <p style="margin-bottom: 8px; line-height: 1.5;">Here's a copy of your message:</p>
+      <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0; border-radius: 6px; line-height: 1.5;">
+        ${message}
+      </div>
+      <p style="margin-top: 24px; line-height: 1.5;">
+        Best regards,<br>
+        <strong>The Parascape Team</strong>
+      </p>
+    </div>
+  </body>
+</html>
+`;
+
+const adminEmailTemplate = (formData: ContactFormData) => `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Contact Form Submission</title>
+  </head>
+  <body style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 20px; color: #1f2937;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+      <h1 style="color: #059669; margin-bottom: 24px;">New Contact Form Submission</h1>
+      <h2 style="color: #374151; margin-bottom: 16px;">Contact Details:</h2>
+      <ul style="list-style: none; padding: 0; margin: 0 0 24px 0;">
+        <li style="margin-bottom: 8px; line-height: 1.5;"><strong>Name:</strong> ${formData.name}</li>
+        <li style="margin-bottom: 8px; line-height: 1.5;"><strong>Email:</strong> ${formData.email}</li>
+        <li style="margin-bottom: 8px; line-height: 1.5;"><strong>Phone:</strong> ${formData.phone}</li>
+        <li style="margin-bottom: 8px; line-height: 1.5;"><strong>Form Type:</strong> ${formData.type}</li>
+      </ul>
+      <h2 style="color: #374151; margin-bottom: 16px;">Message:</h2>
+      <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0; border-radius: 6px; line-height: 1.5;">
+        ${formData.message}
+      </div>
+    </div>
+  </body>
+</html>
+`;
+
 export default async function handler(req: Request) {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -28,7 +80,7 @@ export default async function handler(req: Request) {
 
   try {
     const formData: ContactFormData = await req.json();
-    const { name, email, phone, message, type } = formData;
+    const { name, email, message } = formData;
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -37,36 +89,15 @@ export default async function handler(req: Request) {
       from: 'Parascape <onboarding@resend.dev>',
       to: email,
       subject: 'Thank you for contacting Parascape',
-      html: `
-        <h1>Thank you for reaching out, ${name}!</h1>
-        <p>We've received your message and will get back to you as soon as possible.</p>
-        <p>Here's a copy of your message:</p>
-        <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-          ${message}
-        </div>
-        <p>Best regards,<br>The Parascape Team</p>
-      `
+      html: userEmailTemplate(name, message)
     });
 
     // Send notification email to admin
     const adminEmailPromise = resend.emails.send({
       from: 'Parascape Website <onboarding@resend.dev>',
       to: process.env.ADMIN_EMAIL!,
-      subject: `New ${type} Form Submission from ${name}`,
-      html: `
-        <h1>New Contact Form Submission</h1>
-        <h2>Contact Details:</h2>
-        <ul>
-          <li><strong>Name:</strong> ${name}</li>
-          <li><strong>Email:</strong> ${email}</li>
-          <li><strong>Phone:</strong> ${phone}</li>
-          <li><strong>Form Type:</strong> ${type}</li>
-        </ul>
-        <h2>Message:</h2>
-        <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
-          ${message}
-        </div>
-      `
+      subject: `New ${formData.type} Form Submission from ${name}`,
+      html: adminEmailTemplate(formData)
     });
 
     // Send both emails concurrently

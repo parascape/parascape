@@ -1,5 +1,3 @@
-import { Resend } from 'resend';
-
 interface ContactFormData {
   name: string;
   email: string;
@@ -7,8 +5,6 @@ interface ContactFormData {
   message: string;
   type: 'contact' | 'audit';
 }
-
-const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 
 export async function sendContactEmails(formData: ContactFormData) {
   try {
