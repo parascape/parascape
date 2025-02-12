@@ -8,7 +8,7 @@ const testEmail = async () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: 'onboarding@resend.dev',
+        from: 'contact@connect.parascape.org',
         to: 'recordsparascape@gmail.com',
         subject: 'Test Email',
         html: '<p>This is a test email</p>'

@@ -1,5 +1,6 @@
 const { Resend } = require('resend');
 
+// Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // User confirmation email template
@@ -71,18 +72,43 @@ exports.handler = async function(event, context) {
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { 
+      statusCode: 405, 
+      body: JSON.stringify({ 
+        success: false, 
+        error: 'Method Not Allowed' 
+      })
+    };
   }
 
   try {
-    const { name, email, phone, message, type } = JSON.parse(event.body);
+    // Validate API key
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('Missing RESEND_API_KEY environment variable');
+    }
+
+    // Parse and validate request body
+    let formData;
+    try {
+      formData = JSON.parse(event.body);
+    } catch (e) {
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { name, email, phone, message, type } = formData;
+
+    // Validate required fields
+    if (!name || !email || !message || !type) {
+      throw new Error('Missing required fields');
+    }
+
     console.log('Sending emails for:', { name, email, phone, type });
 
     // Send both confirmation to user and notification to admin
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
       resend.emails.send({
-        from: 'onboarding@resend.dev',
+        from: 'contact@connect.parascape.org',
         to: email,
         subject: 'Thank you for contacting Parascape',
         html: userConfirmationTemplate.replace(/\${(\w+)}/g, (_, key) => ({
@@ -91,8 +117,8 @@ exports.handler = async function(event, context) {
       }),
       // Send notification to admin
       resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: 'onboarding@resend.dev',
+        from: 'contact@connect.parascape.org',
+        to: 'contact@parascape.org',
         subject: `New ${type} Form Submission from ${name}`,
         html: adminNotificationTemplate.replace(/\${(\w+)}/g, (_, key) => ({
           name, email, phone, type, message
@@ -115,8 +141,15 @@ exports.handler = async function(event, context) {
     };
   } catch (error) {
     console.error('Error sending emails:', error);
+    
+    // Determine appropriate status code
+    let statusCode = 500;
+    if (error.message.includes('Missing RESEND_API_KEY')) statusCode = 503;
+    if (error.message.includes('Invalid JSON')) statusCode = 400;
+    if (error.message.includes('Missing required fields')) statusCode = 400;
+    
     return {
-      statusCode: 500,
+      statusCode,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json'

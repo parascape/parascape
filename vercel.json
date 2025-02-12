@@ -23,7 +23,7 @@
   ],
   "env": {
     "RESEND_API_KEY": "@resend_api_key",
-    "EMAIL_FROM": "contact@parascape.org",
+    "EMAIL_FROM": "contact@connect.parascape.org",
     "EMAIL_TO": "contact@parascape.org",
     "API_URL": "https://api.resend.com/emails"
   }
