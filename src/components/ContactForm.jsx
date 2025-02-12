@@ -2,9 +2,37 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { Resend } from 'resend';
 
-const resend = new Resend('re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq');
+// Direct API call like in our test
+async function sendEmail(formData) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: 'onboarding@resend.dev',
+      to: 'recordsparascape@gmail.com',
+      subject: `New ${formData.type} Form Submission from ${formData.name}`,
+      html: `
+        <h1>New Contact Form Submission</h1>
+        <p><strong>Name:</strong> ${formData.name}</p>
+        <p><strong>Email:</strong> ${formData.email}</p>
+        <p><strong>Phone:</strong> ${formData.phone}</p>
+        <p><strong>Message:</strong></p>
+        <p>${formData.message}</p>
+      `,
+      reply_to: formData.email
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to send email');
+  }
+  return data;
+}
 
 export default function ContactForm({ type = 'contact' }) {
   const navigate = useNavigate();
@@ -31,26 +59,7 @@ export default function ContactForm({ type = 'contact' }) {
 
           try {
             console.log('Form submission started with data:', formData);
-
-            const result = await resend.emails.send({
-              from: 'onboarding@resend.dev',
-              to: 'recordsparascape@gmail.com',
-              subject: `New ${formData.type} Form Submission from ${formData.name}`,
-              html: `
-                <h1>New Contact Form Submission</h1>
-                <p><strong>Name:</strong> ${formData.name}</p>
-                <p><strong>Email:</strong> ${formData.email}</p>
-                <p><strong>Phone:</strong> ${formData.phone}</p>
-                <p><strong>Message:</strong></p>
-                <p>${formData.message}</p>
-              `,
-              reply_to: formData.email
-            });
-
-            if (result.error) {
-              throw new Error(result.error.message || 'Failed to send email');
-            }
-
+            const result = await sendEmail(formData);
             console.log('Email sent:', result);
 
             analytics.track({
