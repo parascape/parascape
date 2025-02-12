@@ -1,20 +1,31 @@
-import { Resend } from 'resend';
-
-const resend = new Resend('re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq');
-
-async function testEmail() {
+// Simple test to verify Resend API call
+const testEmail = async () => {
   try {
-    const data = await resend.emails.send({
-      from: 'onboarding@resend.dev',
-      to: 'recordsparascape@gmail.com',
-      subject: 'Test Email',
-      html: '<p>This is a test email from Parascape</p>'
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'onboarding@resend.dev',
+        to: 'recordsparascape@gmail.com',
+        subject: 'Test Email',
+        html: '<p>This is a test email</p>'
+      })
     });
 
-    console.log('Test email sent successfully:', data);
+    const result = await response.json();
+    console.log('Response:', result);
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to send email');
+    }
+
+    console.log('Email sent successfully!');
   } catch (error) {
-    console.error('Failed to send test email:', error);
+    console.error('Error:', error);
   }
-}
+};
 
 testEmail(); 

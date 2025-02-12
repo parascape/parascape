@@ -24,6 +24,7 @@ export default function ContactForm({ type = 'contact' }) {
     setIsSubmitting(true);
 
     try {
+      // Using exact same API call that worked in our test
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -34,24 +35,24 @@ export default function ContactForm({ type = 'contact' }) {
           from: 'onboarding@resend.dev',
           to: 'recordsparascape@gmail.com',
           subject: `New ${type} Form Submission from ${formData.name}`,
-          html: `
-            <h1>New Contact Form Submission</h1>
-            <p><strong>Name:</strong> ${formData.name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Phone:</strong> ${formData.phone}</p>
-            <p><strong>Message:</strong></p>
-            <p>${formData.message}</p>
-          `,
-          reply_to: formData.email
+          html: `<h1>New Contact Form Submission</h1>
+                 <p><strong>Name:</strong> ${formData.name}</p>
+                 <p><strong>Email:</strong> ${formData.email}</p>
+                 <p><strong>Phone:</strong> ${formData.phone}</p>
+                 <p><strong>Message:</strong></p>
+                 <p>${formData.message}</p>`
         })
       });
 
       const result = await response.json();
-      
+      console.log('Response:', result);
+
       if (!response.ok) {
         throw new Error(result.message || 'Failed to send email');
       }
 
+      console.log('Email sent successfully!');
+      
       analytics.track({
         name: 'form_submit',
         properties: {
@@ -60,7 +61,9 @@ export default function ContactForm({ type = 'contact' }) {
         }
       });
 
+      toast.success('Message sent successfully!');
       navigate('/success');
+      
       setFormData({
         name: '',
         email: '',
@@ -69,7 +72,7 @@ export default function ContactForm({ type = 'contact' }) {
         type
       });
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Error:', error);
       
       analytics.track({
         name: 'form_submit',
