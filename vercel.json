@@ -4,7 +4,9 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     },
     {
       "src": "api/**/*.js",
@@ -22,9 +24,9 @@
     }
   ],
   "env": {
+    "NODE_ENV": "production",
     "RESEND_API_KEY": "@resend_api_key",
-    "EMAIL_FROM": "contact@connect.parascape.org",
-    "EMAIL_TO": "contact@parascape.org",
-    "API_URL": "https://api.resend.com/emails"
+    "EMAIL_FROM": "contact@parascape.org",
+    "EMAIL_TO": "recordsparascape@gmail.com"
   }
 } 

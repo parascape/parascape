@@ -1,5 +1,9 @@
+import { Resend } from 'resend';
+
 export default {
   async fetch(request, env, ctx) {
+    const resend = new Resend(env.RESEND_API_KEY);
+
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -20,8 +24,8 @@ export default {
       const formData = await request.json();
       const { name, email, phone, message, type } = formData;
 
-      // Create email content
-      const userEmailContent = `
+      // Create email templates
+      const userEmailHtml = `
         <!DOCTYPE html>
         <html>
           <head>
@@ -40,7 +44,7 @@ export default {
         </html>
       `;
 
-      const adminEmailContent = `
+      const adminEmailHtml = `
         <!DOCTYPE html>
         <html>
           <head>
@@ -64,47 +68,28 @@ export default {
         </html>
       `;
 
-      // Send both emails using Resend API
+      // Send both emails using Resend SDK
       const [userResponse, adminResponse] = await Promise.all([
         // Send confirmation to user
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'contact@connect.parascape.org',
-            to: email,
-            subject: 'Thank you for contacting Parascape',
-            html: userEmailContent
-          })
+        resend.emails.send({
+          from: 'contact@connect.parascape.org',
+          to: email,
+          subject: 'Thank you for contacting Parascape',
+          html: userEmailHtml
         }),
         // Send notification to admin
-        fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${env.RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'contact@connect.parascape.org',
-            to: 'recordsparascape@gmail.com',
-            subject: `New ${type} Form Submission from ${name}`,
-            html: adminEmailContent,
-            reply_to: email
-          })
+        resend.emails.send({
+          from: 'contact@connect.parascape.org',
+          to: 'recordsparascape@gmail.com',
+          subject: `New ${type} Form Submission from ${name}`,
+          html: adminEmailHtml,
+          reply_to: email
         })
-      ]);
-
-      const [userResult, adminResult] = await Promise.all([
-        userResponse.json(),
-        adminResponse.json()
       ]);
 
       return new Response(JSON.stringify({
         success: true,
-        data: { user: userResult, admin: adminResult }
+        data: { user: userResponse, admin: adminResponse }
       }), {
         headers: {
           'Content-Type': 'application/json',
