@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/send-email",
+      "dest": "/api/send-email.ts"
+    }
+  ],
+  "env": {
+    "RESEND_API_KEY": "@resend_api_key",
+    "ADMIN_EMAIL": "@admin_email"
+  }
+} 
