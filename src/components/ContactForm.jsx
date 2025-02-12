@@ -3,37 +3,6 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
 
-// Direct API call like in our test
-async function sendEmail(formData) {
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: 'onboarding@resend.dev',
-      to: 'recordsparascape@gmail.com',
-      subject: `New ${formData.type} Form Submission from ${formData.name}`,
-      html: `
-        <h1>New Contact Form Submission</h1>
-        <p><strong>Name:</strong> ${formData.name}</p>
-        <p><strong>Email:</strong> ${formData.email}</p>
-        <p><strong>Phone:</strong> ${formData.phone}</p>
-        <p><strong>Message:</strong></p>
-        <p>${formData.message}</p>
-      `,
-      reply_to: formData.email
-    })
-  });
-
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || 'Failed to send email');
-  }
-  return data;
-}
-
 export default function ContactForm({ type = 'contact' }) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,57 +19,80 @@ export default function ContactForm({ type = 'contact' }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'onboarding@resend.dev',
+          to: 'recordsparascape@gmail.com',
+          subject: `New ${type} Form Submission from ${formData.name}`,
+          html: `
+            <h1>New Contact Form Submission</h1>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Phone:</strong> ${formData.phone}</p>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message}</p>
+          `,
+          reply_to: formData.email
+        })
+      });
+
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send email');
+      }
+
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: true
+        }
+      });
+
+      navigate('/success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        type
+      });
+    } catch (error) {
+      console.error('Form submission error:', error);
+      
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: false,
+          error: error.message || 'Unknown error'
+        }
+      });
+
+      toast.error(
+        error instanceof Error
+          ? `Error sending message: ${error.message}`
+          : 'Failed to send message. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setIsSubmitting(true);
-
-          try {
-            console.log('Form submission started with data:', formData);
-            const result = await sendEmail(formData);
-            console.log('Email sent:', result);
-
-            analytics.track({
-              name: 'form_submit',
-              properties: {
-                form_type: type,
-                success: true
-              }
-            });
-
-            navigate('/success');
-            setFormData({
-              name: '',
-              email: '',
-              phone: '',
-              message: '',
-              type
-            });
-          } catch (error) {
-            console.error('Form submission error:', error);
-            
-            analytics.track({
-              name: 'form_submit',
-              properties: {
-                form_type: type,
-                success: false,
-                error: error.message || 'Unknown error'
-              }
-            });
-
-            toast.error(
-              error instanceof Error
-                ? `Error sending message: ${error.message}`
-                : 'Failed to send message. Please try again.'
-            );
-          } finally {
-            setIsSubmitting(false);
-          }
-        }}
-        className="space-y-6 bg-white p-4 sm:p-8 rounded-2xl shadow-sm"
-      >
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-4 sm:p-8 rounded-2xl shadow-sm">
         <div className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
