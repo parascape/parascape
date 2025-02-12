@@ -31,8 +31,8 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
     try {
       console.log('Form submission started with data:', formData);
       
-      // Send to Cloudflare Worker
-      const response = await fetch('/api/send-email', {
+      // Send to Netlify Function
+      const response = await fetch('/.netlify/functions/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -40,8 +40,14 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
         body: JSON.stringify(formData)
       });
 
-      const result = await response.json();
-      console.log('Email service response:', result);
+      let result;
+      try {
+        result = await response.json();
+        console.log('Email service response:', result);
+      } catch (parseError) {
+        console.error('Error parsing response:', parseError);
+        throw new Error('Invalid response from server');
+      }
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to send emails');
@@ -55,6 +61,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
+      toast.success('Message sent successfully!');
       navigate('/success');
       setFormData({
         name: '',
