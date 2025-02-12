@@ -11,15 +11,19 @@ function createEmailContent(template, data) {
 }
 
 exports.handler = async function(event, context) {
+  // Set default headers for all responses
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
   // Handle preflight requests
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      }
+      headers
     };
   }
 
@@ -27,6 +31,7 @@ exports.handler = async function(event, context) {
   if (event.httpMethod !== 'POST') {
     return { 
       statusCode: 405, 
+      headers,
       body: JSON.stringify({ 
         success: false, 
         error: 'Method Not Allowed' 
@@ -123,12 +128,11 @@ exports.handler = async function(event, context) {
     ]);
 
     console.log('Emails sent successfully:', { user: userResponse, admin: adminResponse });
+    
+    // Always return a JSON response
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({ 
         success: true, 
         data: { user: userResponse, admin: adminResponse } 
@@ -143,12 +147,10 @@ exports.handler = async function(event, context) {
     if (error.message.includes('Invalid JSON')) statusCode = 400;
     if (error.message.includes('Missing required fields')) statusCode = 400;
     
+    // Always return a JSON response
     return {
       statusCode,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({ 
         success: false, 
         error: error.message || 'Failed to send emails' 
