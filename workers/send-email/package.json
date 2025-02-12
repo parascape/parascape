@@ -1,0 +1,16 @@
+{
+  "name": "send-email",
+  "version": "1.0.0",
+  "description": "Email sending worker for Parascape contact form",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}
