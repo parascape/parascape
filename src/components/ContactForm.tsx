@@ -32,7 +32,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
       console.log('Form submission started with data:', formData);
       
       // Send to Netlify function
-      const response = await fetch('/api/send-email', {
+      const response = await fetch('https://parascape.netlify.app/.netlify/functions/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
