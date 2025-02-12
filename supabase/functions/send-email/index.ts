@@ -18,6 +18,10 @@ serve(async (req) => {
     const formData = await req.json();
     const { name, email, phone, message, type } = formData;
 
+    if (!name || !email || !phone || !message || !type) {
+      throw new Error('Missing required fields');
+    }
+
     // Create email templates
     const userEmailHtml = `
       <!DOCTYPE html>
@@ -66,15 +70,15 @@ serve(async (req) => {
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
       resend.emails.send({
-        from: Deno.env.get('EMAIL_FROM') || 'contact@parascape.org',
+        from: 'team@contact.parascape.org',
         to: email,
         subject: 'Thank you for contacting Parascape',
         html: userEmailHtml
       }),
       // Send notification to admin
       resend.emails.send({
-        from: Deno.env.get('EMAIL_FROM') || 'contact@parascape.org',
-        to: Deno.env.get('ADMIN_EMAIL') || 'contact@parascape.org',
+        from: 'team@contact.parascape.org',
+        to: 'contact@parascape.org',
         subject: `New ${type} Form Submission from ${name}`,
         html: adminEmailHtml,
         reply_to: email
@@ -95,10 +99,12 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error sending emails:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send emails';
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to send emails' 
+        error: errorMessage
       }),
       { 
         status: 500,
