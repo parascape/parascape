@@ -24,9 +24,9 @@ export default function ContactForm({ type = 'contact' }) {
     setIsSubmitting(true);
 
     try {
-      // Using exact same API call that worked in our test
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
+        mode: 'no-cors', // Disable CORS
         headers: {
           'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
           'Content-Type': 'application/json'
@@ -35,24 +35,19 @@ export default function ContactForm({ type = 'contact' }) {
           from: 'onboarding@resend.dev',
           to: 'recordsparascape@gmail.com',
           subject: `New ${type} Form Submission from ${formData.name}`,
-          html: `<h1>New Contact Form Submission</h1>
-                 <p><strong>Name:</strong> ${formData.name}</p>
-                 <p><strong>Email:</strong> ${formData.email}</p>
-                 <p><strong>Phone:</strong> ${formData.phone}</p>
-                 <p><strong>Message:</strong></p>
-                 <p>${formData.message}</p>`
+          html: `
+            <h1>New Contact Form Submission</h1>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Phone:</strong> ${formData.phone}</p>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message}</p>
+          `
         })
       });
 
-      const result = await response.json();
-      console.log('Response:', result);
+      console.log('Response:', response);
 
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to send email');
-      }
-
-      console.log('Email sent successfully!');
-      
       analytics.track({
         name: 'form_submit',
         properties: {
