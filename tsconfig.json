@@ -21,11 +21,13 @@
       "@ui/*": ["src/components/ui/*"],
       "@features/*": ["src/components/features/*"],
       "@layouts/*": ["src/components/layouts/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "src",
-    "scripts"
+    "scripts",
+    "src/types/*.d.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
