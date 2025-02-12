@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion';
-import React, { Suspense } from 'react';
+import { Suspense, type ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Loading } from './loading';
 
-const RouteTransition: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface RouteTransitionProps {
+  children: ReactElement;
+}
+
+export default function RouteTransition({ children }: RouteTransitionProps): ReactElement {
   const location = useLocation();
 
   return (
@@ -19,6 +23,4 @@ const RouteTransition: React.FC<{ children: React.ReactNode }> = ({ children }) 
       </motion.div>
     </Suspense>
   );
-};
-
-export default RouteTransition; 
+} 
