@@ -1,6 +1,15 @@
 [build]
   base = "/"
-  command = "npm run build"
+  command = """
+    rm -rf node_modules package-lock.json pnpm-lock.yaml &&
+    npm cache clean --force &&
+    npm install --prefer-offline=false --no-audit --no-fund --legacy-peer-deps &&
+    cd netlify/functions &&
+    rm -rf node_modules package-lock.json &&
+    npm install --prefer-offline=false --no-audit --no-fund --legacy-peer-deps &&
+    cd ../.. &&
+    npm run build
+  """
   publish = "dist"
   functions = "netlify/functions"
 
@@ -8,16 +17,28 @@
   NODE_VERSION = "18.20.6"
   NPM_VERSION = "10.8.2"
   NETLIFY_USE_PNPM = "false"
-  NPM_FLAGS = "--no-audit --no-fund"
+  NETLIFY_USE_NPM = "true"
+  NPM_FLAGS = "--no-audit --no-fund --legacy-peer-deps"
+  CI = "true"
+  NETLIFY_USE_YARN = "false"
+  FORCE_NPM = "true"
 
+# API requests should be handled first
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
+  force = true
+
+# Then handle all other routes for the SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [[headers]]
-  for = "/*"
-    [headers.values]
+  for = "/api/*"
+  [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
-    Access-Control-Allow-Headers = "Content-Type" 
+    Access-Control-Allow-Headers = "Origin, X-Requested-With, Content-Type, Accept" 

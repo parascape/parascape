@@ -32,7 +32,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
       console.log('Form submission started with data:', formData);
       
       // Send to Netlify function
-      const response = await fetch('/.netlify/functions/send-email', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
