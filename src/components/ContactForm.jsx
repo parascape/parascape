@@ -24,29 +24,20 @@ export default function ContactForm({ type = 'contact' }) {
     setIsSubmitting(true);
 
     try {
-      await fetch('https://api.resend.com/emails', {
+      const response = await fetch('/api/send-email', {
         method: 'POST',
-        mode: 'no-cors',
         headers: {
-          'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          from: 'onboarding@resend.dev',
-          to: 'recordsparascape@gmail.com',
-          subject: `New ${type} Form Submission from ${formData.name}`,
-          html: `
-            <h1>New Contact Form Submission</h1>
-            <p><strong>Name:</strong> ${formData.name}</p>
-            <p><strong>Email:</strong> ${formData.email}</p>
-            <p><strong>Phone:</strong> ${formData.phone}</p>
-            <p><strong>Message:</strong></p>
-            <p>${formData.message}</p>
-          `
-        })
+        body: JSON.stringify(formData)
       });
 
-      // With no-cors mode, we won't get a JSON response, so we assume success if no error is thrown
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message');
+      }
+
       analytics.track({
         name: 'form_submit',
         properties: {
