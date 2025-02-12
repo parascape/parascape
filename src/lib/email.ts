@@ -8,7 +8,7 @@ interface ContactFormData {
   type: 'contact' | 'audit';
 }
 
-const resend = new Resend('re_5pDysxpv_9o1QmndZM9TkPyqEtBrPvy1E');
+const resend = new Resend(import.meta.env.VITE_RESEND_API_KEY);
 
 export async function sendContactEmails(formData: ContactFormData) {
   try {
@@ -33,7 +33,7 @@ export async function sendContactEmails(formData: ContactFormData) {
     // Send notification email to admin
     const adminEmailPromise = resend.emails.send({
       from: 'Parascape Website <onboarding@resend.dev>',
-      to: 'contact@parascape.org',
+      to: import.meta.env.VITE_ADMIN_EMAIL,
       subject: `New ${formData.type} Form Submission from ${formData.name}`,
       html: `
         <h1>New Contact Form Submission</h1>
