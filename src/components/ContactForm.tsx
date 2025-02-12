@@ -24,61 +24,71 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      console.log('Form submission started with data:', formData);
+      
+      // Send to Netlify function
+      const response = await fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      console.log('Email service response:', result);
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send emails');
+      }
+
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: true
+        }
+      });
+
+      navigate('/success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        message: '',
+        type
+      });
+    } catch (error) {
+      console.error('Form submission error:', error);
+      
+      analytics.track({
+        name: 'form_submit',
+        properties: {
+          form_type: type,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
+      });
+
+      toast.error(
+        error instanceof Error
+          ? `Error sending message: ${error.message}`
+          : 'Failed to send message. Please try again.'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
       <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setIsSubmitting(true);
-
-          try {
-            console.log('Form submission started with data:', formData);
-            
-            // Send confirmation and notification emails
-            const response = await sendContactFormEmails(formData);
-            console.log('Email service response:', response);
-
-            if (!response.success) {
-              throw new Error(response.error || 'Failed to send emails');
-            }
-
-            analytics.track({
-              name: 'form_submit',
-              properties: {
-                form_type: type,
-                success: true
-              }
-            });
-
-            navigate('/success');
-            setFormData({
-              name: '',
-              email: '',
-              phone: '',
-              message: '',
-              type
-            });
-          } catch (error) {
-            console.error('Form submission error:', error);
-            
-            analytics.track({
-              name: 'form_submit',
-              properties: {
-                form_type: type,
-                success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
-              }
-            });
-
-            toast.error(
-              error instanceof Error
-                ? `Error sending message: ${error.message}`
-                : 'Failed to send message. Please try again.'
-            );
-          } finally {
-            setIsSubmitting(false);
-          }
-        }}
+        onSubmit={handleSubmit}
         className="space-y-6 bg-white p-4 sm:p-8 rounded-2xl shadow-sm"
       >
         <div className="space-y-4">
