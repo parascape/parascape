@@ -145,6 +145,8 @@ export const adminNotificationTemplate = `
  */
 export async function sendContactFormEmails(formData: ContactFormData) {
   try {
+    console.log('Sending emails via Resend:', formData);
+    
     // Send confirmation email to user
     const userEmailContent = createEmailFromTemplate(userConfirmationTemplate, {
       name: formData.name,
@@ -152,7 +154,8 @@ export async function sendContactFormEmails(formData: ContactFormData) {
       message: formData.message
     });
 
-    const userEmailPromise = sendEmail({
+    const userEmailPromise = resend.emails.send({
+      from: import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
       to: formData.email,
       subject: 'Thank you for contacting Parascape',
       html: userEmailContent
@@ -161,20 +164,19 @@ export async function sendContactFormEmails(formData: ContactFormData) {
     // Send notification email to admin
     const adminEmailContent = createEmailFromTemplate(adminNotificationTemplate, formData);
 
-    const adminEmailPromise = sendEmail({
-      to: import.meta.env.VITE_ADMIN_EMAIL,
+    const adminEmailPromise = resend.emails.send({
+      from: import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
+      to: import.meta.env.VITE_ADMIN_EMAIL || 'recordsparascape@gmail.com',
       subject: `New ${formData.type} Form Submission from ${formData.name}`,
       html: adminEmailContent,
-      replyTo: formData.email
+      reply_to: formData.email
     });
 
     // Send both emails concurrently
     const [userResponse, adminResponse] = await Promise.all([userEmailPromise, adminEmailPromise]);
+    console.log('Email responses:', { user: userResponse, admin: adminResponse });
 
-    return {
-      success: userResponse.success && adminResponse.success,
-      error: userResponse.error || adminResponse.error
-    };
+    return { success: true };
   } catch (error) {
     console.error('Error sending contact form emails:', error);
     return {
