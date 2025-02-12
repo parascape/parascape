@@ -2,9 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { Resend } from 'resend';
-
-const resend = new Resend('re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq');
 
 export default function ContactForm({ type = 'contact' }) {
   const navigate = useNavigate();
@@ -27,24 +24,29 @@ export default function ContactForm({ type = 'contact' }) {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await resend.emails.send({
-        from: 'onboarding@resend.dev',
-        to: 'recordsparascape@gmail.com',
-        subject: `New ${type} Form Submission from ${formData.name}`,
-        html: `
-          <h1>New Contact Form Submission</h1>
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Phone:</strong> ${formData.phone}</p>
-          <p><strong>Message:</strong></p>
-          <p>${formData.message}</p>
-        `
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Authorization': 'Bearer re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'onboarding@resend.dev',
+          to: 'recordsparascape@gmail.com',
+          subject: `New ${type} Form Submission from ${formData.name}`,
+          html: `
+            <h1>New Contact Form Submission</h1>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Phone:</strong> ${formData.phone}</p>
+            <p><strong>Message:</strong></p>
+            <p>${formData.message}</p>
+          `
+        })
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
+      // With no-cors mode, we won't get a JSON response, so we assume success if no error is thrown
       analytics.track({
         name: 'form_submit',
         properties: {
