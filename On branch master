@@ -1,0 +1,185 @@
+[1mdiff --git a/vite.config.ts b/vite.config.ts[m
+[1mindex 4418e4a..c86be40 100644[m
+[1m--- a/vite.config.ts[m
+[1m+++ b/vite.config.ts[m
+[36m@@ -1,90 +1,90 @@[m
+[31m-import { defineConfig, type ConfigEnv, type UserConfig } from "vite";[m
+[31m-import react from "@vitejs/plugin-react-swc";[m
+[31m-import path from "path";[m
+[31m-import tailwindcss from 'tailwindcss';[m
+[31m-import autoprefixer from 'autoprefixer';[m
+[31m-[m
+[31m-export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({[m
+[31m-  base: mode === 'production' ? '/' : '/',[m
+[31m-  plugins: [react()],[m
+[31m-  resolve: {[m
+[31m-    alias: {[m
+[31m-      '@': path.resolve(__dirname, './src'),[m
+[31m-      '@ui': path.resolve(__dirname, './src/components/ui'),[m
+[31m-      '@features': path.resolve(__dirname, './src/components/features'),[m
+[31m-      '@layouts': path.resolve(__dirname, './src/components/layouts'),[m
+[31m-    }[m
+[31m-  },[m
+[31m-  server: {[m
+[31m-    port: 5174,[m
+[31m-    strictPort: false,[m
+[31m-    host: true,[m
+[31m-    headers: {[m
+[31m-      'Access-Control-Allow-Origin': '*',[m
+[31m-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',[m
+[31m-      'Access-Control-Allow-Headers': 'Content-Type, Authorization'[m
+[31m-    }[m
+[31m-  },[m
+[31m-  build: {[m
+[31m-    outDir: 'dist',[m
+[31m-    sourcemap: true,[m
+[31m-    assetsDir: 'assets',[m
+[31m-    cssCodeSplit: true,[m
+[31m-    minify: 'terser',[m
+[31m-    terserOptions: {[m
+[31m-      compress: {[m
+[31m-        drop_console: mode === 'production',[m
+[31m-        drop_debugger: mode === 'production'[m
+[31m-      }[m
+[31m-    },[m
+[31m-    rollupOptions: {[m
+[31m-      input: path.resolve(__dirname, 'index.html'),[m
+[31m-      output: {[m
+[31m-        chunkFileNames: mode === 'production' [m
+[31m-          ? 'assets/js/[name]-[hash].js'[m
+[31m-          : 'assets/js/[name].js',[m
+[31m-        entryFileNames: mode === 'production'[m
+[31m-          ? 'assets/js/[name]-[hash].js'[m
+[31m-          : 'assets/js/[name].js',[m
+[31m-        assetFileNames: (assetInfo) => {[m
+[31m-          const extType = assetInfo.name.split('.')[1];[m
+[31m-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {[m
+[31m-            return mode === 'production' [m
+[31m-              ? 'assets/images/[name]-[hash][extname]'[m
+[31m-              : 'assets/images/[name][extname]';[m
+[31m-          }[m
+[31m-          if (/css/i.test(extType)) {[m
+[31m-            return mode === 'production'[m
+[31m-              ? 'assets/css/[name]-[hash][extname]'[m
+[31m-              : 'assets/css/[name][extname]';[m
+[31m-          }[m
+[31m-          return mode === 'production'[m
+[31m-            ? 'assets/[name]-[hash][extname]'[m
+[31m-            : 'assets/[name][extname]';[m
+[31m-        },[m
+[31m-        manualChunks: {[m
+[31m-          'vendor': ['react', 'react-dom', 'react-router-dom'],[m
+[31m-          'ui': ['framer-motion', 'lucide-react'],[m
+[31m-        }[m
+[31m-      }[m
+[31m-    }[m
+[31m-  },[m
+[31m-  css: {[m
+[31m-    modules: {[m
+[31m-      localsConvention: 'camelCase',[m
+[31m-      generateScopedName: mode === 'production'[m
+[31m-        ? '[hash:base64:8]'[m
+[31m-        : '[name]__[local]'[m
+[31m-    },[m
+[31m-    postcss: {[m
+[31m-      plugins: [[m
+[31m-        tailwindcss,[m
+[31m-        autoprefixer,[m
+[31m-      ][m
+[31m-    }[m
+[31m-  },[m
+[31m-  define: {[m
+[31m-    'process.env.NODE_ENV': JSON.stringify(mode),[m
+[31m-    'import.meta.env.VITE_GA4_MEASUREMENT_ID': JSON.stringify('G-NQLRXMREDQ')[m
+[31m-  }[m
+[31m-}));[m
+[32m+[m[32mimport { defineConfig, type ConfigEnv, type UserConfig } from "vite";[m[41m[m
+[32m+[m[32mimport react from "@vitejs/plugin-react-swc";[m[41m[m
+[32m+[m[32mimport path from "path";[m[41m[m
+[32m+[m[32mimport tailwindcss from 'tailwindcss';[m[41m[m
+[32m+[m[32mimport autoprefixer from 'autoprefixer';[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mexport default defineConfig(({ mode }: ConfigEnv): UserConfig => ({[m[41m[m
+[32m+[m[32m  base: mode === 'production' ? '/' : '/',[m[41m[m
+[32m+[m[32m  plugins: [react()],[m[41m[m
+[32m+[m[32m  resolve: {[m[41m[m
+[32m+[m[32m    alias: {[m[41m[m
+[32m+[m[32m      '@': path.resolve(__dirname, './src'),[m[41m[m
+[32m+[m[32m      '@ui': path.resolve(__dirname, './src/components/ui'),[m[41m[m
+[32m+[m[32m      '@features': path.resolve(__dirname, './src/components/features'),[m[41m[m
+[32m+[m[32m      '@layouts': path.resolve(__dirname, './src/components/layouts'),[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[32m  },[m[41m[m
+[32m+[m[32m  server: {[m[41m[m
+[32m+[m[32m    port: 5174,[m[41m[m
+[32m+[m[32m    strictPort: false,[m[41m[m
+[32m+[m[32m    host: true,[m[41m[m
+[32m+[m[32m    headers: {[m[41m[m
+[32m+[m[32m      'Access-Control-Allow-Origin': '*',[m[41m[m
+[32m+[m[32m      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',[m[41m[m
+[32m+[m[32m      'Access-Control-Allow-Headers': 'Content-Type, Authorization'[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[32m  },[m[41m[m
+[32m+[m[32m  build: {[m[41m[m
+[32m+[m[32m    outDir: 'dist',[m[41m[m
+[32m+[m[32m    sourcemap: true,[m[41m[m
+[32m+[m[32m    assetsDir: 'assets',[m[41m[m
+[32m+[m[32m    cssCodeSplit: true,[m[41m[m
+[32m+[m[32m    minify: 'terser',[m[41m[m
+[32m+[m[32m    terserOptions: {[m[41m[m
+[32m+[m[32m      compress: {[m[41m[m
+[32m+[m[32m        drop_console: mode === 'production',[m[41m[m
+[32m+[m[32m        drop_debugger: mode === 'production'[m[41m[m
+[32m+[m[32m      }[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    rollupOptions: {[m[41m[m
+[32m+[m[32m      input: path.resolve(__dirname, 'index.html'),[m[41m[m
+[32m+[m[32m      output: {[m[41m[m
+[32m+[m[32m        chunkFileNames: mode === 'production'[m[41m [m
+[32m+[m[32m          ? 'assets/js/[name]-[hash].js'[m[41m[m
+[32m+[m[32m          : 'assets/js/[name].js',[m[41m[m
+[32m+[m[32m        entryFileNames: mode === 'production'[m[41m[m
+[32m+[m[32m          ? 'assets/js/[name]-[hash].js'[m[41m[m
+[32m+[m[32m          : 'assets/js/[name].js',[m[41m[m
+[32m+[m[32m        assetFileNames: (assetInfo) => {[m[41m[m
+[32m+[m[32m          const extType = assetInfo.name.split('.')[1];[m[41m[m
+[32m+[m[32m          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {[m[41m[m
+[32m+[m[32m            return mode === 'production'[m[41m [m
+[32m+[m[32m              ? 'assets/images/[name]-[hash][extname]'[m[41m[m
+[32m+[m[32m              : 'assets/images/[name][extname]';[m[41m[m
+[32m+[m[32m          }[m[41m[m
+[32m+[m[32m          if (/css/i.test(extType)) {[m[41m[m
+[32m+[m[32m            return mode === 'production'[m[41m[m
+[32m+[m[32m              ? 'assets/css/[name]-[hash][extname]'[m[41m[m
+[32m+[m[32m              : 'assets/css/[name][extname]';[m[41m[m
+[32m+[m[32m          }[m[41m[m
+[32m+[m[32m          return mode === 'production'[m[41m[m
+[32m+[m[32m            ? 'assets/[name]-[hash][extname]'[m[41m[m
+[32m+[m[32m            : 'assets/[name][extname]';[m[41m[m
+[32m+[m[32m        },[m[41m[m
+[32m+[m[32m        manualChunks: {[m[41m[m
+[32m+[m[32m          'vendor': ['react', 'react-dom', 'react-router-dom'],[m[41m[m
+[32m+[m[32m          'ui': ['framer-motion', 'lucide-react'],[m[41m[m
+[32m+[m[32m        }[m[41m[m
+[32m+[m[32m      }[m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[32m  },[m[41m[m
+[32m+[m[32m  css: {[m[41m[m
+[32m+[m[32m    modules: {[m[41m[m
+[32m+[m[32m      localsConvention: 'camelCase',[m[41m[m
+[32m+[m[32m      generateScopedName: mode === 'production'[m[41m[m
+[32m+[m[32m        ? '[hash:base64:8]'[m[41m[m
+[32m+[m[32m        : '[name]__[local]'[m[41m[m
+[32m+[m[32m    },[m[41m[m
+[32m+[m[32m    postcss: {[m[41m[m
+[32m+[m[32m      plugins: [[m[41m[m
+[32m+[m[32m        tailwindcss,[m[41m[m
+[32m+[m[32m        autoprefixer,[m[41m[m
+[32m+[m[32m      ][m[41m[m
+[32m+[m[32m    }[m[41m[m
+[32m+[m[32m  },[m[41m[m
+[32m+[m[32m  define: {[m[41m[m
+[32m+[m[32m    'process.env.NODE_ENV': JSON.stringify(mode),[m[41m[m
+[32m+[m[32m    'import.meta.env.VITE_GA4_MEASUREMENT_ID': JSON.stringify('G-NQLRXMREDQ')[m[41m[m
+[32m+[m[32m  }[m[41m[m
+[32m+[m[32m}));[m[41m[m
