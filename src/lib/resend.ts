@@ -157,47 +157,23 @@ export async function sendContactFormEmails(formData: ContactFormData) {
     // Send both emails concurrently
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
-          to: formData.email,
-          subject: 'Thank you for contacting Parascape',
-          html: userEmailContent
-        })
+      resend.emails.send({
+        from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
+        to: formData.email,
+        subject: 'Thank you for contacting Parascape',
+        html: userEmailContent
       }),
       // Send notification to admin
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
-          to: import.meta.env.VITE_ADMIN_EMAIL || 'contact@parascape.org',
-          subject: `New ${formData.type} Form Submission from ${formData.name}`,
-          html: adminEmailContent,
-          reply_to: formData.email
-        })
+      resend.emails.send({
+        from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
+        to: import.meta.env.VITE_EMAIL_TO || 'contact@parascape.org',
+        subject: `New ${formData.type} Form Submission from ${formData.name}`,
+        html: adminEmailContent,
+        reply_to: formData.email
       })
     ]);
 
-    // Check responses
-    const [userResult, adminResult] = await Promise.all([
-      userResponse.json(),
-      adminResponse.json()
-    ]);
-
-    if (!userResponse.ok || !adminResponse.ok) {
-      throw new Error(userResult.message || adminResult.message || 'Failed to send emails');
-    }
-
-    console.log('Email responses:', { user: userResult, admin: adminResult });
+    console.log('Email responses:', { user: userResponse, admin: adminResponse });
     return { success: true };
   } catch (error) {
     console.error('Error sending contact form emails:', error);
