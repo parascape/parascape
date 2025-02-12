@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { sendContactFormEmails } from '@/lib/resend';
+
+const RESEND_API_KEY = 're_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq';
 
 export default function ContactForm({ type = 'contact' }) {
   const navigate = useNavigate();
@@ -30,12 +31,90 @@ export default function ContactForm({ type = 'contact' }) {
           try {
             console.log('Form submission started with data:', formData);
             
-            // Send confirmation and notification emails
-            const response = await sendContactFormEmails(formData);
-            console.log('Email service response:', response);
+            // Create email content
+            const userEmailContent = `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <title>Thank you for contacting Parascape</title>
+                </head>
+                <body style="font-family: system-ui, sans-serif; color: #1f2937;">
+                  <h1 style="color: #059669;">Thank you for reaching out, ${formData.name}!</h1>
+                  <p>We've received your ${formData.type} request and will get back to you as soon as possible.</p>
+                  <p>Here's a copy of your message:</p>
+                  <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0;">
+                    ${formData.message}
+                  </div>
+                  <p>Best regards,<br><strong>The Parascape Team</strong></p>
+                </body>
+              </html>
+            `;
 
-            if (!response.success) {
-              throw new Error(response.error || 'Failed to send emails');
+            const adminEmailContent = `
+              <!DOCTYPE html>
+              <html>
+                <head>
+                  <meta charset="utf-8">
+                  <title>New Contact Form Submission</title>
+                </head>
+                <body style="font-family: system-ui, sans-serif; color: #1f2937;">
+                  <h1 style="color: #059669;">New ${formData.type} Form Submission</h1>
+                  <h2>Contact Details:</h2>
+                  <ul>
+                    <li><strong>Name:</strong> ${formData.name}</li>
+                    <li><strong>Email:</strong> ${formData.email}</li>
+                    <li><strong>Phone:</strong> ${formData.phone}</li>
+                    <li><strong>Form Type:</strong> ${formData.type}</li>
+                  </ul>
+                  <h2>Message:</h2>
+                  <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0;">
+                    ${formData.message}
+                  </div>
+                </body>
+              </html>
+            `;
+
+            // Send both emails concurrently
+            const [userResponse, adminResponse] = await Promise.all([
+              // Send confirmation to user
+              fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${RESEND_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  from: 'contact@parascape.org',
+                  to: formData.email,
+                  subject: 'Thank you for contacting Parascape',
+                  html: userEmailContent
+                })
+              }),
+              // Send notification to admin
+              fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${RESEND_API_KEY}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  from: 'contact@parascape.org',
+                  to: 'contact@parascape.org',
+                  subject: `New ${formData.type} Form Submission from ${formData.name}`,
+                  html: adminEmailContent,
+                  reply_to: formData.email
+                })
+              })
+            ]);
+
+            const [userResult, adminResult] = await Promise.all([
+              userResponse.json(),
+              adminResponse.json()
+            ]);
+
+            if (!userResponse.ok || !adminResponse.ok) {
+              throw new Error(userResult.message || adminResult.message || 'Failed to send emails');
             }
 
             analytics.track({
