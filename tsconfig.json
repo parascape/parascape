@@ -22,7 +22,8 @@
       "@features/*": ["src/components/features/*"],
       "@layouts/*": ["src/components/layouts/*"]
     },
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "noImplicitAny": false
   },
   "include": [
     "src",

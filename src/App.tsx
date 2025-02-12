@@ -7,7 +7,7 @@ import { MainLayout } from '@/components/layouts/MainLayout';
 import { HelmetProvider } from 'react-helmet-async';
 import { CookieConsent } from '@/components/features/cookies/CookieConsent';
 import { AnalyticsProvider } from '@/components/features/analytics';
-import { RouteTransition } from '@/components/ui/route-transition';
+import RouteTransition from '@/components/ui/route-transition';
 import { analytics } from '@/lib/analytics';
 import { config } from '@/config/environment';
 

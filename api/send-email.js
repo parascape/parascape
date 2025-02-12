@@ -12,8 +12,8 @@ export default async function handler(req, res) {
     const { name, email, phone, message, type } = req.body;
 
     const result = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
-      to: process.env.EMAIL_TO || 'recordsparascape@gmail.com',
+      from: process.env.EMAIL_FROM || 'contact@parascape.org',
+      to: process.env.EMAIL_TO || 'contact@parascape.org',
       subject: `New ${type} Form Submission from ${name}`,
       html: `
         <h1>New Contact Form Submission</h1>
