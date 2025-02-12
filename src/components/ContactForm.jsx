@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
+import { Resend } from 'resend';
 
-const RESEND_API_KEY = 're_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq';
+const resend = new Resend('re_E67XP4W1_71WZWZ5tAvzDepCDJsqHTjtq');
 
 export default function ContactForm({ type = 'contact' }) {
   const navigate = useNavigate();
@@ -76,46 +77,25 @@ export default function ContactForm({ type = 'contact' }) {
             `;
 
             // Send both emails concurrently
-            const [userResponse, adminResponse] = await Promise.all([
+            const [userResult, adminResult] = await Promise.all([
               // Send confirmation to user
-              fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${RESEND_API_KEY}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  from: 'contact@parascape.org',
-                  to: formData.email,
-                  subject: 'Thank you for contacting Parascape',
-                  html: userEmailContent
-                })
+              resend.emails.send({
+                from: 'contact@parascape.org',
+                to: formData.email,
+                subject: 'Thank you for contacting Parascape',
+                html: userEmailContent
               }),
               // Send notification to admin
-              fetch('https://api.resend.com/emails', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${RESEND_API_KEY}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  from: 'contact@parascape.org',
-                  to: 'contact@parascape.org',
-                  subject: `New ${formData.type} Form Submission from ${formData.name}`,
-                  html: adminEmailContent,
-                  reply_to: formData.email
-                })
+              resend.emails.send({
+                from: 'contact@parascape.org',
+                to: 'contact@parascape.org',
+                subject: `New ${formData.type} Form Submission from ${formData.name}`,
+                html: adminEmailContent,
+                reply_to: formData.email
               })
             ]);
 
-            const [userResult, adminResult] = await Promise.all([
-              userResponse.json(),
-              adminResponse.json()
-            ]);
-
-            if (!userResponse.ok || !adminResponse.ok) {
-              throw new Error(userResult.message || adminResult.message || 'Failed to send emails');
-            }
+            console.log('Email responses:', { user: userResult, admin: adminResult });
 
             analytics.track({
               name: 'form_submit',
