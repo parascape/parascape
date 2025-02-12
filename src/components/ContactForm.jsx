@@ -31,71 +31,23 @@ export default function ContactForm({ type = 'contact' }) {
 
           try {
             console.log('Form submission started with data:', formData);
-            
-            // Create email content
-            const userEmailContent = `
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <meta charset="utf-8">
-                  <title>Thank you for contacting Parascape</title>
-                </head>
-                <body style="font-family: system-ui, sans-serif; color: #1f2937;">
-                  <h1 style="color: #059669;">Thank you for reaching out, ${formData.name}!</h1>
-                  <p>We've received your ${formData.type} request and will get back to you as soon as possible.</p>
-                  <p>Here's a copy of your message:</p>
-                  <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0;">
-                    ${formData.message}
-                  </div>
-                  <p>Best regards,<br><strong>The Parascape Team</strong></p>
-                </body>
-              </html>
-            `;
 
-            const adminEmailContent = `
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <meta charset="utf-8">
-                  <title>New Contact Form Submission</title>
-                </head>
-                <body style="font-family: system-ui, sans-serif; color: #1f2937;">
-                  <h1 style="color: #059669;">New ${formData.type} Form Submission</h1>
-                  <h2>Contact Details:</h2>
-                  <ul>
-                    <li><strong>Name:</strong> ${formData.name}</li>
-                    <li><strong>Email:</strong> ${formData.email}</li>
-                    <li><strong>Phone:</strong> ${formData.phone}</li>
-                    <li><strong>Form Type:</strong> ${formData.type}</li>
-                  </ul>
-                  <h2>Message:</h2>
-                  <div style="background-color: #f3f4f6; padding: 16px; margin: 16px 0;">
-                    ${formData.message}
-                  </div>
-                </body>
-              </html>
-            `;
+            const result = await resend.emails.send({
+              from: 'contact@parascape.org',
+              to: 'contact@parascape.org',
+              subject: `New ${formData.type} Form Submission from ${formData.name}`,
+              html: `
+                <h1>New Contact Form Submission</h1>
+                <p><strong>Name:</strong> ${formData.name}</p>
+                <p><strong>Email:</strong> ${formData.email}</p>
+                <p><strong>Phone:</strong> ${formData.phone}</p>
+                <p><strong>Message:</strong></p>
+                <p>${formData.message}</p>
+              `,
+              reply_to: formData.email
+            });
 
-            // Send both emails concurrently
-            const [userResult, adminResult] = await Promise.all([
-              // Send confirmation to user
-              resend.emails.send({
-                from: 'contact@parascape.org',
-                to: formData.email,
-                subject: 'Thank you for contacting Parascape',
-                html: userEmailContent
-              }),
-              // Send notification to admin
-              resend.emails.send({
-                from: 'contact@parascape.org',
-                to: 'contact@parascape.org',
-                subject: `New ${formData.type} Form Submission from ${formData.name}`,
-                html: adminEmailContent,
-                reply_to: formData.email
-              })
-            ]);
-
-            console.log('Email responses:', { user: userResult, admin: adminResult });
+            console.log('Email sent:', result);
 
             analytics.track({
               name: 'form_submit',
