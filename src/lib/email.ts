@@ -6,11 +6,16 @@ interface ContactFormData {
   type: 'contact' | 'audit';
 }
 
-export async function sendContactEmails(formData: ContactFormData) {
+interface ApiResponse {
+  success: boolean;
+  error?: string;
+}
+
+export async function sendContactEmails(formData: ContactFormData): Promise<ApiResponse> {
   try {
     console.log('Sending form data to API:', formData);
     
-    const response = await fetch('https://parascape.org/api/send-email', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -18,17 +23,18 @@ export async function sendContactEmails(formData: ContactFormData) {
       body: JSON.stringify(formData)
     });
 
+    const result = await response.json() as ApiResponse;
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to send emails');
+      throw new Error(result.error || 'Failed to send emails');
     }
 
-    const result = await response.json();
     console.log('API response:', result);
-
     return result;
   } catch (error) {
     console.error('Error sending emails:', error);
-    throw error;
+    throw error instanceof Error 
+      ? error 
+      : new Error('An unexpected error occurred');
   }
 } 

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { sendContactEmails } from '@/lib/email';
+import { sendContactFormEmails, type ContactFormData } from '@/lib/resend';
 
 interface ContactFormProps {
   type?: 'contact' | 'audit';
@@ -11,7 +11,7 @@ interface ContactFormProps {
 export default function ContactForm({ type = 'contact' }: ContactFormProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     phone: '',
@@ -34,9 +34,13 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
           try {
             console.log('Form submission started with data:', formData);
             
-            // Send emails using our email service
-            const response = await sendContactEmails(formData);
+            // Send confirmation and notification emails
+            const response = await sendContactFormEmails(formData);
             console.log('Email service response:', response);
+
+            if (!response.success) {
+              throw new Error(response.error || 'Failed to send emails');
+            }
 
             analytics.track({
               name: 'form_submit',
