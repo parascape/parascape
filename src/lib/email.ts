@@ -1,10 +1,4 @@
-interface ContactFormData {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  type: 'contact' | 'audit';
-}
+import { sendContactFormEmails, type ContactFormData } from './resend';
 
 interface ApiResponse {
   success: boolean;
@@ -13,22 +7,10 @@ interface ApiResponse {
 
 export async function sendContactEmails(formData: ContactFormData): Promise<ApiResponse> {
   try {
-    console.log('Sending form data to API:', formData);
+    console.log('Sending form data:', formData);
     
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/send-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    });
-
-    const result = await response.json() as ApiResponse;
-
-    if (!response.ok) {
-      throw new Error(result.error || 'Failed to send emails');
-    }
-
+    const result = await sendContactFormEmails(formData);
+    
     console.log('API response:', result);
     return result;
   } catch (error) {

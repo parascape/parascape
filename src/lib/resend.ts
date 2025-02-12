@@ -50,7 +50,7 @@ export async function sendEmail(emailData: EmailData) {
     const bccStr = bcc ? (Array.isArray(bcc) ? bcc.join(',') : bcc) : undefined;
     
     const response = await resend.emails.send({
-      from: from || import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
+      from: from || import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
       to: toStr,
       subject,
       html,
@@ -139,43 +139,65 @@ export const adminNotificationTemplate = `
 `;
 
 /**
- * Sends contact form submission emails (user confirmation and admin notification)
- * @param formData The contact form data
- * @returns Promise with the send result
+ * Sends contact form submission emails using Resend's API directly
  */
 export async function sendContactFormEmails(formData: ContactFormData) {
   try {
     console.log('Sending emails via Resend:', formData);
     
-    // Send confirmation email to user
+    // Create email content
     const userEmailContent = createEmailFromTemplate(userConfirmationTemplate, {
       name: formData.name,
       type: formData.type,
       message: formData.message
     });
 
-    const userEmailPromise = resend.emails.send({
-      from: import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
-      to: formData.email,
-      subject: 'Thank you for contacting Parascape',
-      html: userEmailContent
-    });
-
-    // Send notification email to admin
     const adminEmailContent = createEmailFromTemplate(adminNotificationTemplate, formData);
 
-    const adminEmailPromise = resend.emails.send({
-      from: import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
-      to: import.meta.env.VITE_ADMIN_EMAIL || 'recordsparascape@gmail.com',
-      subject: `New ${formData.type} Form Submission from ${formData.name}`,
-      html: adminEmailContent,
-      reply_to: formData.email
-    });
-
     // Send both emails concurrently
-    const [userResponse, adminResponse] = await Promise.all([userEmailPromise, adminEmailPromise]);
-    console.log('Email responses:', { user: userResponse, admin: adminResponse });
+    const [userResponse, adminResponse] = await Promise.all([
+      // Send confirmation to user
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
+          to: formData.email,
+          subject: 'Thank you for contacting Parascape',
+          html: userEmailContent
+        })
+      }),
+      // Send notification to admin
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: import.meta.env.VITE_EMAIL_FROM || 'contact@parascape.org',
+          to: import.meta.env.VITE_ADMIN_EMAIL || 'contact@parascape.org',
+          subject: `New ${formData.type} Form Submission from ${formData.name}`,
+          html: adminEmailContent,
+          reply_to: formData.email
+        })
+      })
+    ]);
 
+    // Check responses
+    const [userResult, adminResult] = await Promise.all([
+      userResponse.json(),
+      adminResponse.json()
+    ]);
+
+    if (!userResponse.ok || !adminResponse.ok) {
+      throw new Error(userResult.message || adminResult.message || 'Failed to send emails');
+    }
+
+    console.log('Email responses:', { user: userResult, admin: adminResult });
     return { success: true };
   } catch (error) {
     console.error('Error sending contact form emails:', error);
