@@ -33,8 +33,8 @@ export default function ContactForm({ type = 'contact' }) {
             console.log('Form submission started with data:', formData);
 
             const result = await resend.emails.send({
-              from: 'contact@parascape.org',
-              to: 'contact@parascape.org',
+              from: 'onboarding@resend.dev',
+              to: 'recordsparascape@gmail.com',
               subject: `New ${formData.type} Form Submission from ${formData.name}`,
               html: `
                 <h1>New Contact Form Submission</h1>
@@ -46,6 +46,10 @@ export default function ContactForm({ type = 'contact' }) {
               `,
               reply_to: formData.email
             });
+
+            if (result.error) {
+              throw new Error(result.error.message || 'Failed to send email');
+            }
 
             console.log('Email sent:', result);
 
