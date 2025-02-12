@@ -3,10 +3,16 @@ import { Resend } from 'resend';
 export async function onRequest(context) {
   const resend = new Resend(context.env.RESEND_API_KEY);
 
+  // Get the origin from the request
+  const origin = context.request.headers.get('Origin') || '';
+  const allowedOrigins = ['https://parascape.org', 'https://parascape.netlify.app'];
+  
+  // Set CORS headers based on the origin
   const corsHeaders = {
-    'Access-Control-Allow-Origin': 'https://parascape.org',
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
+    'Vary': 'Origin'  // Important for caching with multiple origins
   };
 
   // Handle CORS preflight requests
@@ -17,7 +23,10 @@ export async function onRequest(context) {
   }
 
   try {
+    console.log('Received request from origin:', origin);
     const formData = await context.request.json();
+    console.log('Received form data:', formData);
+    
     const { name, email, phone, message, type } = formData;
 
     // Create email templates

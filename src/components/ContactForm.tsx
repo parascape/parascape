@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { sendContactFormEmails, type ContactFormData } from '@/lib/resend';
+import { invokeSendEmail } from '@/lib/supabase';
+import type { EmailResponse } from '@/types/supabase';
 
 interface ContactFormProps {
   type?: 'contact' | 'audit';
@@ -11,7 +12,7 @@ interface ContactFormProps {
 export default function ContactForm({ type = 'contact' }: ContactFormProps) {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<ContactFormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
@@ -31,27 +32,9 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
     try {
       console.log('Form submission started with data:', formData);
       
-      // Send to Netlify Function
-      const response = await fetch('/.netlify/functions/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-
-      let result;
-      try {
-        result = await response.json();
-        console.log('Email service response:', result);
-      } catch (parseError) {
-        console.error('Error parsing response:', parseError);
-        throw new Error('Invalid response from server');
-      }
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to send emails');
-      }
+      // Send to Supabase Edge Function
+      const data = await invokeSendEmail(formData);
+      console.log('Email service response:', data);
 
       analytics.track({
         name: 'form_submit',

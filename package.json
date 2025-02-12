@@ -11,7 +11,7 @@
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -b gh-pages -r https://github.com/parascape/parascape.git"
+    "deploy": "gh-pages -d dist -b master -r https://github.com/parascape/parascape.git"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -43,6 +43,7 @@
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-toggle-group": "^1.0.4",
     "@radix-ui/react-tooltip": "^1.0.7",
+    "@supabase/supabase-js": "2.48.1",
     "@tanstack/react-query": "^5.24.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -84,6 +85,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "gh-pages": "6.3.0",
     "postcss": "^8.4.35",
+    "supabase": "2.12.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
     "vite": "^5.1.3"

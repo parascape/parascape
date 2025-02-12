@@ -18,8 +18,8 @@ serve(async (req) => {
     const formData = await req.json();
     const { name, email, phone, message, type } = formData;
 
-    // Create email content
-    const userEmailContent = `
+    // Create email templates
+    const userEmailHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -38,7 +38,7 @@ serve(async (req) => {
       </html>
     `;
 
-    const adminEmailContent = `
+    const adminEmailHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -69,14 +69,14 @@ serve(async (req) => {
         from: Deno.env.get('EMAIL_FROM') || 'contact@parascape.org',
         to: email,
         subject: 'Thank you for contacting Parascape',
-        html: userEmailContent
+        html: userEmailHtml
       }),
       // Send notification to admin
       resend.emails.send({
         from: Deno.env.get('EMAIL_FROM') || 'contact@parascape.org',
         to: Deno.env.get('ADMIN_EMAIL') || 'contact@parascape.org',
         subject: `New ${type} Form Submission from ${name}`,
-        html: adminEmailContent,
+        html: adminEmailHtml,
         reply_to: email
       })
     ]);
