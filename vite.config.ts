@@ -5,7 +5,7 @@ import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => ({
-  base: mode === 'production' ? '/' : '/',
+  base: '/parascape/',
   plugins: [react()],
   resolve: {
     alias: {
