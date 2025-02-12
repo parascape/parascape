@@ -44,16 +44,24 @@ export async function sendEmail(emailData: EmailData) {
   try {
     const { to, subject, html, text, from, replyTo, cc, bcc, attachments } = emailData;
     
+    // Convert arrays to comma-separated strings if necessary
+    const toStr = Array.isArray(to) ? to.join(',') : to;
+    const ccStr = cc ? (Array.isArray(cc) ? cc.join(',') : cc) : undefined;
+    const bccStr = bcc ? (Array.isArray(bcc) ? bcc.join(',') : bcc) : undefined;
+    
     const response = await resend.emails.send({
       from: from || import.meta.env.VITE_EMAIL_FROM || 'onboarding@resend.dev',
-      to,
+      to: toStr,
       subject,
       html,
       text,
       reply_to: replyTo,
-      cc,
-      bcc,
-      attachments
+      cc: ccStr,
+      bcc: bccStr,
+      attachments: attachments?.map(({ filename, content }) => ({
+        filename,
+        content: content.toString('base64')
+      }))
     });
 
     return { success: true, data: response };
