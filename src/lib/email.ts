@@ -16,21 +16,25 @@ export interface ApiResponse {
 
 export async function sendContactEmails(formData: ContactFormData): Promise<ApiResponse> {
   try {
-    console.log('Sending form data to Edge Function:', formData);
+    console.log('Submitting form data:', formData);
     
-    const { data, error } = await supabase.functions.invoke('send-email', {
-      body: formData
+    const { data, error } = await supabase.rpc('handle_contact_submission', {
+      p_name: formData.name,
+      p_email: formData.email,
+      p_phone: formData.phone,
+      p_message: formData.message,
+      p_type: formData.type
     });
 
     if (error) {
-      console.error('Edge Function error:', error);
+      console.error('Database error:', error);
       throw error;
     }
 
-    console.log('Edge Function response:', data);
+    console.log('Submission response:', data);
     return { success: true, data };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error submitting form:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'An unexpected error occurred'
