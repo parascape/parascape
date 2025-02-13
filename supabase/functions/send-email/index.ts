@@ -97,7 +97,7 @@ serve(async (req) => {
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
       resend.emails.send({
-        from: 'Parascape <recordsparascape@gmail.com>',
+        from: 'Parascape <onboarding@resend.dev>',
         to: [formData.email], // Use the email from the form submission
         subject: 'Thank you for contacting Parascape',
         html: getUserEmailTemplate(formData),
@@ -105,7 +105,7 @@ serve(async (req) => {
       }),
       // Send notification to admin
       resend.emails.send({
-        from: 'Parascape Website <recordsparascape@gmail.com>',
+        from: 'Parascape Website <onboarding@resend.dev>',
         to: ['recordsparascape@gmail.com'], // Use the admin email
         subject: `New ${formData.type} Form Submission from ${formData.name}`,
         html: getAdminEmailTemplate(formData),
