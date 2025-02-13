@@ -97,23 +97,23 @@ serve(async (req) => {
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
       resend.emails.send({
-        from: 'team@contact.parascape.org',
-        to: formData.email,
+        from: 'Parascape <team@contact.parascape.org>',
+        to: [formData.email], // Use the email from the form submission
         subject: 'Thank you for contacting Parascape',
         html: getUserEmailTemplate(formData),
         reply_to: 'contact@parascape.org'
       }),
       // Send notification to admin
       resend.emails.send({
-        from: 'team@contact.parascape.org',
-        to: 'contact@parascape.org',
+        from: 'Parascape Website <team@contact.parascape.org>',
+        to: ['recordsparascape@gmail.com'], // Use the admin email
         subject: `New ${formData.type} Form Submission from ${formData.name}`,
         html: getAdminEmailTemplate(formData),
         reply_to: formData.email
       })
     ]);
 
-    console.log('Emails sent successfully:', { userResponse, adminResponse });
+    console.log('Emails sent successfully:', { user: userResponse, admin: adminResponse });
 
     return new Response(
       JSON.stringify({ 
