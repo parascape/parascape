@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types/supabase';
+import type { ContactFormData } from './email';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -8,12 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true
-  }
-});
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export interface FormData {
   name: string;
@@ -24,10 +19,10 @@ export interface FormData {
 }
 
 // Helper function to invoke Edge Functions
-export async function invokeSendEmail(formData: FormData) {
+export async function invokeSendEmail(formData: ContactFormData) {
   console.log('Invoking send-email Edge Function with data:', formData);
   
-  const { data, error } = await supabase.functions.invoke<FormData>('send-email', {
+  const { data, error } = await supabase.functions.invoke<ContactFormData>('send-email', {
     body: formData
   });
 
