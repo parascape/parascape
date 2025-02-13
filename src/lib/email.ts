@@ -33,7 +33,7 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
         },
         body: JSON.stringify({
           from: 'Parascape <onboarding@resend.dev>',
-          to: [formData.email],
+          to: ['recordsparascape@gmail.com'], // For testing, send all emails to verified address
           subject: 'Thank you for contacting Parascape',
           html: `
             <h1>Thank you for reaching out, ${formData.name}!</h1>
@@ -55,8 +55,8 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'Parascape Website <onboarding@resend.dev>',
-          to: [import.meta.env.VITE_ADMIN_EMAIL],
+          from: 'Parascape <onboarding@resend.dev>',
+          to: ['recordsparascape@gmail.com'],
           subject: `New ${formData.type} Form Submission from ${formData.name}`,
           html: `
             <h1>New Contact Form Submission</h1>
