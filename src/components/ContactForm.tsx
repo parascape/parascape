@@ -16,7 +16,7 @@ const initialFormData: FormData = {
   type: ''
 };
 
-export function ContactForm({ type }: ContactFormProps) {
+export default function ContactForm({ type }: ContactFormProps) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({ ...initialFormData, type });
   const [isSubmitting, setIsSubmitting] = useState(false);
