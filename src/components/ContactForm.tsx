@@ -1,41 +1,54 @@
+import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { toast } from 'sonner';
+import { supabase, type FormData } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
-import { invokeSendEmail } from '@/lib/supabase';
-import type { EmailResponse } from '@/types/supabase';
 
 interface ContactFormProps {
-  type?: 'contact' | 'audit';
+  type: string;
 }
 
-export default function ContactForm({ type = 'contact' }: ContactFormProps) {
-  const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-    type
-  });
+const initialFormData: FormData = {
+  name: '',
+  email: '',
+  phone: '',
+  message: '',
+  type: ''
+};
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+export function ContactForm({ type }: ContactFormProps) {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<FormData>({ ...initialFormData, type });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev: FormData) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
+    setSuccess(false);
 
     try {
-      console.log('Form submission started with data:', formData);
-      
-      // Send to Supabase Edge Function
-      const data = await invokeSendEmail(formData);
-      console.log('Email service response:', data);
+      console.log('Invoking send-email Edge Function with:', formData);
+      const { data, error: supabaseError } = await supabase.functions.invoke('send-email', {
+        body: formData
+      });
 
+      if (supabaseError) {
+        console.error('Edge Function error:', supabaseError);
+        throw new Error(supabaseError.message || 'Failed to submit form');
+      }
+
+      console.log('Edge Function response:', data);
       analytics.track({
         name: 'form_submit',
         properties: {
@@ -44,30 +57,26 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
+      setSuccess(true);
       toast.success('Message sent successfully!');
       navigate('/success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        type
-      });
-    } catch (error) {
-      console.error('Form submission error:', error);
+      setFormData(initialFormData);
+    } catch (err) {
+      console.error('Form submission error:', err);
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
       
       analytics.track({
         name: 'form_submit',
         properties: {
           form_type: type,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          error: err instanceof Error ? err.message : 'Unknown error'
         }
       });
 
       toast.error(
-        error instanceof Error
-          ? `Error sending message: ${error.message}`
+        err instanceof Error
+          ? `Error sending message: ${err.message}`
           : 'Failed to send message. Please try again.'
       );
     } finally {

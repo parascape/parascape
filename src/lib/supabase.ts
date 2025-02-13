@@ -15,18 +15,27 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Helper function to invoke Edge Functions
-export async function invokeSendEmail(formData: {
+export interface FormData {
   name: string;
   email: string;
   phone: string;
   message: string;
-  type: 'contact' | 'audit';
-}) {
-  const { data, error } = await supabase.functions.invoke('send-email', {
+  type: string;
+}
+
+// Helper function to invoke Edge Functions
+export async function invokeSendEmail(formData: FormData) {
+  console.log('Invoking send-email Edge Function with data:', formData);
+  
+  const { data, error } = await supabase.functions.invoke<FormData>('send-email', {
     body: formData
   });
 
-  if (error) throw error;
+  if (error) {
+    console.error('Edge Function error:', error);
+    throw error;
+  }
+
+  console.log('Edge Function response:', data);
   return data;
 } 
