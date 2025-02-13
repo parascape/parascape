@@ -1,4 +1,4 @@
-import { EmailData } from './templates';
+import { EmailData } from './templates.ts';
 
 export class ValidationError extends Error {
   constructor(message: string) {
@@ -7,44 +7,39 @@ export class ValidationError extends Error {
   }
 }
 
-export function validateEmail(email: string): boolean {
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  return emailRegex.test(email);
-}
+export function validateFormData(data: unknown): asserts data is EmailData {
+  if (!data || typeof data !== 'object') {
+    throw new ValidationError('Invalid form data');
+  }
 
-export function validatePhone(phone: string): boolean {
-  // Remove all non-numeric characters
-  const cleanPhone = phone.replace(/\D/g, '');
-  // Check if the cleaned phone number has at least 10 digits
-  return cleanPhone.length >= 10;
-}
+  const { name, email, phone, message, type } = data as Record<string, unknown>;
 
-export function validateFormData(data: Partial<EmailData>): asserts data is EmailData {
-  if (!data.name?.trim()) {
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
     throw new ValidationError('Name is required');
   }
 
-  if (!data.email?.trim()) {
-    throw new ValidationError('Email is required');
+  if (!email || typeof email !== 'string' || !isValidEmail(email)) {
+    throw new ValidationError('Valid email is required');
   }
 
-  if (!validateEmail(data.email)) {
-    throw new ValidationError('Invalid email format');
+  if (!phone || typeof phone !== 'string' || !isValidPhone(phone)) {
+    throw new ValidationError('Valid phone number is required');
   }
 
-  if (!data.phone?.trim()) {
-    throw new ValidationError('Phone number is required');
-  }
-
-  if (!validatePhone(data.phone)) {
-    throw new ValidationError('Invalid phone number format');
-  }
-
-  if (!data.message?.trim()) {
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
     throw new ValidationError('Message is required');
   }
 
-  if (!data.type?.trim()) {
-    throw new ValidationError('Form type is required');
+  if (!type || typeof type !== 'string' || !['contact', 'audit'].includes(type)) {
+    throw new ValidationError('Valid form type is required');
   }
+}
+
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function isValidPhone(phone: string): boolean {
+  return phone.replace(/\D/g, '').length >= 10;
 } 

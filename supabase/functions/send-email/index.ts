@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.fresh.dev/std@0.168.0/http/server.ts';
-import { Resend } from 'resend';
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { Resend } from 'npm:resend@3.1.0';
 import { getUserEmailTemplate, getAdminEmailTemplate, type EmailData } from './templates.ts';
 import { validateFormData, ValidationError } from './validation.ts';
 
