@@ -1,10 +1,16 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { Resend } from 'npm:resend@3.1.0';
-import { getUserEmailTemplate, getAdminEmailTemplate, type EmailData } from './templates.ts';
-import { validateFormData, ValidationError } from './validation.ts';
+// @deno-types="npm:@types/node"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { Resend } from "https://esm.sh/resend@1.0.0";
+import { getUserEmailTemplate, getAdminEmailTemplate, type EmailData } from "./templates.ts";
+import { validateFormData, ValidationError } from "./validation.ts";
 
 // Initialize Resend with API key from environment
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+if (!RESEND_API_KEY) {
+  throw new Error('RESEND_API_KEY environment variable is not set');
+}
+
+const resend = new Resend(RESEND_API_KEY);
 
 // Constants for email configuration
 const ADMIN_EMAIL = 'recordsparascape@gmail.com';
@@ -97,40 +103,45 @@ serve(async (req) => {
     // Validate form data
     validateFormData(formData);
 
-    // Send both emails concurrently
-    const [userResponse, adminResponse] = await Promise.all([
-      // Send confirmation to user
-      resend.emails.send({
-        from: FROM_EMAIL,
-        to: [formData.email],
-        subject: 'Thank you for contacting Parascape',
-        html: getUserEmailTemplate(formData),
-        reply_to: ADMIN_EMAIL
-      }),
-      // Send notification to admin
-      resend.emails.send({
-        from: FROM_EMAIL,
-        to: [ADMIN_EMAIL],
-        subject: `New ${formData.type} Form Submission from ${formData.name}`,
-        html: getAdminEmailTemplate(formData),
-        reply_to: formData.email
-      })
-    ]);
+    try {
+      // Send both emails concurrently
+      const [userResponse, adminResponse] = await Promise.all([
+        // Send confirmation to user
+        resend.emails.send({
+          from: FROM_EMAIL,
+          to: [formData.email],
+          subject: 'Thank you for contacting Parascape',
+          html: getUserEmailTemplate(formData),
+          reply_to: ADMIN_EMAIL
+        }),
+        // Send notification to admin
+        resend.emails.send({
+          from: FROM_EMAIL,
+          to: [ADMIN_EMAIL],
+          subject: `New ${formData.type} Form Submission from ${formData.name}`,
+          html: getAdminEmailTemplate(formData),
+          reply_to: formData.email
+        })
+      ]);
 
-    console.log('Emails sent successfully:', { user: userResponse, admin: adminResponse });
+      console.log('Emails sent successfully:', { user: userResponse, admin: adminResponse });
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        data: { user: userResponse, admin: adminResponse } 
-      }),
-      { 
-        headers: { 
-          'Content-Type': 'application/json',
-          ...corsHeaders 
-        } 
-      }
-    );
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: { user: userResponse, admin: adminResponse } 
+        }),
+        { 
+          headers: { 
+            'Content-Type': 'application/json',
+            ...corsHeaders 
+          } 
+        }
+      );
+    } catch (emailError) {
+      console.error('Error sending emails:', emailError);
+      throw new Error(emailError instanceof Error ? emailError.message : 'Failed to send emails');
+    }
   } catch (error) {
     console.error('Error processing request:', error);
     
