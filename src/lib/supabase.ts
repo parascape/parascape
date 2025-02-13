@@ -8,7 +8,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false
+  }
+});
 
 export interface FormData {
   name: string;
@@ -23,7 +27,10 @@ export async function invokeSendEmail(formData: ContactFormData) {
   console.log('Invoking send-email Edge Function with data:', formData);
   
   const { data, error } = await supabase.functions.invoke<ContactFormData>('send-email', {
-    body: formData
+    body: formData,
+    headers: {
+      'Content-Type': 'application/json'
+    }
   });
 
   if (error) {
