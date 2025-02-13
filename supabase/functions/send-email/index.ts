@@ -1,13 +1,18 @@
 // @deno-types="npm:@types/node"
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@1.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 import { getUserEmailTemplate, getAdminEmailTemplate, type EmailData } from "./templates.ts";
 import { validateFormData, ValidationError } from "./validation.ts";
 
 // Initialize Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing Supabase environment variables');
+}
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Initialize Resend with API key from environment
@@ -19,7 +24,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 // Constants for email configuration
-const FROM_EMAIL = Deno.env.get('EMAIL_FROM') || 'onboarding@resend.dev';
+const FROM_EMAIL = 'onboarding@resend.dev';
 const EMAIL_TO = Deno.env.get('EMAIL_TO');
 
 if (!EMAIL_TO) {
@@ -32,21 +37,20 @@ const allowedOrigins = [
   'https://www.parascape.org',
   'http://parascape.org',
   'http://www.parascape.org',
-  'http://localhost:5173', // Development
-  'http://localhost:4173',  // Preview
-  'http://localhost:3000'   // Additional development port
+  'http://localhost:5173',
+  'http://localhost:4173',
+  'http://localhost:3000'
 ];
 
 // Simple in-memory rate limiting (resets every hour)
 const rateLimits = new Map<string, { count: number; timestamp: number }>();
-const RATE_LIMIT = 5; // Maximum requests per hour
-const RATE_LIMIT_WINDOW = 3600000; // 1 hour in milliseconds
+const RATE_LIMIT = 5;
+const RATE_LIMIT_WINDOW = 3600000;
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const userLimit = rateLimits.get(ip);
 
-  // Clean up old entries
   if (userLimit && now - userLimit.timestamp > RATE_LIMIT_WINDOW) {
     rateLimits.delete(ip);
     return true;
@@ -66,13 +70,11 @@ function checkRateLimit(ip: string): boolean {
 }
 
 serve(async (req) => {
-  // Get the request origin and IP
   const origin = req.headers.get('origin') || '';
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
   
-  // Create CORS headers based on the origin
   const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : 'https://parascape.org',
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Credentials': 'true',
@@ -80,42 +82,25 @@ serve(async (req) => {
     'Vary': 'Origin'
   };
 
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: 'Method not allowed' 
-      }), 
-      { 
-        status: 405,
-        headers: { 
-          'Content-Type': 'application/json',
-          ...corsHeaders 
-        }
-      }
+      JSON.stringify({ success: false, error: 'Method not allowed' }), 
+      { status: 405, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }
 
   try {
-    // Check rate limit
     if (!checkRateLimit(clientIP)) {
       throw new ValidationError('Rate limit exceeded. Please try again later.');
     }
 
-    // Parse and validate request body
     const formData = await req.json();
-    console.log('Received form data:', formData);
-
-    // Validate form data
     validateFormData(formData);
 
-    // Store submission in database
     const { data: submission, error: dbError } = await supabase
       .from('contact_submissions')
       .insert([{
@@ -134,9 +119,7 @@ serve(async (req) => {
     }
 
     try {
-      // Send both emails concurrently
       const [userResponse, adminResponse] = await Promise.all([
-        // Send confirmation to user
         resend.emails.send({
           from: FROM_EMAIL,
           to: [formData.email],
@@ -144,7 +127,6 @@ serve(async (req) => {
           html: getUserEmailTemplate(formData),
           reply_to: EMAIL_TO
         }),
-        // Send notification to admin
         resend.emails.send({
           from: FROM_EMAIL,
           to: [EMAIL_TO],
@@ -154,8 +136,7 @@ serve(async (req) => {
         })
       ]);
 
-      // Update submission status
-      const { error: updateError } = await supabase
+      await supabase
         .from('contact_submissions')
         .update({ 
           status: 'processed',
@@ -164,25 +145,13 @@ serve(async (req) => {
         })
         .eq('id', submission.id);
 
-      if (updateError) {
-        console.error('Error updating submission status:', updateError);
-      }
-
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          data: { user: userResponse, admin: adminResponse } 
-        }),
-        { 
-          headers: { 
-            'Content-Type': 'application/json',
-            ...corsHeaders 
-          } 
-        }
+        JSON.stringify({ success: true, data: { user: userResponse, admin: adminResponse } }),
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     } catch (emailError) {
       console.error('Error sending emails:', emailError);
-      throw new Error(emailError instanceof Error ? emailError.message : 'Failed to send emails');
+      throw new Error('Failed to send emails');
     }
   } catch (error) {
     console.error('Error processing request:', error);
@@ -192,17 +161,8 @@ serve(async (req) => {
     const message = error instanceof Error ? error.message : 'An unexpected error occurred';
     
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: message
-      }),
-      { 
-        status,
-        headers: { 
-          'Content-Type': 'application/json',
-          ...corsHeaders 
-        } 
-      }
+      JSON.stringify({ success: false, error: message }),
+      { status, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }
 });

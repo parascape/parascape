@@ -11,13 +11,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false
-  },
-  global: {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-    }
   }
 });
 
@@ -34,11 +27,7 @@ export async function invokeSendEmail(formData: ContactFormData) {
   console.log('Invoking send-email Edge Function with data:', formData);
   
   const { data, error } = await supabase.functions.invoke<ContactFormData>('send-email', {
-    body: formData,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Credentials': 'true'
-    }
+    body: formData
   });
 
   if (error) {
