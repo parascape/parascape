@@ -2,7 +2,12 @@
   "name": "Parascape Development",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
   "features": {
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2"
+    }
   },
   "customizations": {
     "vscode": {
@@ -20,5 +25,9 @@
   "remoteEnv": {
     "NODE_ENV": "development",
     "VITE_BASE_URL": "/parascape"
-  }
+  },
+  "runArgs": ["--init"],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ]
 } 
