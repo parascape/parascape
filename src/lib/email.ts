@@ -18,12 +18,8 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Submitting form data:', formData);
     
-    const { data, error } = await supabase.rpc('handle_contact_submission', {
-      p_name: formData.name,
-      p_email: formData.email,
-      p_phone: formData.phone,
-      p_message: formData.message,
-      p_type: formData.type
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: formData
     });
 
     if (error) {
