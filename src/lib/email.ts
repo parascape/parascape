@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 export interface ContactFormData {
   name: string;
   email: string;
@@ -16,23 +18,16 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Sending form data to Edge Function:', formData);
     
-    const response = await fetch('https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/send-email', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-      },
-      body: JSON.stringify(formData)
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: formData
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to send email');
+    if (error) {
+      console.error('Edge Function error:', error);
+      throw error;
     }
 
-    const data = await response.json();
     console.log('Edge Function response:', data);
-
     return { success: true, data };
   } catch (error) {
     console.error('Error sending email:', error);
