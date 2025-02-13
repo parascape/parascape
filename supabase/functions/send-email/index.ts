@@ -5,7 +5,12 @@ import { Resend } from 'resend';
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 // List of allowed origins
-const allowedOrigins = ['https://parascape.org', 'https://www.parascape.org'];
+const allowedOrigins = [
+  'https://parascape.org',
+  'https://www.parascape.org',
+  'http://parascape.org',
+  'http://www.parascape.org'
+];
 
 serve(async (req) => {
   // Get the request origin

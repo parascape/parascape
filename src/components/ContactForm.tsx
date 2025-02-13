@@ -5,7 +5,7 @@ import { supabase, type FormData } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
 
 interface ContactFormProps {
-  type: string;
+  type?: string;
 }
 
 const initialFormData: FormData = {
@@ -13,10 +13,10 @@ const initialFormData: FormData = {
   email: '',
   phone: '',
   message: '',
-  type: ''
+  type: 'contact'
 };
 
-export default function ContactForm({ type }: ContactFormProps) {
+export default function ContactForm({ type = 'contact' }: ContactFormProps) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({ ...initialFormData, type });
   const [isSubmitting, setIsSubmitting] = useState(false);
