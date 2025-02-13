@@ -10,7 +10,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false
+    persistSession: false,
+    autoRefreshToken: false,
+    detectSessionInUrl: false
   }
 });
 
@@ -26,15 +28,23 @@ export interface FormData {
 export async function invokeSendEmail(formData: ContactFormData) {
   console.log('Invoking send-email Edge Function with data:', formData);
   
-  const { data, error } = await supabase.functions.invoke<ContactFormData>('send-email', {
-    body: formData
-  });
+  try {
+    const { data, error } = await supabase.functions.invoke('send-email', {
+      body: formData,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
-  if (error) {
-    console.error('Edge Function error:', error);
+    if (error) {
+      console.error('Edge Function error:', error);
+      throw error;
+    }
+
+    console.log('Edge Function response:', data);
+    return data;
+  } catch (error) {
+    console.error('Failed to invoke Edge Function:', error);
     throw error;
   }
-
-  console.log('Edge Function response:', data);
-  return data;
 } 

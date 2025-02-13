@@ -1,18 +1,13 @@
 // @deno-types="npm:@types/node"
-import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@1.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 import { getUserEmailTemplate, getAdminEmailTemplate, type EmailData } from "./templates.ts";
 import { validateFormData, ValidationError } from "./validation.ts";
 
 // Initialize Supabase client
-const supabaseUrl = Deno.env.get('SUPABASE_URL');
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Initialize Resend with API key from environment
@@ -24,7 +19,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 // Constants for email configuration
-const FROM_EMAIL = 'onboarding@resend.dev';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') || 'onboarding@resend.dev';
 const EMAIL_TO = Deno.env.get('EMAIL_TO');
 
 if (!EMAIL_TO) {
@@ -37,20 +32,21 @@ const allowedOrigins = [
   'https://www.parascape.org',
   'http://parascape.org',
   'http://www.parascape.org',
-  'http://localhost:5173',
-  'http://localhost:4173',
-  'http://localhost:3000'
+  'http://localhost:5173', // Development
+  'http://localhost:4173',  // Preview
+  'http://localhost:3000'   // Additional development port
 ];
 
 // Simple in-memory rate limiting (resets every hour)
 const rateLimits = new Map<string, { count: number; timestamp: number }>();
-const RATE_LIMIT = 5;
-const RATE_LIMIT_WINDOW = 3600000;
+const RATE_LIMIT = 5; // Maximum requests per hour
+const RATE_LIMIT_WINDOW = 3600000; // 1 hour in milliseconds
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const userLimit = rateLimits.get(ip);
 
+  // Clean up old entries
   if (userLimit && now - userLimit.timestamp > RATE_LIMIT_WINDOW) {
     rateLimits.delete(ip);
     return true;
@@ -70,9 +66,11 @@ function checkRateLimit(ip: string): boolean {
 }
 
 serve(async (req) => {
+  // Get the request origin and IP
   const origin = req.headers.get('origin') || '';
   const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
   
+  // Create CORS headers based on the origin
   const corsHeaders = {
     'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -82,6 +80,7 @@ serve(async (req) => {
     'Vary': 'Origin'
   };
 
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
