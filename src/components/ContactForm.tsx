@@ -20,22 +20,60 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FormData>({ ...initialFormData, type });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+
+  const validateForm = (): boolean => {
+    const errors: Partial<Record<keyof FormData, string>> = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+      errors.email = 'Invalid email format';
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (formData.phone.replace(/\D/g, '').length < 10) {
+      errors.phone = 'Phone number must have at least 10 digits';
+    }
+
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: FormData) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (fieldErrors[name as keyof FormData]) {
+      setFieldErrors((prev) => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      toast.error('Please fix the form errors before submitting');
+      return;
+    }
+
     setIsSubmitting(true);
-    setError('');
-    setSuccess(false);
+    setFieldErrors({});
 
     try {
       console.log('Invoking send-email Edge Function with:', formData);
@@ -57,28 +95,27 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
-      setSuccess(true);
       toast.success('Message sent successfully!');
       navigate('/success');
       setFormData(initialFormData);
     } catch (err) {
       console.error('Form submission error:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      
+      if (errorMessage.includes('Rate limit exceeded')) {
+        toast.error('Too many attempts. Please try again later.');
+      } else {
+        toast.error(`Error sending message: ${errorMessage}`);
+      }
       
       analytics.track({
         name: 'form_submit',
         properties: {
           form_type: type,
           success: false,
-          error: err instanceof Error ? err.message : 'Unknown error'
+          error: errorMessage
         }
       });
-
-      toast.error(
-        err instanceof Error
-          ? `Error sending message: ${err.message}`
-          : 'Failed to send message. Please try again.'
-      );
     } finally {
       setIsSubmitting(false);
     }
@@ -102,9 +139,14 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
               required
               value={formData.name}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm"
+              className={`mt-1 block w-full rounded-md border ${
+                fieldErrors.name ? 'border-red-500' : 'border-gray-300'
+              } px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm`}
               placeholder="Your name"
             />
+            {fieldErrors.name && (
+              <p className="mt-1 text-sm text-red-500">{fieldErrors.name}</p>
+            )}
           </div>
 
           <div>
@@ -118,9 +160,14 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
               required
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm"
+              className={`mt-1 block w-full rounded-md border ${
+                fieldErrors.email ? 'border-red-500' : 'border-gray-300'
+              } px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm`}
               placeholder="your.email@example.com"
             />
+            {fieldErrors.email && (
+              <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -134,9 +181,14 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
               required
               value={formData.phone}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm"
+              className={`mt-1 block w-full rounded-md border ${
+                fieldErrors.phone ? 'border-red-500' : 'border-gray-300'
+              } px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm`}
               placeholder="(707) 362-6816"
             />
+            {fieldErrors.phone && (
+              <p className="mt-1 text-sm text-red-500">{fieldErrors.phone}</p>
+            )}
           </div>
 
           <div>
@@ -150,9 +202,14 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
               value={formData.message}
               onChange={handleChange}
               rows={6}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm"
+              className={`mt-1 block w-full rounded-md border ${
+                fieldErrors.message ? 'border-red-500' : 'border-gray-300'
+              } px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-parascape-green focus:ring-parascape-green sm:text-sm`}
               placeholder="Tell us about your project..."
             />
+            {fieldErrors.message && (
+              <p className="mt-1 text-sm text-red-500">{fieldErrors.message}</p>
+            )}
           </div>
         </div>
 

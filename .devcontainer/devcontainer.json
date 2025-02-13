@@ -6,7 +6,8 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "moby": true,
-      "dockerDashComposeVersion": "v2"
+      "dockerDashComposeVersion": "v2",
+      "installDockerBuildx": true
     }
   },
   "customizations": {
@@ -20,14 +21,19 @@
     }
   },
   "forwardPorts": [8080],
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "sudo mkdir -p /usr/local/share/npm-global && sudo chown node:node /usr/local/share/npm-global && npm install",
+  "postStartCommand": "sudo service docker start && sudo chmod 666 /var/run/docker.sock",
   "remoteUser": "node",
   "remoteEnv": {
     "NODE_ENV": "development",
-    "VITE_BASE_URL": "/parascape"
+    "VITE_BASE_URL": "/parascape",
+    "NPM_CONFIG_PREFIX": "/usr/local/share/npm-global"
   },
-  "runArgs": ["--init"],
+  "runArgs": ["--init", "--privileged"],
   "mounts": [
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
-  ]
+  ],
+  "updateRemoteUserUID": true,
+  "containerUser": "node",
+  "overrideCommand": false
 } 
