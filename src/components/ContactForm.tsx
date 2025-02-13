@@ -1,11 +1,19 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { supabase, type FormData } from '@/lib/supabase';
 import { analytics } from '@/lib/analytics';
+import { sendContactEmails } from '@/lib/email';
 
 interface ContactFormProps {
-  type?: string;
+  type?: 'contact' | 'audit';
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  type: 'contact' | 'audit';
 }
 
 const initialFormData: FormData = {
@@ -76,17 +84,13 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
     setFieldErrors({});
 
     try {
-      console.log('Invoking send-email Edge Function with:', formData);
-      const { data, error: supabaseError } = await supabase.functions.invoke('send-email', {
-        body: formData
-      });
+      const response = await sendContactEmails(formData);
 
-      if (supabaseError) {
-        console.error('Edge Function error:', supabaseError);
-        throw new Error(supabaseError.message || 'Failed to submit form');
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to send emails');
       }
 
-      console.log('Edge Function response:', data);
+      console.log('Email sent successfully:', response);
       analytics.track({
         name: 'form_submit',
         properties: {
