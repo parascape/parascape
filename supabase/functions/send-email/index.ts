@@ -6,6 +6,10 @@ import { validateFormData, ValidationError } from './validation.ts';
 // Initialize Resend with API key from environment
 const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
+// Constants for email configuration
+const ADMIN_EMAIL = 'recordsparascape@gmail.com';
+const FROM_EMAIL = 'onboarding@resend.dev';
+
 // List of allowed origins
 const allowedOrigins = [
   'https://parascape.org',
@@ -97,16 +101,16 @@ serve(async (req) => {
     const [userResponse, adminResponse] = await Promise.all([
       // Send confirmation to user
       resend.emails.send({
-        from: 'Parascape <onboarding@resend.dev>',
-        to: [formData.email], // Use the email from the form submission
+        from: FROM_EMAIL,
+        to: [formData.email],
         subject: 'Thank you for contacting Parascape',
         html: getUserEmailTemplate(formData),
-        reply_to: 'recordsparascape@gmail.com'
+        reply_to: ADMIN_EMAIL
       }),
       // Send notification to admin
       resend.emails.send({
-        from: 'Parascape Website <onboarding@resend.dev>',
-        to: ['recordsparascape@gmail.com'], // Use the admin email
+        from: FROM_EMAIL,
+        to: [ADMIN_EMAIL],
         subject: `New ${formData.type} Form Submission from ${formData.name}`,
         html: getAdminEmailTemplate(formData),
         reply_to: formData.email
