@@ -38,12 +38,14 @@ const allowedOrigins = new Set([
 ]);
 
 function getCorsHeaders(origin: string) {
+  const isAllowed = allowedOrigins.has(origin);
   return {
-    'Access-Control-Allow-Origin': allowedOrigins.has(origin) ? origin : 'https://parascape.org',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Origin': isAllowed ? origin : 'https://parascape.org',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, cf-ray, cf-connecting-ip',
     'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Max-Age': '86400'
+    'Access-Control-Max-Age': '86400',
+    'Vary': 'Origin'
   };
 }
 
@@ -55,7 +57,11 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
-      headers: corsHeaders
+      headers: {
+        ...corsHeaders,
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Max-Age': '86400'
+      }
     });
   }
 
