@@ -33,7 +33,8 @@ const allowedOrigins = [
   'http://parascape.org',
   'http://www.parascape.org',
   'http://localhost:5173', // Development
-  'http://localhost:4173'  // Preview
+  'http://localhost:4173',  // Preview
+  'http://localhost:3000'   // Additional development port
 ];
 
 // Simple in-memory rate limiting (resets every hour)
@@ -71,9 +72,10 @@ serve(async (req) => {
   
   // Create CORS headers based on the origin
   const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : 'https://parascape.org',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '86400',
     'Vary': 'Origin'
   };
