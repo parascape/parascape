@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { ContactFormData } from './email';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NTM5NzgsImV4cCI6MjAyNTQyOTk3OH0.7z1LBl-9EbHnXEF9Kc8ljrF6c3EhKNj_lBCqk-YNSMs';
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
