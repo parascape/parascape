@@ -23,16 +23,7 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
-DECLARE
-    service_role_key TEXT;
 BEGIN
-    -- Get the service role key from secrets
-    service_role_key := current_setting('secrets.service_role_key', true);
-    
-    IF service_role_key IS NULL THEN
-        RAISE EXCEPTION 'Service role key not found in secrets';
-    END IF;
-
     PERFORM net.http_post(
         'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/handle-contact-email',
         jsonb_build_object(
@@ -44,7 +35,7 @@ BEGIN
         ),
         jsonb_build_object(
             'Content-Type', 'application/json',
-            'Authorization', format('Bearer %s', service_role_key)
+            'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk4NTM5NzgsImV4cCI6MjAyNTQyOTk3OH0.7z1LBl-9EbHnXEF9Kc8ljrF6c3EhKNj_lBCqk-YNSMs'
         )
     );
     RETURN NEW;

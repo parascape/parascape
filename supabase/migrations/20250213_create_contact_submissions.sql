@@ -1,5 +1,8 @@
+-- Drop existing table (this will cascade and remove policies)
+DROP TABLE IF EXISTS public.contact_submissions;
+
 -- Create contact_submissions table
-CREATE TABLE IF NOT EXISTS public.contact_submissions (
+CREATE TABLE public.contact_submissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     name TEXT NOT NULL,
@@ -14,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.contact_submissions (
 );
 
 -- Create index on created_at for better query performance
-CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON public.contact_submissions(created_at);
+CREATE INDEX idx_contact_submissions_created_at ON public.contact_submissions(created_at);
 
 -- Enable Row Level Security
 ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;

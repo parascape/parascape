@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@1.0.0";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 
 // Initialize Resend with API key from environment
@@ -10,9 +10,17 @@ if (!RESEND_API_KEY) {
 
 const resend = new Resend(RESEND_API_KEY);
 
-// Constants for email configuration
-const FROM_EMAIL = 'onboarding@resend.dev';
-const EMAIL_TO = 'recordsparascape@gmail.com';
+// Get email configuration from environment variables or use defaults
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') || 'onboarding@resend.dev';
+const EMAIL_TO = Deno.env.get('EMAIL_TO') || 'recordsparascape@gmail.com';
+
+// Get Supabase configuration
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || 'https://hpuqzerpfylevdfwembv.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set');
+}
 
 interface ContactSubmission {
   id: string;
@@ -91,9 +99,7 @@ serve(async (req) => {
       console.log('Email responses:', { userResponse, adminResponse });
 
       // Initialize Supabase client
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
       // Update the submission status
       const { error: updateError } = await supabase
@@ -120,9 +126,7 @@ serve(async (req) => {
       console.error('Error sending emails:', emailError);
 
       // Update the submission with the error
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
       await supabase
         .from('contact_submissions')

@@ -17,37 +17,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: {
     fetch: fetch.bind(globalThis)
   }
-});
-
-export interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  type: string;
-}
-
-// Helper function to invoke Edge Functions
-export async function invokeSendEmail(formData: ContactFormData) {
-  console.log('Invoking send-email Edge Function with data:', formData);
-  
-  try {
-    const { data, error } = await supabase.functions.invoke('send-email', {
-      body: formData,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (error) {
-      console.error('Edge Function error:', error);
-      throw error;
-    }
-
-    console.log('Edge Function response:', data);
-    return data;
-  } catch (error) {
-    console.error('Failed to invoke Edge Function:', error);
-    throw error;
-  }
-} 
+}); 
