@@ -18,20 +18,25 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Submitting form data:', formData);
     
-    const { data, error } = await supabase.rpc('handle_contact_submission', {
-      p_name: formData.name,
-      p_email: formData.email,
-      p_phone: formData.phone,
-      p_message: formData.message,
-      p_type: formData.type
-    });
+    const { data, error } = await supabase
+      .from('contact_submissions')
+      .insert([{
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        type: formData.type,
+        status: 'pending'
+      }])
+      .select()
+      .single();
 
     if (error) {
       console.error('Database error:', error);
       throw error;
     }
 
-    console.log('Submission response:', data);
+    console.log('Submission stored:', data);
     return { success: true, data };
   } catch (error) {
     console.error('Error submitting form:', error);
