@@ -7,7 +7,7 @@ binding = "PARASCAPE_BUCKET"
 bucket_name = "parascape-bucket"
 
 [vars]
-ALLOWED_ORIGIN = "http://localhost:8787"
+ALLOWED_ORIGIN = "https://parascape.org"
 
 # Custom domain configuration
 routes = [
@@ -32,7 +32,7 @@ uploader_size_mb = 100
 [[headers]]
 for = "/*"
 [headers.response]
-Access-Control-Allow-Origin = "*"
+Access-Control-Allow-Origin = "https://parascape.org"
 Access-Control-Allow-Methods = "GET, POST, OPTIONS"
 Access-Control-Allow-Headers = "Content-Type, Authorization"
 Access-Control-Max-Age = "86400" 

@@ -7,8 +7,7 @@ interface Env {
 
 const ALLOWED_ORIGINS = [
   'https://parascape.org',
-  'https://r2.parascape.org',
-  'http://localhost:8787'
+  'https://r2.parascape.org'
 ];
 
 export default {
