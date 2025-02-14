@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { ContactFormData } from './email';
 
-const supabaseUrl = 'https://api.parascape.org';
+const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
 
 if (!supabaseUrl || !supabaseAnonKey) {
