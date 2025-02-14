@@ -87,10 +87,10 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
       const response = await sendContactEmails(formData);
 
       if (!response.success) {
-        throw new Error(response.error || 'Failed to send emails');
+        throw new Error(response.error || 'Failed to submit form');
       }
 
-      console.log('Email sent successfully:', response);
+      console.log('Form submitted successfully:', response);
       analytics.track({
         name: 'form_submit',
         properties: {
@@ -99,7 +99,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
         }
       });
 
-      toast.success('Message sent successfully!');
+      toast.success('Message received! We will get back to you soon.');
       navigate('/success');
       setFormData(initialFormData);
     } catch (err) {
@@ -109,7 +109,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
       if (errorMessage.includes('Rate limit exceeded')) {
         toast.error('Too many attempts. Please try again later.');
       } else {
-        toast.error(`Error sending message: ${errorMessage}`);
+        toast.error(`Error submitting form: ${errorMessage}`);
       }
       
       analytics.track({

@@ -33,7 +33,7 @@ export default function Success() {
                 Thank you for reaching out. We'll review your message and get back to you as soon as possible.
               </p>
               <p className="text-gray-600">
-                We've sent a confirmation email to your inbox with a copy of your message.
+                You'll receive a confirmation email shortly.
               </p>
             </div>
           </div>
