@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { ContactFormData } from './email';
 
-const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co/rest/v1';
+const supabaseUrl = 'https://api.parascape.org';
 const supabaseAnonKey = 'secret6secret6secret6secret6secret6secret6';
 
 if (!supabaseUrl || !supabaseAnonKey) {
