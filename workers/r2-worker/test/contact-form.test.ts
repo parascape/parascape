@@ -8,6 +8,20 @@ interface ContactFormData {
   type: 'contact' | 'audit';
 }
 
+interface SubmissionResponse {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  type: string;
+  status: string;
+  email_sent: boolean;
+  email_sent_at: string | null;
+  error_message: string | null;
+}
+
 const TEST_FORM_DATA: ContactFormData = {
   name: 'Test User',
   email: 'test@example.com',
@@ -74,7 +88,7 @@ describe('Contact Form Submission Flow', () => {
       return res;
     });
 
-    const data = await response.json();
+    const data = await response.json() as SubmissionResponse[];
     console.log('Submission response:', data);
     expect(data[0]).toHaveProperty('id');
     submissionId = data[0].id;
@@ -151,9 +165,9 @@ describe('Contact Form Submission Flow', () => {
       return res;
     });
 
-    const [data] = await response.json();
-    console.log('Status response:', data);
-    expect(data).toHaveProperty('status');
-    expect(['pending', 'processed', 'failed']).toContain(data.status);
+    const data = await response.json() as SubmissionResponse[];
+    console.log('Status response:', data[0]);
+    expect(data[0]).toHaveProperty('status');
+    expect(['pending', 'processed', 'failed']).toContain(data[0].status);
   }, TIMEOUT);
 });
