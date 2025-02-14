@@ -34,3 +34,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Wrangler
+.wrangler/tmp
+.wrangler/state
