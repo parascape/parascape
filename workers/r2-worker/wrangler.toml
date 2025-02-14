@@ -7,13 +7,32 @@ binding = "PARASCAPE_BUCKET"
 bucket_name = "parascape-bucket"
 
 [vars]
-ALLOWED_ORIGIN = "https://parascape.org"
+ALLOWED_ORIGIN = "http://localhost:8787"
+
+# Custom domain configuration
+routes = [
+  { pattern = "r2.parascape.org", custom_domain = true }
+]
+
+# Worker configuration
+[build]
+command = "npm run build"
+watch_dir = "src"
+
+[dev]
+port = 8787
+
+# Configure timeouts and limits
+[limits]
+cpu_ms = 50
+memory_mb = 128
+uploader_size_mb = 100
 
 # Configure CORS headers
 [[headers]]
 for = "/*"
 [headers.response]
-Access-Control-Allow-Origin = "https://parascape.org"
+Access-Control-Allow-Origin = "*"
 Access-Control-Allow-Methods = "GET, POST, OPTIONS"
 Access-Control-Allow-Headers = "Content-Type, Authorization"
 Access-Control-Max-Age = "86400" 

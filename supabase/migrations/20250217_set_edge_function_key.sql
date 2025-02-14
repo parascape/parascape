@@ -13,10 +13,10 @@ EXCEPTION
 END $$;
 
 -- Set the service role key directly
-ALTER DATABASE postgres SET "secrets.service_role_key" = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTIxNzA1NywiZXhwIjoyMDU0NzkzMDU3fQ.1Wh6lh-OjMrDO8H2_yvwSQSs44tSzBNMk1itRzZ9FZo';
+ALTER DATABASE postgres SET "secrets.service_role_key" = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
 
 -- Set the edge function key to use the same service role key
-ALTER DATABASE postgres SET app.edge_function_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTIxNzA1NywiZXhwIjoyMDU0NzkzMDU3fQ.1Wh6lh-OjMrDO8H2_yvwSQSs44tSzBNMk1itRzZ9FZo';
+ALTER DATABASE postgres SET app.edge_function_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
 
 -- Verify the settings are accessible
 DO $$

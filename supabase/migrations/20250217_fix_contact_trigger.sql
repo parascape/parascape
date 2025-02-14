@@ -25,7 +25,7 @@ BEGIN
     RAISE NOTICE 'Processing new submission: %', NEW.id;
 
     -- Set the service role key directly
-    service_role_key := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTIxNzA1NywiZXhwIjoyMDU0NzkzMDU3fQ.1Wh6lh-OjMrDO8H2_yvwSQSs44tSzBNMk1itRzZ9FZo';
+    service_role_key := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
 
     -- Log the key being used (masked for security)
     RAISE NOTICE 'Using service role key: %...%', LEFT(service_role_key, 4), RIGHT(service_role_key, 4);

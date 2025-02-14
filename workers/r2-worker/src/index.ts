@@ -5,6 +5,12 @@ interface Env {
   ALLOWED_ORIGIN: string;
 }
 
+const ALLOWED_ORIGINS = [
+  'https://parascape.org',
+  'https://r2.parascape.org',
+  'http://localhost:8787'
+];
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Handle CORS preflight requests
@@ -21,7 +27,7 @@ export default {
 
     // Verify origin
     const origin = request.headers.get('Origin');
-    if (origin !== env.ALLOWED_ORIGIN) {
+    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
       return new Response('Forbidden', { status: 403 });
     }
 
@@ -41,11 +47,16 @@ export default {
         }
 
         const headers = new Headers();
-        object.writeHttpMetadata(headers);
+        if (object.httpMetadata) {
+          Object.entries(object.httpMetadata).forEach(([key, value]) => {
+            headers.set(key, value);
+          });
+        }
         headers.set('etag', object.httpEtag);
-        headers.set('Access-Control-Allow-Origin', env.ALLOWED_ORIGIN);
+        headers.set('Access-Control-Allow-Origin', origin);
         
-        return new Response(object.body, {
+        const arrayBuffer = await object.arrayBuffer();
+        return new Response(arrayBuffer, {
           headers,
         });
       }
@@ -55,14 +66,15 @@ export default {
           return new Response('Request body is required', { status: 400 });
         }
 
-        await env.PARASCAPE_BUCKET.put(key, request.body, {
-          httpMetadata: request.headers,
+        const arrayBuffer = await request.arrayBuffer();
+        await env.PARASCAPE_BUCKET.put(key, arrayBuffer, {
+          httpMetadata: Object.fromEntries(request.headers),
         });
 
         return new Response('Successfully uploaded', {
           status: 200,
           headers: {
-            'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
+            'Access-Control-Allow-Origin': origin,
           },
         });
       }
@@ -71,7 +83,7 @@ export default {
         status: 405,
         headers: {
           'Allow': 'GET, POST, OPTIONS',
-          'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
+          'Access-Control-Allow-Origin': origin,
         },
       });
     } catch (error) {
@@ -79,7 +91,7 @@ export default {
       return new Response('Internal Server Error', { 
         status: 500,
         headers: {
-          'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
+          'Access-Control-Allow-Origin': origin || env.ALLOWED_ORIGIN,
         },
       });
     }
