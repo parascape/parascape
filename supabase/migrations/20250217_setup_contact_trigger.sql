@@ -2,21 +2,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- Create the contact submissions table if it doesn't exist
-CREATE TABLE IF NOT EXISTS contact_submissions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    message TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('contact', 'audit')),
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'processed', 'failed')),
-    email_sent BOOLEAN DEFAULT false,
-    email_sent_at TIMESTAMPTZ,
-    error_message TEXT
-);
-
 -- Create the email handling function
 CREATE OR REPLACE FUNCTION handle_contact_email()
 RETURNS TRIGGER

@@ -22,6 +22,46 @@ const ALLOWED_ORIGINS = [
   'https://r2.parascape.org'
 ];
 
+// Function to encode string as base64url
+function base64urlEncode(str: string): string {
+  return btoa(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+// Function to encode buffer as base64url
+function bufferToBase64url(buffer: ArrayBuffer): string {
+  return base64urlEncode(String.fromCharCode(...new Uint8Array(buffer)));
+}
+
+// Function to create a JWT token
+async function createJWT(payload: any, secret: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const header = { alg: 'HS256', typ: 'JWT' };
+  
+  const encodedHeader = base64urlEncode(JSON.stringify(header));
+  const encodedPayload = base64urlEncode(JSON.stringify(payload));
+  
+  const toSign = `${encodedHeader}.${encodedPayload}`;
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  
+  const signature = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(toSign)
+  );
+  
+  const encodedSignature = bufferToBase64url(signature);
+  return `${toSign}.${encodedSignature}`;
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Handle CORS preflight requests
@@ -72,8 +112,26 @@ export default {
 
         const storedData = JSON.parse(await storedObject.text()) as ContactFormData;
         
-        // Step 3: Submit to Supabase
-        const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        // Step 3: Submit to Supabase using service role key directly
+        const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
+          db: {
+            schema: 'public'
+          },
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+          },
+          global: {
+            headers: {
+              'apikey': env.SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            }
+          }
+        });
+        
         const { data, error } = await supabase
           .from('contact_submissions')
           .insert([

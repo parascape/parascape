@@ -1,5 +1,5 @@
 -- Drop existing table (this will cascade and remove policies)
-DROP TABLE IF EXISTS public.contact_submissions;
+DROP TABLE IF EXISTS public.contact_submissions CASCADE;
 
 -- Create contact_submissions table
 CREATE TABLE public.contact_submissions (
@@ -17,7 +17,7 @@ CREATE TABLE public.contact_submissions (
 );
 
 -- Create index on created_at for better query performance
-CREATE INDEX idx_contact_submissions_created_at ON public.contact_submissions(created_at);
+CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON public.contact_submissions(created_at);
 
 -- Enable Row Level Security
 ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
@@ -28,4 +28,10 @@ CREATE POLICY "Enable insert for all users" ON public.contact_submissions
 
 -- Create policy to allow select only for authenticated users
 CREATE POLICY "Enable select for authenticated users only" ON public.contact_submissions
-    FOR SELECT USING (auth.role() = 'authenticated'); 
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+-- Grant necessary permissions
+GRANT ALL ON public.contact_submissions TO postgres;
+GRANT INSERT ON public.contact_submissions TO anon;
+GRANT INSERT ON public.contact_submissions TO authenticated;
+GRANT SELECT ON public.contact_submissions TO authenticated; 

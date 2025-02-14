@@ -7,7 +7,7 @@ binding = "PARASCAPE_BUCKET"
 bucket_name = "parascape-bucket"
 
 [vars]
-ALLOWED_ORIGIN = "https://www.parascape.org"
+ALLOWED_ORIGIN = "https://parascape.org"
 SUPABASE_URL = "https://hpuqzerpfylevdfwembv.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo"
 
@@ -30,7 +30,15 @@ cpu_ms = 50
 memory_mb = 128
 uploader_size_mb = 100
 
-# Configure CORS headers
+# Configure CORS headers for multiple origins
+[[headers]]
+for = "/*"
+[headers.response]
+Access-Control-Allow-Origin = "https://parascape.org"
+Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+Access-Control-Allow-Headers = "Content-Type, Authorization"
+Access-Control-Max-Age = "86400"
+
 [[headers]]
 for = "/*"
 [headers.response]

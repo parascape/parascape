@@ -36,5 +36,6 @@ pnpm-debug.log*
 *.sw?
 
 # Wrangler
-.wrangler/tmp
-.wrangler/state
+.wrangler/
+.wrangler/tmp/
+.wrangler/state/
