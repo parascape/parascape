@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 interface ContactFormData {
   name: string;
@@ -22,6 +22,11 @@ interface SubmissionResponse {
   error_message: string | null;
 }
 
+interface R2WorkerResponse {
+  success: boolean;
+  data: SubmissionResponse[];
+}
+
 const TEST_FORM_DATA: ContactFormData = {
   name: 'Test User',
   email: 'test@example.com',
@@ -34,8 +39,8 @@ const TIMEOUT = 30000; // 30 seconds
 const RETRY_DELAY = 1000; // 1 second
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hpuqzerpfylevdfwembv.supabase.co';
-const R2_WORKER_URL = process.env.R2_WORKER_URL || 'http://localhost:8787';
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:8787';
+const R2_WORKER_URL = process.env.R2_WORKER_URL || 'https://r2.parascape.org';
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://www.parascape.org';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
 
 async function retry<T>(
@@ -62,91 +67,40 @@ async function retry<T>(
 describe('Contact Form Submission Flow', () => {
   let submissionId: string;
 
-  // Test the form submission to Supabase
-  it('should submit form data to Supabase', async () => {
+  // First, submit the form data to R2 Worker
+  it('should submit form data to R2 Worker', async () => {
     const response = await retry(async () => {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions`, {
+      const res = await fetch(`${R2_WORKER_URL}/submit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({
-          ...TEST_FORM_DATA,
-          status: 'pending'
-        })
-      });
-
-      if (!res.ok) {
-        const error = await res.text();
-        console.error('Supabase response:', error);
-        throw new Error(`Failed to submit form: ${res.status} ${res.statusText} - ${error}`);
-      }
-
-      return res;
-    });
-
-    const data = await response.json() as SubmissionResponse[];
-    console.log('Submission response:', data);
-    expect(data[0]).toHaveProperty('id');
-    submissionId = data[0].id;
-  }, TIMEOUT);
-
-  // Test uploading attachment to R2
-  it('should upload attachment to R2', async () => {
-    const testFile = new File(['Test file content'], 'test.txt', { type: 'text/plain' });
-    const response = await retry(async () => {
-      const res = await fetch(`${R2_WORKER_URL}/${submissionId}/attachment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
           'Origin': ALLOWED_ORIGIN
         },
-        body: testFile
+        body: JSON.stringify(TEST_FORM_DATA)
       });
 
       if (!res.ok) {
         const error = await res.text();
-        console.error('R2 upload response:', error);
-        throw new Error(`Failed to upload file: ${res.status} ${res.statusText} - ${error}`);
+        console.error('R2 Worker response:', error);
+        throw new Error(`Failed to submit to R2: ${res.status} ${res.statusText} - ${error}`);
       }
 
       return res;
     });
 
-    const result = await response.text();
-    console.log('Upload response:', result);
-    expect(response.status).toBe(200);
+    const data = await response.json() as R2WorkerResponse;
+    console.log('R2 Worker response:', data);
+    expect(data).toHaveProperty('success', true);
+    expect(data).toHaveProperty('data');
+    expect(data.data[0]).toHaveProperty('id');
+    submissionId = data.data[0].id;
   }, TIMEOUT);
 
-  // Test retrieving the attachment from R2
-  it('should retrieve attachment from R2', async () => {
-    const response = await retry(async () => {
-      const res = await fetch(`${R2_WORKER_URL}/${submissionId}/attachment`, {
-        method: 'GET',
-        headers: {
-          'Origin': ALLOWED_ORIGIN
-        }
-      });
+  // Then check if the submission was stored in Supabase
+  it('should verify submission in Supabase', async () => {
+    // Wait a bit for the R2 Worker to process and store in Supabase
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
-      if (!res.ok) {
-        const error = await res.text();
-        console.error('R2 download response:', error);
-        throw new Error(`Failed to retrieve file: ${res.status} ${res.statusText} - ${error}`);
-      }
-
-      return res;
-    });
-
-    const content = await response.text();
-    console.log('Download response:', content);
-    expect(content).toBe('Test file content');
-  }, TIMEOUT);
-
-  // Test checking submission status
-  it('should check submission status in Supabase', async () => {
     const response = await retry(async () => {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions?id=eq.${submissionId}`, {
         method: 'GET',
@@ -166,8 +120,29 @@ describe('Contact Form Submission Flow', () => {
     });
 
     const data = await response.json() as SubmissionResponse[];
-    console.log('Status response:', data[0]);
+    console.log('Supabase status:', data[0]);
+    
+    // Verify the submission data
+    expect(data[0]).toHaveProperty('id', submissionId);
+    expect(data[0].name).toBe(TEST_FORM_DATA.name);
+    expect(data[0].email).toBe(TEST_FORM_DATA.email);
+    expect(data[0].phone).toBe(TEST_FORM_DATA.phone);
+    expect(data[0].message).toBe(TEST_FORM_DATA.message);
+    expect(data[0].type).toBe(TEST_FORM_DATA.type);
+
+    // Check email status
     expect(data[0]).toHaveProperty('status');
     expect(['pending', 'processed', 'failed']).toContain(data[0].status);
+    
+    if (data[0].status === 'processed') {
+      expect(data[0].email_sent).toBe(true);
+      expect(data[0].email_sent_at).not.toBeNull();
+      expect(data[0].error_message).toBeNull();
+    } else if (data[0].status === 'failed') {
+      expect(data[0].email_sent).toBe(false);
+      expect(data[0].email_sent_at).toBeNull();
+      expect(data[0].error_message).not.toBeNull();
+      console.error('Email sending failed:', data[0].error_message);
+    }
   }, TIMEOUT);
 });

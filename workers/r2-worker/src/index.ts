@@ -18,6 +18,7 @@ interface ContactFormData {
 
 const ALLOWED_ORIGINS = [
   'https://parascape.org',
+  'https://www.parascape.org',
   'https://r2.parascape.org'
 ];
 
@@ -48,20 +49,41 @@ export default {
       // Handle form submissions
       if (path === 'submit' && request.method === 'POST') {
         const formData: ContactFormData = await request.json();
+        const submissionId = crypto.randomUUID();
         
-        // Initialize Supabase client
+        // Step 1: Store in R2
+        await env.PARASCAPE_BUCKET.put(`submissions/${submissionId}.json`, JSON.stringify(formData), {
+          httpMetadata: {
+            contentType: 'application/json'
+          }
+        });
+        
+        // Step 2: Retrieve from R2
+        const storedObject = await env.PARASCAPE_BUCKET.get(`submissions/${submissionId}.json`);
+        if (!storedObject) {
+          return new Response(JSON.stringify({ error: 'Failed to store submission' }), {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': origin,
+            },
+          });
+        }
+
+        const storedData = JSON.parse(await storedObject.text()) as ContactFormData;
+        
+        // Step 3: Submit to Supabase
         const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-        
-        // Submit to Supabase
         const { data, error } = await supabase
           .from('contact_submissions')
           .insert([
             {
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              message: formData.message,
-              type: formData.type,
+              id: submissionId,
+              name: storedData.name,
+              email: storedData.email,
+              phone: storedData.phone,
+              message: storedData.message,
+              type: storedData.type,
               status: 'pending'
             }
           ])
