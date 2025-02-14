@@ -18,19 +18,19 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Submitting form data:', formData);
     
-    // First, try to insert the data
+    // Format the request according to Supabase REST API requirements
     const { data, error } = await supabase
       .from('contact_submissions')
-      .insert({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        message: formData.message,
-        type: formData.type,
-        status: 'pending'
-      })
-      .select('*')
-      .single();
+      .insert([
+        {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          type: formData.type,
+          status: 'pending'
+        }
+      ]);
 
     if (error) {
       console.error('Database error:', error);

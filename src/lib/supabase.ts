@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { ContactFormData } from './email';
 
-const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co';
+const supabaseUrl = 'https://hpuqzerpfylevdfwembv.supabase.co/rest/v1';
 const supabaseAnonKey = 'secret6secret6secret6secret6secret6secret6';
 
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -21,8 +21,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     headers: {
       'apikey': supabaseAnonKey,
       'Authorization': `Bearer ${supabaseAnonKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
+      'Content-Type': 'application/json'
     }
   }
 }); 
