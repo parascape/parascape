@@ -8,6 +8,8 @@ bucket_name = "parascape-bucket"
 
 [vars]
 ALLOWED_ORIGIN = "https://parascape.org"
+SUPABASE_URL = "https://hpuqzerpfylevdfwembv.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo"
 
 # Custom domain configuration
 routes = [

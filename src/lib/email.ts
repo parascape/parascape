@@ -18,25 +18,22 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Submitting form data:', formData);
     
-    // Format the request according to Supabase REST API requirements
-    const { data, error } = await supabase
-      .from('contact_submissions')
-      .insert([
-        {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          message: formData.message,
-          type: formData.type,
-          status: 'pending'
-        }
-      ]);
+    // Submit form data through Cloudflare worker
+    const response = await fetch('https://r2.parascape.org/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    });
 
-    if (error) {
-      console.error('Database error:', error);
-      throw error;
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Worker response error:', error);
+      throw new Error(`Failed to submit form: ${response.status} ${response.statusText} - ${error}`);
     }
 
+    const data = await response.json();
     console.log('Submission stored:', data);
     return { success: true, data };
   } catch (error) {

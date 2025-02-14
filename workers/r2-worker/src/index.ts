@@ -1,8 +1,19 @@
 import { R2Bucket, ExecutionContext } from '@cloudflare/workers-types';
+import { createClient } from '@supabase/supabase-js';
 
 interface Env {
   PARASCAPE_BUCKET: R2Bucket;
   ALLOWED_ORIGIN: string;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
+}
+
+interface ContactFormData {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  type: 'contact' | 'audit';
 }
 
 const ALLOWED_ORIGINS = [
@@ -32,14 +43,57 @@ export default {
 
     try {
       const url = new URL(request.url);
-      const key = url.pathname.slice(1); // Remove leading slash
+      const path = url.pathname.slice(1); // Remove leading slash
 
-      if (!key) {
+      // Handle form submissions
+      if (path === 'submit' && request.method === 'POST') {
+        const formData: ContactFormData = await request.json();
+        
+        // Initialize Supabase client
+        const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+        
+        // Submit to Supabase
+        const { data, error } = await supabase
+          .from('contact_submissions')
+          .insert([
+            {
+              name: formData.name,
+              email: formData.email,
+              phone: formData.phone,
+              message: formData.message,
+              type: formData.type,
+              status: 'pending'
+            }
+          ])
+          .select();
+
+        if (error) {
+          console.error('Supabase error:', error);
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': origin,
+            },
+          });
+        }
+
+        return new Response(JSON.stringify({ success: true, data }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': origin,
+          },
+        });
+      }
+
+      // Handle file uploads
+      if (!path) {
         return new Response('Key is required', { status: 400 });
       }
 
       if (request.method === 'GET') {
-        const object = await env.PARASCAPE_BUCKET.get(key);
+        const object = await env.PARASCAPE_BUCKET.get(path);
         
         if (!object) {
           return new Response('Object Not Found', { status: 404 });
@@ -66,7 +120,7 @@ export default {
         }
 
         const arrayBuffer = await request.arrayBuffer();
-        await env.PARASCAPE_BUCKET.put(key, arrayBuffer, {
+        await env.PARASCAPE_BUCKET.put(path, arrayBuffer, {
           httpMetadata: Object.fromEntries(request.headers),
         });
 
@@ -87,9 +141,12 @@ export default {
       });
     } catch (error) {
       console.error('Error:', error);
-      return new Response('Internal Server Error', { 
+      return new Response(JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+      }), { 
         status: 500,
         headers: {
+          'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': origin || env.ALLOWED_ORIGIN,
         },
       });
