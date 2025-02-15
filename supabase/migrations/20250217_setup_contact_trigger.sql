@@ -2,6 +2,9 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
+-- Set the service role key as a database setting
+SELECT set_config('app.settings.service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo', false);
+
 -- Create the email handling function
 CREATE OR REPLACE FUNCTION handle_contact_email()
 RETURNS TRIGGER
@@ -20,7 +23,7 @@ BEGIN
 
     -- Set the Edge Function URL and service role key
     edge_function_url := 'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/handle-contact-email';
-    service_role_key := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo';
+    service_role_key := current_setting('app.settings.service_role_key', true);
 
     -- Log the key being used (masked for security)
     RAISE NOTICE 'Using service role key: %...%', LEFT(service_role_key, 4), RIGHT(service_role_key, 4);
@@ -33,7 +36,8 @@ BEGIN
             url := edge_function_url,
             headers := jsonb_build_object(
                 'Content-Type', 'application/json',
-                'Authorization', format('Bearer %s', service_role_key)
+                'Authorization', format('Bearer %s', service_role_key),
+                'x-client-info', 'supabase-trigger'
             ),
             body := jsonb_build_object(
                 'record', jsonb_build_object(

@@ -11,7 +11,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 // Get email configuration from environment variables or use defaults
-const FROM_EMAIL = Deno.env.get('EMAIL_FROM') || 'onboarding@resend.dev';
+const FROM_EMAIL = Deno.env.get('EMAIL_FROM') || 'noreply@connect.parascape.org';
 const EMAIL_TO = Deno.env.get('EMAIL_TO') || 'recordsparascape@gmail.com';
 
 // Get Supabase configuration
@@ -90,7 +90,7 @@ serve(async (req) => {
         resend.emails.send({
           from: FROM_EMAIL,
           to: [EMAIL_TO],
-          subject: `New message from ${submission.name}`,
+          subject: `New ${submission.type} message from ${submission.name}`,
           html: getAdminEmailTemplate(submission),
           reply_to: submission.email
         })
