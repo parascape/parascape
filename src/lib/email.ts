@@ -18,6 +18,11 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
   try {
     console.log('Submitting form data to Supabase:', formData);
     
+    // Validate the Supabase client
+    if (!supabase) {
+      throw new Error('Supabase client is not initialized');
+    }
+
     // Submit directly to Supabase
     const { data, error } = await supabase
       .from('contact_submissions')
@@ -32,14 +37,14 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
       .select();
 
     if (error) {
-      console.error(`Supabase error: ${error}`);
+      console.error(`Supabase error: ${JSON.stringify(error)}`);
       throw new Error(`Failed to submit form: ${error.message}`);
     }
 
     console.log('Submission stored in Supabase:', data);
     return { success: true, data };
   } catch (error) {
-    console.error(`Error submitting form: ${error}`);
+    console.error(`Error submitting form: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'An unexpected error occurred'
