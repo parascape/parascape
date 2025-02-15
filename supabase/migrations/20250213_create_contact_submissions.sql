@@ -1,3 +1,7 @@
+-- Enable required extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pg_net;
+
 -- Drop existing table (this will cascade and remove policies)
 DROP TABLE IF EXISTS public.contact_submissions CASCADE;
 
@@ -22,16 +26,103 @@ CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON public.contact_
 -- Enable Row Level Security
 ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow inserts from authenticated users and anon
-CREATE POLICY "Enable insert for all users" ON public.contact_submissions
-    FOR INSERT WITH CHECK (true);
+-- Set the service role key as a database setting
+SELECT set_config('app.settings.service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo', false);
 
--- Create policy to allow select only for authenticated users
-CREATE POLICY "Enable select for authenticated users only" ON public.contact_submissions
-    FOR SELECT USING (auth.role() = 'authenticated');
+-- Create the email handling function
+CREATE OR REPLACE FUNCTION handle_contact_email()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  response_status INT;
+  response_body JSONB;
+  edge_function_url TEXT;
+  service_role_key TEXT;
+BEGIN
+    -- Log the start of function execution
+    RAISE NOTICE 'Processing new submission: %', NEW.id;
 
--- Grant necessary permissions
-GRANT ALL ON public.contact_submissions TO postgres;
-GRANT INSERT ON public.contact_submissions TO anon;
-GRANT INSERT ON public.contact_submissions TO authenticated;
-GRANT SELECT ON public.contact_submissions TO authenticated; 
+    -- Set the Edge Function URL and service role key
+    edge_function_url := 'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/handle-contact-email';
+    service_role_key := current_setting('app.settings.service_role_key', true);
+
+    -- Make the HTTP request to the Edge Function
+    SELECT
+        status, content::jsonb INTO response_status, response_body
+    FROM
+        net.http_post(
+            url := edge_function_url,
+            headers := jsonb_build_object(
+                'Content-Type', 'application/json',
+                'Authorization', format('Bearer %s', service_role_key)
+            ),
+            body := jsonb_build_object('record', row_to_json(NEW))
+        );
+
+    -- Update the submission status based on the response
+    UPDATE contact_submissions
+    SET
+        status = CASE 
+            WHEN response_status = 200 THEN 'processed'
+            ELSE 'failed'
+        END,
+        email_sent = response_status = 200,
+        email_sent_at = CASE 
+            WHEN response_status = 200 THEN NOW()
+            ELSE NULL
+        END,
+        error_message = CASE 
+            WHEN response_status != 200 THEN COALESCE(response_body->>'error', 'Failed to send email')
+            ELSE NULL
+        END
+    WHERE id = NEW.id;
+
+    RETURN NEW;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Update the submission with the error
+        UPDATE contact_submissions
+        SET
+            status = 'failed',
+            error_message = format('Trigger error: %s', SQLERRM)
+        WHERE id = NEW.id;
+        
+        RETURN NEW;
+END;
+$$;
+
+-- Drop any existing triggers
+DROP TRIGGER IF EXISTS on_new_submission ON contact_submissions;
+DROP TRIGGER IF EXISTS trigger_handle_contact_email ON contact_submissions;
+DROP TRIGGER IF EXISTS handle_contact_email_trigger ON contact_submissions;
+
+-- Create the trigger
+CREATE TRIGGER handle_contact_email_trigger
+    AFTER INSERT ON contact_submissions
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_contact_email();
+
+-- Create policies with proper permissions
+CREATE POLICY "Enable insert for anon" ON public.contact_submissions
+    FOR INSERT TO anon
+    WITH CHECK (true);
+
+CREATE POLICY "Enable insert for authenticated" ON public.contact_submissions
+    FOR INSERT TO authenticated
+    WITH CHECK (true);
+
+CREATE POLICY "Enable select for service role" ON public.contact_submissions
+    FOR ALL TO service_role
+    USING (true);
+
+-- Ensure proper grants
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON public.contact_submissions TO service_role;
+GRANT INSERT ON public.contact_submissions TO anon, authenticated;
+
+-- Ensure trigger function has correct permissions
+REVOKE EXECUTE ON FUNCTION handle_contact_email() FROM anon, authenticated;
+GRANT EXECUTE ON FUNCTION handle_contact_email() TO postgres; 
