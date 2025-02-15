@@ -61,7 +61,7 @@ jobs:
           NODE_ENV: production
           VITE_GA4_MEASUREMENT_ID: G-NQLRXMREDQ
           VITE_SUPABASE_URL: https://hpuqzerpfylevdfwembv.supabase.co
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyMTcwNTcsImV4cCI6MjA1NDc5MzA1N30.ISBXSTO_aeRoY5eHVfu3RSwOCXsLN6UEc-VkfIu6nI0
           VITE_RESEND_API_KEY: ${{ secrets.VITE_RESEND_API_KEY }}
           VITE_ADMIN_EMAIL: ${{ secrets.VITE_ADMIN_EMAIL }}
       
