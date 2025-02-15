@@ -32,14 +32,14 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
       .select();
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error(`Supabase error: ${error}`);
       throw new Error(`Failed to submit form: ${error.message}`);
     }
 
     console.log('Submission stored in Supabase:', data);
     return { success: true, data };
   } catch (error) {
-    console.error('Error submitting form:', error);
+    console.error(`Error submitting form: ${error}`);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'An unexpected error occurred'
