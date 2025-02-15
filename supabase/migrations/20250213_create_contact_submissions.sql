@@ -26,9 +26,6 @@ CREATE INDEX IF NOT EXISTS idx_contact_submissions_created_at ON public.contact_
 -- Enable Row Level Security
 ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
 
--- Set the service role key as a database setting
-SELECT set_config('app.settings.service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczOTUxMjA4MiwiZXhwIjoyMDU1MDg4MDgyfQ.3U72os4aO9g7rc3Dg4ewMh198J-XZ8j4-iS-UKBkyDo', false);
-
 -- Create the email handling function
 CREATE OR REPLACE FUNCTION handle_contact_email()
 RETURNS TRIGGER
@@ -40,14 +37,12 @@ DECLARE
   response_status INT;
   response_body JSONB;
   edge_function_url TEXT;
-  service_role_key TEXT;
 BEGIN
     -- Log the start of function execution
     RAISE NOTICE 'Processing new submission: %', NEW.id;
 
-    -- Set the Edge Function URL and service role key
+    -- Set the Edge Function URL
     edge_function_url := 'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/handle-contact-email';
-    service_role_key := current_setting('app.settings.service_role_key', true);
 
     -- Make the HTTP request to the Edge Function
     SELECT
@@ -57,7 +52,7 @@ BEGIN
             url := edge_function_url,
             headers := jsonb_build_object(
                 'Content-Type', 'application/json',
-                'Authorization', format('Bearer %s', service_role_key)
+                'Authorization', format('Bearer %s', current_setting('app.settings.service_role_key', true))
             ),
             body := jsonb_build_object('record', row_to_json(NEW))
         );
@@ -105,14 +100,31 @@ CREATE TRIGGER handle_contact_email_trigger
     FOR EACH ROW
     EXECUTE FUNCTION handle_contact_email();
 
--- Create policies with proper permissions
+-- Drop existing policies
+DROP POLICY IF EXISTS "Enable insert for anon" ON public.contact_submissions;
+DROP POLICY IF EXISTS "Enable insert for authenticated" ON public.contact_submissions;
+DROP POLICY IF EXISTS "Enable select for service role" ON public.contact_submissions;
+
+-- Create more explicit policies
 CREATE POLICY "Enable insert for anon" ON public.contact_submissions
     FOR INSERT TO anon
-    WITH CHECK (true);
+    WITH CHECK (
+        name IS NOT NULL AND
+        email IS NOT NULL AND
+        phone IS NOT NULL AND
+        message IS NOT NULL AND
+        type IN ('contact', 'audit')
+    );
 
 CREATE POLICY "Enable insert for authenticated" ON public.contact_submissions
     FOR INSERT TO authenticated
-    WITH CHECK (true);
+    WITH CHECK (
+        name IS NOT NULL AND
+        email IS NOT NULL AND
+        phone IS NOT NULL AND
+        message IS NOT NULL AND
+        type IN ('contact', 'audit')
+    );
 
 CREATE POLICY "Enable select for service role" ON public.contact_submissions
     FOR ALL TO service_role
