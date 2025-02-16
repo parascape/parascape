@@ -46,7 +46,7 @@ export default function ContactForm({ type = 'contact' }: ContactFormProps) {
     if (!formData.phone.trim()) {
       errors.phone = 'Phone number is required';
     } else if (formData.phone.replace(/\D/g, '').length < 10) {
-      errors.phone = 'Phone number must have at least 10 digits';
+      errors.phone = 'Please enter a valid phone number in the format (XXX) XXX-XXXX';
     }
 
     if (!formData.message.trim()) {
