@@ -1,57 +1,38 @@
 interface AnalyticsEvent {
-  category: string;
-  action: string;
-  label?: string;
-  value?: number;
+  name: string;
+  properties?: Record<string, unknown>;
 }
 
 type GtagCommand = 'config' | 'event' | 'js';
 
-interface Window {
-  dataLayer: any[];
-  gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
-}
+type GtagConfig = Record<string, unknown>;
 
 declare global {
   interface Window {
     dataLayer: any[];
-    gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
+    gtag: (command: GtagCommand, targetId: string, config?: GtagConfig) => void;
   }
 }
 
-export class Analytics {
-  static init(): void {
+class Analytics {
+  init(): void {
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function (
-      command: GtagCommand,
-      targetId: string,
-      config?: Record<string, any>
-    ): void {
+    window.gtag = function(command: GtagCommand, targetId: string, config?: GtagConfig): void {
       window.dataLayer.push(arguments);
     };
-    window.gtag('js', new Date().toISOString());
+    window.gtag('js', new Date());
     window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID);
   }
 
-  static trackPageView(path: string): void {
+  pageView(path: string): void {
     window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID, {
       page_path: path,
     });
   }
 
-  static trackEvent(event: AnalyticsEvent): void {
-    window.gtag('event', event.action, {
-      event_category: event.category,
-      event_label: event.label,
-      value: event.value,
-    });
+  track(event: AnalyticsEvent): void {
+    window.gtag('event', event.name, event.properties);
   }
 }
 
-// Type declarations for Google Analytics
-declare global {
-  interface Window {
-    dataLayer: any[];
-    gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
-  }
-}
+export const analytics = new Analytics();

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { analytics } from '@/lib/analytics';
+import { Analytics } from '@/lib/analytics';
 
 export function useAnalytics() {
   const location = useLocation();
@@ -13,6 +14,10 @@ export function useAnalytics() {
       analytics.pageView(location.pathname + location.search);
     }
   }, [location, navigationType]);
+
+  useEffect(() => {
+    analytics.init();
+  }, []);
 
   return analytics;
 }

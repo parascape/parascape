@@ -1,13 +1,11 @@
-#!/usr/bin/env node
-
-const { execSync } = require('child_process');
+#!/usr/bin/env pwsh
 
 try {
   // Check for merge conflict markers
-  execSync('git diff --cached --check', { stdio: 'inherit' });
+  git diff --cached --check
   
   // Run lint-staged
-  execSync('npx lint-staged', { stdio: 'inherit' });
-} catch (error) {
-  process.exit(1);
+  npx lint-staged
+} catch {
+  exit 1
 } 

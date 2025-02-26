@@ -150,8 +150,8 @@ export function ContactForm({ type }: ContactFormProps) {
         name: 'form_submission',
         properties: {
           form: isAuditRequest ? 'audit_request' : 'contact',
-          business: values.business,
-        },
+          business: values.business
+        }
       });
 
       toast.success(
