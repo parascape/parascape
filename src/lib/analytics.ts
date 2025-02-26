@@ -3,22 +3,22 @@ interface AnalyticsEvent {
   properties?: Record<string, unknown>;
 }
 
-type GtagCommand = 'config' | 'event' | 'js';
-
-type GtagConfig = Record<string, unknown>;
-
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type Gtag = (command: 'config' | 'event' | 'js', target: string, details?: any) => void;
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dataLayer: any[];
-    gtag: (command: GtagCommand, targetId: string, config?: GtagConfig) => void;
+    gtag: Gtag;
   }
 }
 
 class Analytics {
   init(): void {
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function(command: GtagCommand, targetId: string, config?: GtagConfig): void {
-      window.dataLayer.push(arguments);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    window.gtag = function(...args: any[]): void {
+      window.dataLayer.push(args);
     };
     window.gtag('js', new Date());
     window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID);
@@ -31,7 +31,7 @@ class Analytics {
   }
 
   track(event: AnalyticsEvent): void {
-    window.gtag('event', event.name, event.properties);
+    window.gtag('event', event.name, event.properties || {});
   }
 }
 
