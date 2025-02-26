@@ -3,10 +3,16 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 export default defineConfig({
   base: '/',
-  plugins: [react()],
+  plugins: [
+    react(),
+    nodeResolve({
+      preferBuiltins: true
+    })
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -19,7 +25,9 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     minify: 'esbuild',
+    target: 'esnext',
     rollupOptions: {
+      external: ['react', 'react-dom', 'react-router-dom'],
       output: {
         manualChunks: {
           'vendor': [
@@ -28,8 +36,14 @@ export default defineConfig({
             'react-router-dom',
             'framer-motion'
           ]
-        }
+        },
+        format: 'esm'
       }
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext'
     }
   },
   css: {
