@@ -17,7 +17,20 @@ import { analytics } from '@/lib/analytics'
 import { useLocation, useParams } from 'react-router-dom'
 import { useEffect, useState, useRef } from 'react'
 import { Loader2, AlertCircle } from 'lucide-react'
-import { config } from '@/config/environment'
+import { supabase } from '@/lib/supabase'
+
+interface SubmissionResponse {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  business: string;
+  phone?: string;
+  about: string;
+  type: 'contact' | 'audit_request';
+  status: 'pending' | 'processed' | 'failed';
+  email_sent: boolean;
+}
 
 const formSchema = z.object({
   name: z.string()
@@ -77,29 +90,31 @@ export function ContactForm({ type }: ContactFormProps) {
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  async function submitWithRetry(values: FormValues, retryCount: number = 0): Promise<Response> {
+  async function submitWithRetry(values: FormValues, retryCount: number = 0): Promise<SubmissionResponse> {
     try {
-      const response = await fetch(config.api.formSubmission, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`
-        },
-        body: JSON.stringify({
-          ...values,
-          type: isAuditRequest ? 'audit_request' : 'contact'
-        })
-      });
+      const { data, error } = await supabase
+        .from('contact_submissions')
+        .insert([
+          {
+            name: values.name,
+            email: values.email,
+            business: values.business,
+            phone: values.phone,
+            about: values.about,
+            type: isAuditRequest ? 'audit_request' : 'contact'
+          }
+        ])
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const error = await response.json();
-        if (error.error === 'Too many submissions. Please try again later.') {
+      if (error) {
+        if (error.message.includes('rate limit')) {
           throw new Error('Rate limit exceeded. Please try again in a few minutes.');
         }
-        throw new Error(error.message || 'Failed to submit form');
+        throw error;
       }
 
-      return response;
+      return data as SubmissionResponse;
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
         setRetryCount(retryCount + 1);
@@ -119,8 +134,12 @@ export function ContactForm({ type }: ContactFormProps) {
       setIsSubmitting(true);
       setSubmitError(null);
 
-      const response = await submitWithRetry(values);
-      const data = await response.json();
+      // Check honeypot
+      if (values.honeypot) {
+        throw new Error('Bot detected');
+      }
+
+      const data = await submitWithRetry(values);
 
       analytics.track({
         name: 'form_submission',
