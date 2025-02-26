@@ -1,7 +1,7 @@
 import { onCLS, onFID, onLCP } from 'web-vitals';
 
 // Report web vitals to analytics
-function reportWebVitals({ name, delta, id }: { name: string, delta: number, id: string }) {
+function reportWebVitals({ name, delta, id }: { name: string; delta: number; id: string }) {
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
     console.log(`[Web Vitals] ${name}:`, delta);
@@ -13,7 +13,7 @@ function reportWebVitals({ name, delta, id }: { name: string, delta: number, id:
       gtag('event', 'web_vitals', {
         metric_name: name,
         metric_value: Math.round(delta),
-        metric_id: id
+        metric_id: id,
       });
     }
   } catch (e) {
@@ -27,4 +27,4 @@ export function initPerformanceMonitoring() {
   onCLS(reportWebVitals);
   onFID(reportWebVitals);
   onLCP(reportWebVitals);
-} 
+}

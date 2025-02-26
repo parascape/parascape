@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
@@ -8,8 +8,8 @@ interface SEOProps {
   type?: string;
 }
 
-export function SEO({ title, description, image, url, type = "website" }: SEOProps) {
-  const siteUrl = "https://parascape.org";
+export function SEO({ title, description, image, url, type = 'website' }: SEOProps) {
+  const siteUrl = 'https://parascape.org';
   const fullUrl = url ? `${siteUrl}${url}` : siteUrl;
   const imageUrl = image ? `${siteUrl}${image}` : `${siteUrl}/og-image.png`;
 
@@ -41,4 +41,4 @@ export function SEO({ title, description, image, url, type = "website" }: SEOPro
       <meta name="geo.placename" content="Humboldt County" />
     </Helmet>
   );
-} 
+}

@@ -13,4 +13,4 @@ interface Window {
 // Declare gtag as a global function
 declare global {
   const gtag: typeof gtag;
-} 
+}

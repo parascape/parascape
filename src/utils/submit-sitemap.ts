@@ -1,17 +1,17 @@
 async function submitSitemapToSearchEngines(sitemapUrl: string) {
   const searchEngines = [
     `http://www.google.com/ping?sitemap=${sitemapUrl}`,
-    `http://www.bing.com/ping?sitemap=${sitemapUrl}`
+    `http://www.bing.com/ping?sitemap=${sitemapUrl}`,
   ];
 
   try {
     const results = await Promise.all(
-      searchEngines.map(async (engine) => {
+      searchEngines.map(async engine => {
         const response = await fetch(engine);
         return {
           engine,
           status: response.status,
-          ok: response.ok
+          ok: response.ok,
         };
       })
     );
@@ -24,4 +24,4 @@ async function submitSitemapToSearchEngines(sitemapUrl: string) {
   }
 }
 
-export { submitSitemapToSearchEngines }; 
+export { submitSitemapToSearchEngines };

@@ -10,19 +10,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   db: {
-    schema: 'public'
+    schema: 'public',
   },
   auth: {
     persistSession: false,
     autoRefreshToken: false,
-    detectSessionInUrl: false
+    detectSessionInUrl: false,
   },
   global: {
     headers: {
-      'apikey': supabaseAnonKey,
-      'Authorization': `Bearer ${supabaseAnonKey}`,
+      apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
       'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    }
-  }
-}); 
+      Prefer: 'return=minimal',
+    },
+  },
+});

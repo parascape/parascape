@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { ArrowUp } from "lucide-react";
-import { Button } from "./ui/button";
+import { useEffect, useState } from 'react';
+import { ArrowUp } from 'lucide-react';
+import { Button } from './ui/button';
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,14 +14,14 @@ export function ScrollToTop() {
       }
     };
 
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
+    window.addEventListener('scroll', toggleVisibility);
+    return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
@@ -36,4 +36,4 @@ export function ScrollToTop() {
       <span className="sr-only">Scroll to top</span>
     </Button>
   ) : null;
-} 
+}

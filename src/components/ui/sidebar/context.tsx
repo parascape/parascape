@@ -1,8 +1,8 @@
-import * as React from "react"
+import * as React from 'react';
 
 // Split contexts for better performance
 export const SidebarStateContext = React.createContext<{
-  state: "expanded" | "collapsed";
+  state: 'expanded' | 'collapsed';
   open: boolean;
 } | null>(null);
 
@@ -21,7 +21,7 @@ export const SidebarMobileContext = React.createContext<{
 export function useSidebarState() {
   const context = React.useContext(SidebarStateContext);
   if (!context) {
-    throw new Error("useSidebarState must be used within a SidebarProvider");
+    throw new Error('useSidebarState must be used within a SidebarProvider');
   }
   return context;
 }
@@ -29,7 +29,7 @@ export function useSidebarState() {
 export function useSidebarActions() {
   const context = React.useContext(SidebarActionsContext);
   if (!context) {
-    throw new Error("useSidebarActions must be used within a SidebarProvider");
+    throw new Error('useSidebarActions must be used within a SidebarProvider');
   }
   return context;
 }
@@ -37,7 +37,7 @@ export function useSidebarActions() {
 export function useSidebarMobile() {
   const context = React.useContext(SidebarMobileContext);
   if (!context) {
-    throw new Error("useSidebarMobile must be used within a SidebarProvider");
+    throw new Error('useSidebarMobile must be used within a SidebarProvider');
   }
   return context;
 }
@@ -49,4 +49,4 @@ export function useSidebar() {
     ...useSidebarActions(),
     ...useSidebarMobile(),
   };
-} 
+}

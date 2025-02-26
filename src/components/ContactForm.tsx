@@ -1,7 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,15 +9,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
-import { analytics } from '@/lib/analytics'
-import { useLocation, useParams } from 'react-router-dom'
-import { useEffect, useState, useRef } from 'react'
-import { Loader2, AlertCircle } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { analytics } from '@/lib/analytics';
+import { useLocation, useParams } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface SubmissionResponse {
   id: string;
@@ -33,24 +33,23 @@ interface SubmissionResponse {
 }
 
 const formSchema = z.object({
-  name: z.string()
-    .min(2, "Please enter your full name")
-    .max(100, "Name is too long"),
-  email: z.string()
-    .email("Please enter a valid email address")
-    .max(100, "Email is too long"),
-  business: z.string()
-    .min(1, "Please enter your business name")
-    .max(100, "Business name is too long"),
-  phone: z.string()
-    .max(20, "Phone number is too long")
+  name: z.string().min(2, 'Please enter your full name').max(100, 'Name is too long'),
+  email: z.string().email('Please enter a valid email address').max(100, 'Email is too long'),
+  business: z
+    .string()
+    .min(1, 'Please enter your business name')
+    .max(100, 'Business name is too long'),
+  phone: z
+    .string()
+    .max(20, 'Phone number is too long')
     .optional()
-    .transform((val: string | undefined) => val === "" || !val ? undefined : val),
-  about: z.string()
-    .min(10, "Please provide more details about your request")
-    .max(1000, "Message is too long"),
-  honeypot: z.string().optional()
-})
+    .transform((val: string | undefined) => (val === '' || !val ? undefined : val)),
+  about: z
+    .string()
+    .min(10, 'Please provide more details about your request')
+    .max(1000, 'Message is too long'),
+  honeypot: z.string().optional(),
+});
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -66,31 +65,37 @@ export function ContactForm({ type }: ContactFormProps) {
   const [retryCount, setRetryCount] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const submitLock = useRef(false);
-  
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      business: "",
-      phone: "",
-      about: "",
-      honeypot: ""
+      name: '',
+      email: '',
+      business: '',
+      phone: '',
+      about: '',
+      honeypot: '',
     },
-    mode: "onBlur"
+    mode: 'onBlur',
   });
 
   const isAuditRequest = type === 'audit';
 
   useEffect(() => {
     if (isAuditRequest) {
-      form.setValue('about', 'I would like to request a free digital presence audit for my business.');
+      form.setValue(
+        'about',
+        'I would like to request a free digital presence audit for my business.'
+      );
     }
   }, [isAuditRequest, form]);
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  async function submitWithRetry(values: FormValues, retryCount: number = 0): Promise<SubmissionResponse> {
+  async function submitWithRetry(
+    values: FormValues,
+    retryCount: number = 0
+  ): Promise<SubmissionResponse> {
     try {
       const { data, error } = await supabase
         .from('contact_submissions')
@@ -101,8 +106,8 @@ export function ContactForm({ type }: ContactFormProps) {
             business: values.business,
             phone: values.phone,
             about: values.about,
-            type: isAuditRequest ? 'audit_request' : 'contact'
-          }
+            type: isAuditRequest ? 'audit_request' : 'contact',
+          },
         ])
         .select()
         .single();
@@ -129,7 +134,7 @@ export function ContactForm({ type }: ContactFormProps) {
     // Prevent multiple submissions
     if (submitLock.current) return;
     submitLock.current = true;
-    
+
     try {
       setIsSubmitting(true);
       setSubmitError(null);
@@ -145,8 +150,8 @@ export function ContactForm({ type }: ContactFormProps) {
         name: 'form_submission',
         properties: {
           form: isAuditRequest ? 'audit_request' : 'contact',
-          business: values.business
-        }
+          business: values.business,
+        },
       });
 
       toast.success(
@@ -156,10 +161,11 @@ export function ContactForm({ type }: ContactFormProps) {
       );
       form.reset();
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "We're having trouble submitting your form. Please try again.";
-      
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "We're having trouble submitting your form. Please try again.";
+
       setSubmitError(errorMessage);
       toast.error(errorMessage);
       console.error('Form submission error:', error);
@@ -174,7 +180,7 @@ export function ContactForm({ type }: ContactFormProps) {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto p-6 space-y-8 bg-white rounded-lg shadow-lg animate-fade-up">
+    <div className="mx-auto w-full max-w-xl animate-fade-up space-y-8 rounded-lg bg-white p-6 shadow-lg">
       <div className="space-y-2 text-center">
         <h2 className="text-3xl font-bold tracking-tight text-parascape-green">
           {isAuditRequest ? 'Request Your Free Audit' : 'Get in Touch'}
@@ -182,18 +188,17 @@ export function ContactForm({ type }: ContactFormProps) {
         <p className="text-gray-500">
           {isAuditRequest
             ? "We'll analyze your digital presence and provide actionable insights."
-            : "Ready to transform your business? Let's start a conversation."
-          }
+            : "Ready to transform your business? Let's start a conversation."}
         </p>
         <p className="text-sm text-gray-400">* Required fields</p>
       </div>
 
       {submitError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md flex items-start space-x-3">
-          <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+        <div className="flex items-start space-x-3 rounded-md border border-red-200 bg-red-50 p-4">
+          <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" />
           <div className="flex-1">
             <p className="text-sm text-red-700">{submitError}</p>
-            <p className="text-xs text-red-500 mt-1">
+            <p className="mt-1 text-xs text-red-500">
               Please try again or contact us directly at contact@parascape.com
             </p>
           </div>
@@ -209,19 +214,19 @@ export function ContactForm({ type }: ContactFormProps) {
               <FormItem>
                 <FormLabel>Name *</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="John Doe" 
-                    {...field} 
+                  <Input
+                    placeholder="John Doe"
+                    {...field}
                     aria-required="true"
                     autoComplete="name"
-                    className={form.formState.errors.name ? "border-red-500" : ""}
+                    className={form.formState.errors.name ? 'border-red-500' : ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="email"
@@ -229,20 +234,20 @@ export function ContactForm({ type }: ContactFormProps) {
               <FormItem>
                 <FormLabel>Email *</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="email" 
-                    placeholder="john@example.com" 
-                    {...field} 
+                  <Input
+                    type="email"
+                    placeholder="john@example.com"
+                    {...field}
                     aria-required="true"
                     autoComplete="email"
-                    className={form.formState.errors.email ? "border-red-500" : ""}
+                    className={form.formState.errors.email ? 'border-red-500' : ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="business"
@@ -250,19 +255,19 @@ export function ContactForm({ type }: ContactFormProps) {
               <FormItem>
                 <FormLabel>Business Name *</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="Your Business LLC" 
-                    {...field} 
+                  <Input
+                    placeholder="Your Business LLC"
+                    {...field}
                     aria-required="true"
                     autoComplete="organization"
-                    className={form.formState.errors.business ? "border-red-500" : ""}
+                    className={form.formState.errors.business ? 'border-red-500' : ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="phone"
@@ -270,19 +275,19 @@ export function ContactForm({ type }: ContactFormProps) {
               <FormItem>
                 <FormLabel>Phone (Optional)</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="tel" 
-                    placeholder="(555) 555-5555" 
-                    {...field} 
+                  <Input
+                    type="tel"
+                    placeholder="(555) 555-5555"
+                    {...field}
                     autoComplete="tel"
-                    className={form.formState.errors.phone ? "border-red-500" : ""}
+                    className={form.formState.errors.phone ? 'border-red-500' : ''}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="about"
@@ -290,12 +295,12 @@ export function ContactForm({ type }: ContactFormProps) {
               <FormItem>
                 <FormLabel>How can we help? *</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    placeholder="Tell us about your project or business needs..." 
-                    {...field} 
+                  <Textarea
+                    placeholder="Tell us about your project or business needs..."
+                    {...field}
                     aria-required="true"
                     rows={5}
-                    className={form.formState.errors.about ? "border-red-500" : ""}
+                    className={form.formState.errors.about ? 'border-red-500' : ''}
                   />
                 </FormControl>
                 <FormMessage />
@@ -318,11 +323,7 @@ export function ContactForm({ type }: ContactFormProps) {
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

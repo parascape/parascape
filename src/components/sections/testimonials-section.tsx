@@ -14,25 +14,28 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    quote: "Parascape transformed our online presence completely. Our website traffic has doubled, and customer engagement is at an all-time high.",
-    author: "Sarah Johnson",
-    role: "Owner",
-    company: "Humboldt Herbals"
+    quote:
+      'Parascape transformed our online presence completely. Our website traffic has doubled, and customer engagement is at an all-time high.',
+    author: 'Sarah Johnson',
+    role: 'Owner',
+    company: 'Humboldt Herbals',
   },
   {
     id: 2,
-    quote: "The team at Parascape truly understands the unique needs of local businesses. They delivered beyond our expectations.",
-    author: "Michael Chen",
-    role: "Director",
-    company: "Pacific Outfitters"
+    quote:
+      'The team at Parascape truly understands the unique needs of local businesses. They delivered beyond our expectations.',
+    author: 'Michael Chen',
+    role: 'Director',
+    company: 'Pacific Outfitters',
   },
   {
     id: 3,
-    quote: "Professional, creative, and results-driven. Our new website has helped us reach customers we never could before.",
-    author: "Emily Rodriguez",
-    role: "Marketing Manager",
-    company: "Lost Coast Brewery"
-  }
+    quote:
+      'Professional, creative, and results-driven. Our new website has helped us reach customers we never could before.',
+    author: 'Emily Rodriguez',
+    role: 'Marketing Manager',
+    company: 'Lost Coast Brewery',
+  },
 ];
 
 export function TestimonialsSection() {
@@ -42,18 +45,18 @@ export function TestimonialsSection() {
   const slideVariants = {
     enter: (direction: number) => ({
       x: direction > 0 ? 1000 : -1000,
-      opacity: 0
+      opacity: 0,
     }),
     center: {
       zIndex: 1,
       x: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction: number) => ({
       zIndex: 0,
       x: direction < 0 ? 1000 : -1000,
-      opacity: 0
-    })
+      opacity: 0,
+    }),
   };
 
   const swipeConfidenceThreshold = 10000;
@@ -63,7 +66,7 @@ export function TestimonialsSection() {
 
   const paginate = (newDirection: number) => {
     setDirection(newDirection);
-    setCurrent((prev) => (prev + newDirection + testimonials.length) % testimonials.length);
+    setCurrent(prev => (prev + newDirection + testimonials.length) % testimonials.length);
   };
 
   useEffect(() => {
@@ -75,18 +78,14 @@ export function TestimonialsSection() {
   }, []);
 
   return (
-    <section className="py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900">
-            What Our Clients Say
-          </h2>
-          <p className="mt-4 text-xl text-gray-600">
-            Don't just take our word for it
-          </p>
+    <section className="bg-gray-50 py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <h2 className="text-3xl font-bold text-gray-900">What Our Clients Say</h2>
+          <p className="mt-4 text-xl text-gray-600">Don't just take our word for it</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid gap-8 md:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.author}
@@ -94,16 +93,12 @@ export function TestimonialsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="rounded-2xl bg-white p-8 shadow-sm transition-shadow duration-200 hover:shadow-md"
             >
-              <Quote className="w-8 h-8 text-parascape-green mb-4" />
-              <blockquote className="text-gray-700 mb-6">
-                "{testimonial.quote}"
-              </blockquote>
+              <Quote className="mb-4 h-8 w-8 text-parascape-green" />
+              <blockquote className="mb-6 text-gray-700">"{testimonial.quote}"</blockquote>
               <div className="border-t pt-4">
-                <div className="font-semibold text-gray-900">
-                  {testimonial.author}
-                </div>
+                <div className="font-semibold text-gray-900">{testimonial.author}</div>
                 <div className="text-sm text-gray-600">
                   {testimonial.role} at {testimonial.company}
                 </div>
@@ -114,4 +109,4 @@ export function TestimonialsSection() {
       </div>
     </section>
   );
-} 
+}

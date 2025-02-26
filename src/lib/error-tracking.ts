@@ -22,7 +22,7 @@ function sendErrorToAnalytics(error: ErrorReport) {
         error_type: error.type,
         error_message: error.message,
         error_url: error.url,
-        error_path: error.routePath
+        error_path: error.routePath,
       });
     }
   } catch (e) {
@@ -42,13 +42,13 @@ export function initErrorTracking() {
       url: source || window.location.href,
       timestamp: Date.now(),
       userAgent: navigator.userAgent,
-      routePath: window.location.pathname
+      routePath: window.location.pathname,
     });
     return false;
   };
 
   // Unhandled promise rejection handler
-  window.onunhandledrejection = (event) => {
+  window.onunhandledrejection = event => {
     sendErrorToAnalytics({
       message: event.reason?.message || 'Unhandled Promise Rejection',
       stack: event.reason?.stack,
@@ -56,7 +56,7 @@ export function initErrorTracking() {
       url: window.location.href,
       timestamp: Date.now(),
       userAgent: navigator.userAgent,
-      routePath: window.location.pathname
+      routePath: window.location.pathname,
     });
   };
 
@@ -72,7 +72,7 @@ export function initErrorTracking() {
           url: args[0].toString(),
           timestamp: Date.now(),
           userAgent: navigator.userAgent,
-          routePath: window.location.pathname
+          routePath: window.location.pathname,
         });
       }
       return response;
@@ -84,7 +84,7 @@ export function initErrorTracking() {
         url: args[0].toString(),
         timestamp: Date.now(),
         userAgent: navigator.userAgent,
-        routePath: window.location.pathname
+        routePath: window.location.pathname,
       });
       throw error;
     }
@@ -100,6 +100,6 @@ export function reportError(error: Error, type: string = 'manual') {
     url: window.location.href,
     timestamp: Date.now(),
     userAgent: navigator.userAgent,
-    routePath: window.location.pathname
+    routePath: window.location.pathname,
   });
-} 
+}

@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
-import { useLocation } from "react-router-dom";
-import { Loading } from "./loading";
+import { lazy, Suspense } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Loading } from './loading';
 
 interface MotionWrapperProps {
   children: React.ReactNode;
@@ -8,18 +8,18 @@ interface MotionWrapperProps {
 }
 
 // Lazy load Framer Motion components
-const MotionWrapper = lazy(() => import('framer-motion').then(mod => ({
-  default: ({ children, ...props }: MotionWrapperProps) => {
-    const { motion, AnimatePresence } = mod;
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div {...props}>
-          {children}
-        </motion.div>
-      </AnimatePresence>
-    );
-  }
-})));
+const MotionWrapper = lazy(() =>
+  import('framer-motion').then(mod => ({
+    default: ({ children, ...props }: MotionWrapperProps) => {
+      const { motion, AnimatePresence } = mod;
+      return (
+        <AnimatePresence mode="wait">
+          <motion.div {...props}>{children}</motion.div>
+        </AnimatePresence>
+      );
+    },
+  }))
+);
 
 interface RouteTransitionProps {
   children: React.ReactNode;
@@ -35,7 +35,7 @@ const pageVariants = {
     y: 0,
     transition: {
       duration: 0.4,
-      ease: "easeOut",
+      ease: 'easeOut',
     },
   },
   exit: {
@@ -43,7 +43,7 @@ const pageVariants = {
     y: -20,
     transition: {
       duration: 0.3,
-      ease: "easeIn",
+      ease: 'easeIn',
     },
   },
 };
@@ -65,4 +65,4 @@ export function RouteTransition({ children }: RouteTransitionProps) {
       </MotionWrapper>
     </Suspense>
   );
-} 
+}

@@ -15,7 +15,7 @@ const aspectRatioClasses = {
   square: 'aspect-square',
   '16:9': 'aspect-video',
   '4:3': 'aspect-4/3',
-  auto: ''
+  auto: '',
 };
 
 export function Image({
@@ -33,7 +33,7 @@ export function Image({
 
   useEffect(() => {
     const img = new window.Image();
-    
+
     img.onload = () => {
       setImageSrc(src);
       setIsLoading(false);
@@ -62,7 +62,7 @@ export function Image({
   if (error) {
     return (
       <div className={containerClasses}>
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-sm">
+        <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">
           {error}
         </div>
       </div>
@@ -84,11 +84,11 @@ export function Image({
             'transition-opacity duration-300',
             isLoading ? 'opacity-0' : 'opacity-100',
             objectFit === 'contain' ? 'object-contain' : 'object-cover',
-            'w-full h-full'
+            'h-full w-full'
           )}
           {...props}
         />
       )}
     </div>
   );
-} 
+}

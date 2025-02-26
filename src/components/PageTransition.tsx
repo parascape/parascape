@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { PropsWithChildren } from "react";
+import { motion } from 'framer-motion';
+import { PropsWithChildren } from 'react';
 
 const pageVariants = {
   initial: {
@@ -11,7 +11,7 @@ const pageVariants = {
     y: 0,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: 'easeOut',
     },
   },
   exit: {
@@ -19,20 +19,15 @@ const pageVariants = {
     y: -10,
     transition: {
       duration: 0.25,
-      ease: "easeIn",
+      ease: 'easeIn',
     },
   },
 };
 
 export function PageTransition({ children }: PropsWithChildren) {
   return (
-    <motion.div
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      variants={pageVariants}
-    >
+    <motion.div initial="initial" animate="animate" exit="exit" variants={pageVariants}>
       {children}
     </motion.div>
   );
-} 
+}

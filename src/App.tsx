@@ -27,7 +27,7 @@ const ScrollToTop = memo(function ScrollToTop() {
   useEffect(() => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: 'smooth',
     });
     trackPageView(pathname);
   }, [pathname, trackPageView]);

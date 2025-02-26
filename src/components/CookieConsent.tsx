@@ -19,14 +19,17 @@ export function CookieConsent() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-lg z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white p-4 shadow-lg">
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
         <p className="text-sm text-gray-600">
-          We use cookies to enhance your experience. By continuing to visit this site you agree to our use of cookies.
-          <a href="/privacy" className="text-parascape-green ml-1">Learn more</a>
+          We use cookies to enhance your experience. By continuing to visit this site you agree to
+          our use of cookies.
+          <a href="/privacy" className="ml-1 text-parascape-green">
+            Learn more
+          </a>
         </p>
         <Button onClick={acceptCookies}>Accept</Button>
       </div>
     </div>
   );
-} 
+}

@@ -12,19 +12,9 @@ export function SuspenseBoundary({
   children,
   fallback,
   loadingText,
-  fullscreen = false
+  fullscreen = false,
 }: SuspenseBoundaryProps) {
-  const defaultFallback = (
-    <Loading 
-      variant="spinner"
-      text={loadingText}
-      fullscreen={fullscreen}
-    />
-  );
+  const defaultFallback = <Loading variant="spinner" text={loadingText} fullscreen={fullscreen} />;
 
-  return (
-    <Suspense fallback={fallback || defaultFallback}>
-      {children}
-    </Suspense>
-  );
-} 
+  return <Suspense fallback={fallback || defaultFallback}>{children}</Suspense>;
+}

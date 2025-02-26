@@ -13,7 +13,7 @@ interface State {
 export class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -32,16 +32,15 @@ export class ErrorBoundary extends React.Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="max-w-md w-full mx-auto p-8 bg-white rounded-lg shadow-lg text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Oops! Something went wrong
-            </h2>
-            <p className="text-gray-600 mb-6">
-              We apologize for the inconvenience. Please try refreshing the page or contact support if the problem persists.
+        <div className="flex min-h-screen items-center justify-center bg-gray-50">
+          <div className="mx-auto w-full max-w-md rounded-lg bg-white p-8 text-center shadow-lg">
+            <h2 className="mb-4 text-2xl font-bold text-gray-900">Oops! Something went wrong</h2>
+            <p className="mb-6 text-gray-600">
+              We apologize for the inconvenience. Please try refreshing the page or contact support
+              if the problem persists.
             </p>
             {this.state.error && (
-              <pre className="bg-gray-100 p-4 rounded-md text-left text-sm text-gray-700 mb-6 overflow-auto">
+              <pre className="mb-6 overflow-auto rounded-md bg-gray-100 p-4 text-left text-sm text-gray-700">
                 {this.state.error.toString()}
               </pre>
             )}
@@ -58,4 +57,4 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
     return this.props.children;
   }
-} 
+}

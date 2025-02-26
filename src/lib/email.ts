@@ -17,7 +17,12 @@ export interface ApiResponse {
 export async function sendContactEmails(formData: ContactFormData): Promise<ApiResponse> {
   try {
     // Validate form data
-    if (!formData.name?.trim() || !formData.email?.trim() || !formData.phone?.trim() || !formData.message?.trim()) {
+    if (
+      !formData.name?.trim() ||
+      !formData.email?.trim() ||
+      !formData.phone?.trim() ||
+      !formData.message?.trim()
+    ) {
       throw new Error('All fields are required');
     }
 
@@ -39,9 +44,9 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
 
     console.log('Submitting form data to Supabase:', {
       ...formData,
-      phone: formattedPhone
+      phone: formattedPhone,
     });
-    
+
     // Validate the Supabase client
     if (!supabase) {
       throw new Error('Supabase client is not initialized');
@@ -50,15 +55,17 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
     // Submit directly to Supabase with properly formatted data
     const { data, error } = await supabase
       .from('contact_submissions')
-      .insert([{
-        name: formData.name.trim(),
-        email: formData.email.trim().toLowerCase(),
-        phone: formattedPhone,
-        message: formData.message.trim(),
-        type: formData.type,
-        status: 'pending',
-        email_sent: false
-      }])
+      .insert([
+        {
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formattedPhone,
+          message: formData.message.trim(),
+          type: formData.type,
+          status: 'pending',
+          email_sent: false,
+        },
+      ])
       .select();
 
     if (error) {
@@ -69,10 +76,12 @@ export async function sendContactEmails(formData: ContactFormData): Promise<ApiR
     console.log('Submission stored in Supabase:', data);
     return { success: true, data };
   } catch (error) {
-    console.error(`Error submitting form: ${error instanceof Error ? error.message : JSON.stringify(error)}`);
+    console.error(
+      `Error submitting form: ${error instanceof Error ? error.message : JSON.stringify(error)}`
+    );
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An unexpected error occurred'
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
     };
   }
-} 
+}

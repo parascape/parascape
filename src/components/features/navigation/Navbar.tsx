@@ -7,7 +7,7 @@ const navigation = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'About', path: '/about' },
-  { name: 'Contact', path: '/contact' }
+  { name: 'Contact', path: '/contact' },
 ];
 
 export function Navbar() {
@@ -51,16 +51,16 @@ export function Navbar() {
 
   return (
     <nav
-      className={`fixed w-full bg-white/95 backdrop-blur-xl z-50 transition-all duration-300 ${
+      className={`fixed z-50 w-full bg-white/95 backdrop-blur-xl transition-all duration-300 ${
         isScrolled ? 'shadow-md' : ''
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 justify-between">
           <div className="flex items-center">
-            <Link 
-              to="/" 
-              className="text-xl font-bold text-gray-900 hover:text-parascape-green transition-colors"
+            <Link
+              to="/"
+              className="text-xl font-bold text-gray-900 transition-colors hover:text-parascape-green"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Parascape
@@ -68,15 +68,13 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
+          <div className="hidden items-center space-x-8 md:flex">
+            {navigation.map(item => (
               <Link
                 key={item.path}
                 to={item.path}
                 className={`text-base font-medium transition-colors hover:text-parascape-green ${
-                  location.pathname === item.path
-                    ? 'text-parascape-green'
-                    : 'text-gray-600'
+                  location.pathname === item.path ? 'text-parascape-green' : 'text-gray-600'
                 }`}
               >
                 {item.name}
@@ -88,14 +86,10 @@ export function Navbar() {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-600 hover:text-parascape-green transition-colors p-2 -mr-2"
+              className="-mr-2 p-2 text-gray-600 transition-colors hover:text-parascape-green"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
@@ -109,11 +103,11 @@ export function Navbar() {
             animate={{ opacity: 1, height: 'calc(100vh - 4rem)' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 bg-white/95 backdrop-blur-xl md:hidden overflow-hidden"
+            className="fixed inset-x-0 top-16 overflow-hidden bg-white/95 backdrop-blur-xl md:hidden"
             style={{ zIndex: 9999 }}
           >
-            <div className="flex flex-col items-center justify-start p-8 space-y-8">
-              {navigation.map((item) => (
+            <div className="flex flex-col items-center justify-start space-y-8 p-8">
+              {navigation.map(item => (
                 <motion.div
                   key={item.path}
                   initial={{ opacity: 0, y: 10 }}
@@ -124,9 +118,7 @@ export function Navbar() {
                     to={item.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`text-2xl font-medium transition-colors hover:text-parascape-green ${
-                      location.pathname === item.path
-                        ? 'text-parascape-green'
-                        : 'text-gray-600'
+                      location.pathname === item.path ? 'text-parascape-green' : 'text-gray-600'
                     }`}
                   >
                     {item.name}

@@ -1,7 +1,7 @@
 declare module 'resend' {
   export class Resend {
     constructor(apiKey: string);
-    
+
     emails: {
       send(data: {
         from: string;
@@ -30,4 +30,4 @@ declare module 'node:buffer' {
   export interface Buffer {
     toString(encoding?: string): string;
   }
-} 
+}

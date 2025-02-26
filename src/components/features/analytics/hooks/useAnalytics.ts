@@ -15,4 +15,4 @@ export function useAnalytics() {
   }, [location, navigationType]);
 
   return analytics;
-} 
+}

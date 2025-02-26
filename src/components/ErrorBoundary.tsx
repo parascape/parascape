@@ -10,7 +10,7 @@ interface State {
 
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
-    hasError: false
+    hasError: false,
   };
 
   public static getDerivedStateFromError(): State {
@@ -24,11 +24,11 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold">Something went wrong</h1>
             <button
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+              className="mt-4 rounded bg-blue-500 px-4 py-2 text-white"
               onClick={() => this.setState({ hasError: false })}
             >
               Try again
@@ -42,4 +42,4 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary; 
+export default ErrorBoundary;

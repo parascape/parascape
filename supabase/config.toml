@@ -46,12 +46,6 @@ default_pool_size = 20
 # Maximum number of client connections allowed.
 max_client_conn = 100
 
-<<<<<<< HEAD
-=======
-# [db.vault]
-# secret_key = "env(SECRET_VALUE)"
-
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 [db.seed]
 # If enabled, seeds the database after migrations during a db reset.
 enabled = true
@@ -129,15 +123,6 @@ minimum_password_length = 6
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
 
-<<<<<<< HEAD
-=======
-# Configure one of the supported captcha providers: `hcaptcha`, `turnstile`.
-# [auth.captcha]
-# enabled = true
-# provider = "hcaptcha"
-# secret = ""
-
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 [auth.email]
 # Allow/disallow new user signups via email to your project.
 enable_signup = true
@@ -276,12 +261,6 @@ inspector_port = 8083
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 # entrypoint = "./functions/MY_FUNCTION_NAME/index.ts"
-<<<<<<< HEAD
-=======
-# Specifies static files to be bundled with the function. Supports glob patterns.
-# For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/MY_FUNCTION_NAME/*.html" ]
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
 [analytics]
 enabled = true

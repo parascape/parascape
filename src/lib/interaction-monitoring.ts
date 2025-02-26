@@ -16,7 +16,7 @@ function sendInteractionToAnalytics(event: InteractionEvent) {
     if (typeof gtag === 'function') {
       gtag('event', event.type, {
         interaction_target: event.target,
-        ...event.metadata
+        ...event.metadata,
       });
     }
   } catch (e) {
@@ -27,7 +27,7 @@ function sendInteractionToAnalytics(event: InteractionEvent) {
 // Initialize interaction tracking
 export function initInteractionTracking() {
   // Track clicks on interactive elements
-  document.addEventListener('click', (event) => {
+  document.addEventListener('click', event => {
     const target = event.target as HTMLElement;
     if (!target) return;
 
@@ -36,13 +36,13 @@ export function initInteractionTracking() {
       target: target.tagName.toLowerCase(),
       metadata: {
         element_id: target.id || undefined,
-        element_class: target.className || undefined
-      }
+        element_class: target.className || undefined,
+      },
     });
   });
 
   // Track form submissions
-  document.addEventListener('submit', (e) => {
+  document.addEventListener('submit', e => {
     const form = e.target as HTMLFormElement;
     if (!form) return;
 
@@ -50,8 +50,8 @@ export function initInteractionTracking() {
       type: 'form_submit',
       target: form.dataset.trackingTarget || form.id || 'unknown_form',
       metadata: {
-        form_action: form.action
-      }
+        form_action: form.action,
+      },
     });
   });
 
@@ -67,13 +67,14 @@ export function initInteractionTracking() {
 
       if (scrollDepth > maxScrollDepth) {
         maxScrollDepth = scrollDepth;
-        if (scrollDepth % 25 === 0) { // Track at 25%, 50%, 75%, 100%
+        if (scrollDepth % 25 === 0) {
+          // Track at 25%, 50%, 75%, 100%
           sendInteractionToAnalytics({
             type: 'scroll_depth',
             target: 'page',
             metadata: {
-              depth: scrollDepth
-            }
+              depth: scrollDepth,
+            },
           });
         }
       }
@@ -86,6 +87,6 @@ export function trackInteraction(type: string, target: string, metadata?: Record
   sendInteractionToAnalytics({
     type,
     target,
-    metadata
+    metadata,
   });
-} 
+}

@@ -33,21 +33,17 @@ export function OptimizedImage({
       <img
         src={fullSrc}
         alt={alt}
-        className={`transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setIsLoaded(true)}
         onError={() => setError(true)}
         {...props}
       />
-      {!isLoaded && !error && (
-        <div className="absolute inset-0 bg-gray-100 animate-pulse" />
-      )}
+      {!isLoaded && !error && <div className="absolute inset-0 animate-pulse bg-gray-100" />}
       {error && (
-        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
           <span className="text-gray-500">Failed to load image</span>
         </div>
       )}
     </div>
   );
-} 
+}

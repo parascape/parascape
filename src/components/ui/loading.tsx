@@ -1,5 +1,5 @@
-import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LoadingProps {
   variant?: 'spinner' | 'skeleton' | 'pulse';
@@ -12,15 +12,15 @@ interface LoadingProps {
 const sizeClasses = {
   sm: 'h-4 w-4',
   md: 'h-8 w-8',
-  lg: 'h-12 w-12'
+  lg: 'h-12 w-12',
 };
 
-export function Loading({ 
+export function Loading({
   variant = 'spinner',
   size = 'md',
   className,
   text,
-  fullscreen = false
+  fullscreen = false,
 }: LoadingProps) {
   const containerClasses = cn(
     'flex flex-col items-center justify-center',
@@ -28,18 +28,15 @@ export function Loading({
     className
   );
 
-  const spinnerClasses = cn(
-    'animate-spin text-parascape-green',
-    sizeClasses[size]
-  );
+  const spinnerClasses = cn('animate-spin text-parascape-green', sizeClasses[size]);
 
   if (variant === 'skeleton') {
     return (
       <div className={containerClasses}>
-        <div className="space-y-3 w-full">
-          <div className="h-4 bg-gray-200 rounded animate-pulse" />
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6" />
-          <div className="h-4 bg-gray-200 rounded animate-pulse w-4/6" />
+        <div className="w-full space-y-3">
+          <div className="h-4 animate-pulse rounded bg-gray-200" />
+          <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200" />
+          <div className="h-4 w-4/6 animate-pulse rounded bg-gray-200" />
         </div>
       </div>
     );
@@ -48,8 +45,8 @@ export function Loading({
   if (variant === 'pulse') {
     return (
       <div className={containerClasses}>
-        <div className="bg-gray-200 rounded-md p-4 w-full h-full animate-pulse">
-          <div className="h-full w-full min-h-[100px]" />
+        <div className="h-full w-full animate-pulse rounded-md bg-gray-200 p-4">
+          <div className="h-full min-h-[100px] w-full" />
         </div>
       </div>
     );
@@ -58,9 +55,7 @@ export function Loading({
   return (
     <div className={containerClasses}>
       <Loader2 className={spinnerClasses} />
-      {text && (
-        <p className="mt-2 text-sm text-gray-500 animate-pulse">{text}</p>
-      )}
+      {text && <p className="mt-2 animate-pulse text-sm text-gray-500">{text}</p>}
     </div>
   );
-} 
+}

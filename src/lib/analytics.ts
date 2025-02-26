@@ -1,46 +1,57 @@
 interface AnalyticsEvent {
-  name: string;
-  properties?: Record<string, any>;
+  category: string;
+  action: string;
+  label?: string;
+  value?: number;
 }
 
-class Analytics {
-  private initialized = false;
+type GtagCommand = 'config' | 'event' | 'js';
 
-  init() {
-    if (this.initialized) return;
-    
-    // Initialize dataLayer
+interface Window {
+  dataLayer: any[];
+  gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
+}
+
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
+  }
+}
+
+export class Analytics {
+  static init(): void {
     window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any[]) {
+    window.gtag = function (
+      command: GtagCommand,
+      targetId: string,
+      config?: Record<string, any>
+    ): void {
       window.dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-NQLRXMREDQ');
-    
-    this.initialized = true;
+    };
+    window.gtag('js', new Date().toISOString());
+    window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID);
   }
 
-  pageView(path: string) {
-    if (!this.initialized) return;
-    
-    window.gtag?.('event', 'page_view', {
+  static trackPageView(path: string): void {
+    window.gtag('config', import.meta.env.VITE_GA4_MEASUREMENT_ID, {
       page_path: path,
     });
   }
 
-  track({ name, properties = {} }: AnalyticsEvent) {
-    if (!this.initialized) return;
-
-    window.gtag?.('event', name, properties);
+  static trackEvent(event: AnalyticsEvent): void {
+    window.gtag('event', event.action, {
+      event_category: event.category,
+      event_label: event.label,
+      value: event.value,
+    });
   }
 }
-
-export const analytics = new Analytics();
 
 // Type declarations for Google Analytics
 declare global {
   interface Window {
     dataLayer: any[];
-    gtag: (command: 'js' | 'config' | 'event', targetId: string, config?: Record<string, any>) => void;
+    gtag: (command: GtagCommand, targetId: string, config?: Record<string, any>) => void;
   }
-} 
+}
