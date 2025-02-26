@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-import { ParallaxSection } from '../ui/parallax-section';
-import { CountUpCard } from '../ui/count-up';
-
-const stats = [
-  {
-    title: "Projects Completed",
-    value: 50,
-    suffix: "+",
-  },
-  {
-    title: "Client Satisfaction",
-    value: 98,
-    suffix: "%",
-  },
-  {
-    title: "Years Experience",
-    value: 10,
-    suffix: "+",
-  },
-  {
-    title: "Revenue Growth",
-    prefix: "↑",
-    value: 200,
-    suffix: "%",
-=======
 import { motion } from 'framer-motion';
 
 const stats = [
@@ -46,32 +20,11 @@ const stats = [
     value: '24/7',
     label: 'Support Available',
     description: 'Always here when you need us'
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   }
 ];
 
 export function StatsSection() {
   return (
-<<<<<<< HEAD
-    <ParallaxSection
-      image="/assets/images/Mountain-Vista.jpg"
-      title="Our Impact"
-      subtitle="Driving Digital Success Through Measurable Results"
-      className="py-20"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {stats.map((stat, index) => (
-          <CountUpCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            suffix={stat.suffix}
-            prefix={stat.prefix}
-          />
-        ))}
-      </div>
-    </ParallaxSection>
-=======
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -107,6 +60,5 @@ export function StatsSection() {
         </div>
       </div>
     </section>
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   );
 } 

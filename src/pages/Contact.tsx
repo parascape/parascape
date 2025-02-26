@@ -1,21 +1,12 @@
 import { Suspense } from "react";
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-<<<<<<< HEAD
-import { ContactForm } from "@/components/ContactForm";
-import { Loading } from "@/components/ui/loading";
-import { ErrorBoundary } from "@/components/features/error/ErrorBoundary";
-
-const Contact = () => {
-  const { type } = useParams();
-=======
 import ContactForm from "@/components/ContactForm";
 import { Loading } from "@/components/ui/loading";
 import { ErrorBoundary } from "@/components/features/error";
 
 const Contact = () => {
   const { type } = useParams<{ type?: 'contact' | 'audit' }>();
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
   return (
     <ErrorBoundary>
@@ -49,11 +40,7 @@ const Contact = () => {
           }
         >
           <div className="max-w-2xl mx-auto">
-<<<<<<< HEAD
-            <ContactForm type={type} />
-=======
             <ContactForm type={type as 'contact' | 'audit' | undefined} />
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
           </div>
         </Suspense>
       </div>

@@ -16,15 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-<<<<<<< HEAD
-import {
-  SidebarStateContext,
-  SidebarActionsContext,
-  SidebarMobileContext,
-  useSidebar
-} from "./sidebar/context"
-=======
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -33,8 +24,6 @@ const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
-<<<<<<< HEAD
-=======
 type SidebarContext = {
   state: "expanded" | "collapsed"
   open: boolean
@@ -56,7 +45,6 @@ function useSidebar() {
   return context
 }
 
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -126,38 +114,6 @@ const SidebarProvider = React.forwardRef<
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed"
 
-<<<<<<< HEAD
-    return (
-      <SidebarStateContext.Provider value={{ state, open }}>
-        <SidebarActionsContext.Provider value={{ setOpen, toggleSidebar }}>
-          <SidebarMobileContext.Provider value={{ isMobile, openMobile, setOpenMobile }}>
-            <TooltipProvider delayDuration={0}>
-              <div
-                style={
-                  {
-                    "--sidebar-width": SIDEBAR_WIDTH,
-                    "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-                    ...style,
-                  } as React.CSSProperties
-                }
-                className={cn(
-                  "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
-                  className
-                )}
-                ref={ref}
-                {...props}
-              >
-                {children}
-              </div>
-            </TooltipProvider>
-          </SidebarMobileContext.Provider>
-        </SidebarActionsContext.Provider>
-      </SidebarStateContext.Provider>
-    )
-  }
-)
-
-=======
     const contextValue = React.useMemo<SidebarContext>(
       () => ({
         state,
@@ -196,7 +152,6 @@ const SidebarProvider = React.forwardRef<
     )
   }
 )
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 SidebarProvider.displayName = "SidebarProvider"
 
 const Sidebar = React.forwardRef<
@@ -257,23 +212,6 @@ const Sidebar = React.forwardRef<
 
     return (
       <div
-<<<<<<< HEAD
-        data-sidebar="sidebar"
-        data-state={state}
-        data-variant={variant}
-        className={cn(
-          "relative flex h-full flex-col bg-sidebar text-sidebar-foreground transition-[width] duration-300 ease-in-out",
-          variant === "floating" && "m-2 rounded-lg shadow-lg",
-          collapsible === "icon"
-            ? "w-[--sidebar-width] data-[state=collapsed]:w-[--sidebar-width-icon]"
-            : "w-[--sidebar-width]",
-          className
-        )}
-        ref={ref}
-        {...props}
-      >
-        {children}
-=======
         ref={ref}
         className="group peer hidden md:block text-sidebar-foreground"
         data-state={state}
@@ -313,17 +251,10 @@ const Sidebar = React.forwardRef<
             {children}
           </div>
         </div>
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
       </div>
     )
   }
 )
-<<<<<<< HEAD
-
-Sidebar.displayName = "Sidebar"
-
-export { Sidebar, SidebarProvider }
-=======
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
@@ -828,4 +759,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
