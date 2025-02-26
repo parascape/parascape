@@ -1,4 +1,4 @@
-import { lazy, useEffect } from 'react';
+import { lazy, useEffect, memo, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { SuspenseBoundary } from '@/components/ui/suspense-boundary';
@@ -18,20 +18,24 @@ const Contact = lazy(() => import('@/pages/Contact'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
 
-function ScrollToTop() {
+const ScrollToTop = memo(function ScrollToTop() {
   const { pathname } = useLocation();
+  const trackPageView = useCallback((path: string) => {
+    analytics.pageView(path);
+  }, []);
 
   useEffect(() => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
-    // Track page view
-    analytics.pageView(pathname);
-  }, [pathname]);
+    trackPageView(pathname);
+  }, [pathname, trackPageView]);
 
   return null;
-}
+});
+
+ScrollToTop.displayName = 'ScrollToTop';
 
 // Handle 404 redirects for GitHub Pages
 function handleGitHubPages() {
@@ -50,7 +54,7 @@ export default function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
-        <Router>
+        <Router basename={import.meta.env.BASE_URL}>
           <ScrollToTop />
           <AnalyticsProvider>
             <MainLayout>

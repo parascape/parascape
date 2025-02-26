@@ -1,7 +1,11 @@
-import { PropsWithChildren } from 'react';
+import { memo, PropsWithChildren } from 'react';
 import { useAnalytics } from './hooks/useAnalytics';
 
-export function AnalyticsProvider({ children }: PropsWithChildren) {
+export const AnalyticsProvider = memo(function AnalyticsProvider({ 
+  children 
+}: PropsWithChildren) {
   useAnalytics();
   return <>{children}</>;
-} 
+});
+
+AnalyticsProvider.displayName = 'AnalyticsProvider'; 

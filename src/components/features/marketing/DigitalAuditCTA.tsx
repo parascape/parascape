@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
+import { memo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
 
-export function DigitalAuditCTA() {
+export const DigitalAuditCTA = memo(function DigitalAuditCTA() {
   const navigate = useNavigate();
-
-  const handleAuditRequest = () => {
+  
+  const handleAuditRequest = useCallback(() => {
     console.log('DigitalAuditCTA: Navigating to /contact/audit');
     analytics.track({
       name: 'audit_cta_click',
@@ -15,7 +16,7 @@ export function DigitalAuditCTA() {
       }
     });
     navigate('/contact/audit');
-  };
+  }, [navigate]);
 
   return (
     <div className="bg-gradient-to-br from-parascape-green/10 to-parascape-green/5 rounded-2xl p-8 md:p-12">
@@ -36,7 +37,9 @@ export function DigitalAuditCTA() {
       </div>
     </div>
   );
-}
+});
+
+DigitalAuditCTA.displayName = 'DigitalAuditCTA';
 
 function CheckIcon() {
   return (
