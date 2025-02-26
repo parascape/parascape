@@ -18,9 +18,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    minify: 'terser',
+    minify: 'esbuild',
     rollupOptions: {
-      input: path.resolve(__dirname, 'index.html'),
       output: {
         manualChunks: {
           'vendor': [
