@@ -21,13 +21,6 @@
       "@ui/*": ["src/components/ui/*"],
       "@features/*": ["src/components/features/*"],
       "@layouts/*": ["src/components/layouts/*"]
-<<<<<<< HEAD
-    }
-  },
-  "include": [
-    "src",
-    "scripts"
-=======
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "noImplicitAny": true,
@@ -42,7 +35,6 @@
     "src",
     "scripts",
     "src/types/*.d.ts"
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
