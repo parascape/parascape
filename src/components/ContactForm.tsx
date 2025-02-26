@@ -113,14 +113,26 @@ export function ContactForm({ type }: ContactFormProps) {
         .single();
 
       if (error) {
+        console.error('Supabase error:', error);
         if (error.message.includes('rate limit')) {
           throw new Error('Rate limit exceeded. Please try again in a few minutes.');
         }
-        throw error;
+        if (error.code === '401') {
+          throw new Error('Unable to connect to our servers. Please try again later.');
+        }
+        if (error.code === '404') {
+          throw new Error('The service is temporarily unavailable. Please try again later.');
+        }
+        throw new Error(error.message || 'An error occurred while submitting the form.');
+      }
+
+      if (!data) {
+        throw new Error('No response from server. Please try again.');
       }
 
       return data as SubmissionResponse;
     } catch (error) {
+      console.error('Form submission error:', error);
       if (retryCount < MAX_RETRIES) {
         setRetryCount(retryCount + 1);
         await delay(RETRY_DELAY * Math.pow(2, retryCount));
@@ -168,7 +180,6 @@ export function ContactForm({ type }: ContactFormProps) {
 
       setSubmitError(errorMessage);
       toast.error(errorMessage);
-      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
       setRetryCount(0);
