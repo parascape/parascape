@@ -2,7 +2,17 @@
   "name": "Parascape Development",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
   "features": {
+<<<<<<< HEAD
     "ghcr.io/devcontainers/features/github-cli:1": {}
+=======
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true,
+      "dockerDashComposeVersion": "v2",
+      "installDockerBuildx": true
+    }
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   },
   "customizations": {
     "vscode": {
@@ -15,10 +25,28 @@
     }
   },
   "forwardPorts": [8080],
+<<<<<<< HEAD
   "postCreateCommand": "npm install",
   "remoteUser": "node",
   "remoteEnv": {
     "NODE_ENV": "development",
     "VITE_BASE_URL": "/parascape"
   }
+=======
+  "postCreateCommand": "sudo mkdir -p /usr/local/share/npm-global && sudo chown node:node /usr/local/share/npm-global && npm install",
+  "postStartCommand": "sudo service docker start && sudo chmod 666 /var/run/docker.sock",
+  "remoteUser": "node",
+  "remoteEnv": {
+    "NODE_ENV": "development",
+    "VITE_BASE_URL": "/parascape",
+    "NPM_CONFIG_PREFIX": "/usr/local/share/npm-global"
+  },
+  "runArgs": ["--init", "--privileged"],
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "updateRemoteUserUID": true,
+  "containerUser": "node",
+  "overrideCommand": false
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 } 

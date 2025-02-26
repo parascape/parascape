@@ -35,7 +35,11 @@ export function MainLayout({
 
       <main className={cn(
         'flex-grow relative',
+<<<<<<< HEAD
         withPadding && 'pt-16',
+=======
+        withPadding && 'pt-16 md:pt-20',
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
         className
       )}>
         {isRouteChanging && (

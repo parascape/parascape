@@ -44,7 +44,11 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-gray-600">
               <li>Humboldt County, CA</li>
               <li>contact@parascape.com</li>
+<<<<<<< HEAD
               <li>1(707)362-6816</li>
+=======
+              <li>(555) 123-4567</li>
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
             </ul>
           </div>
         </div>

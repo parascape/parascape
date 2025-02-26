@@ -1,0 +1,11 @@
+pnpm-lock.yaml
+.pnpm-store
+node_modules/.pnpm
+.npmrc
+.nvmrc
+.gitignore
+.env*
+*.log
+.DS_Store
+.idea
+.vscode 

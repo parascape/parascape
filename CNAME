@@ -1,1 +1,11 @@
+<<<<<<< HEAD
 parascape.org
+=======
+[33mcommit bb27dd18a75e20611b746ff01d0dd0ca87c9ee97[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: parascape <brendan.balsley22@gmail.com>
+Date:   Fri Feb 14 10:08:55 2025 -0800
+
+    fix: update R2 worker with proper CORS and Supabase auth
+
+parascape.org
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662

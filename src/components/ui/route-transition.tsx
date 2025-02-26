@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { Loading } from "./loading";
@@ -49,10 +50,23 @@ const pageVariants = {
 };
 
 export function RouteTransition({ children }: RouteTransitionProps) {
+=======
+import { motion } from 'framer-motion';
+import { Suspense, type ReactElement } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Loading } from './loading';
+
+interface RouteTransitionProps {
+  children: ReactElement;
+}
+
+export default function RouteTransition({ children }: RouteTransitionProps): ReactElement {
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   const location = useLocation();
 
   return (
     <Suspense fallback={<Loading />}>
+<<<<<<< HEAD
       <MotionWrapper
         key={location.pathname}
         initial="initial"
@@ -63,6 +77,17 @@ export function RouteTransition({ children }: RouteTransitionProps) {
       >
         {children}
       </MotionWrapper>
+=======
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.2 }}
+      >
+        {children}
+      </motion.div>
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
     </Suspense>
   );
 } 

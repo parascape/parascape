@@ -1,7 +1,11 @@
 import { Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { Loading } from "@/components/ui/loading";
+<<<<<<< HEAD
 import { ErrorBoundary } from "@/components/features/error/ErrorBoundary";
+=======
+import { ErrorBoundary } from "@/components/features/error";
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
 export default function Privacy() {
   return (

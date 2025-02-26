@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ParallaxSection } from '../ui/parallax-section';
+<<<<<<< HEAD
+=======
+import { Quote } from 'lucide-react';
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
 interface Testimonial {
   id: number;
@@ -13,6 +17,7 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
+<<<<<<< HEAD
     quote: "Parascape transformed our online presence. Their expertise in web development and digital marketing has been invaluable to our growth.",
     author: "Sarah Johnson",
     role: "CEO",
@@ -31,6 +36,26 @@ const testimonials: Testimonial[] = [
     author: "Emily Rodriguez",
     role: "Owner",
     company: "Coastal Creations"
+=======
+    quote: "Parascape transformed our online presence completely. Our website traffic has doubled, and customer engagement is at an all-time high.",
+    author: "Sarah Johnson",
+    role: "Owner",
+    company: "Humboldt Herbals"
+  },
+  {
+    id: 2,
+    quote: "The team at Parascape truly understands the unique needs of local businesses. They delivered beyond our expectations.",
+    author: "Michael Chen",
+    role: "Director",
+    company: "Pacific Outfitters"
+  },
+  {
+    id: 3,
+    quote: "Professional, creative, and results-driven. Our new website has helped us reach customers we never could before.",
+    author: "Emily Rodriguez",
+    role: "Marketing Manager",
+    company: "Lost Coast Brewery"
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   }
 ];
 
@@ -74,6 +99,7 @@ export function TestimonialsSection() {
   }, []);
 
   return (
+<<<<<<< HEAD
     <ParallaxSection
       image="/assets/images/Forest.jpg"
       title="Client Success Stories"
@@ -142,5 +168,45 @@ export function TestimonialsSection() {
         </AnimatePresence>
       </div>
     </ParallaxSection>
+=======
+    <section className="py-24 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900">
+            What Our Clients Say
+          </h2>
+          <p className="mt-4 text-xl text-gray-600">
+            Don't just take our word for it
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={testimonial.author}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              <Quote className="w-8 h-8 text-parascape-green mb-4" />
+              <blockquote className="text-gray-700 mb-6">
+                "{testimonial.quote}"
+              </blockquote>
+              <div className="border-t pt-4">
+                <div className="font-semibold text-gray-900">
+                  {testimonial.author}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {testimonial.role} at {testimonial.company}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+>>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
   );
 } 
