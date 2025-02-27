@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Supabase API Key</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      background-color: #10B981;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Supabase API Key</h1>
+  <p>This page tests if the Supabase API key is working correctly.</p>
+  
+  <button onclick="testApiKey()">Test API Key</button>
+  <button onclick="testSubmission()">Test Submission</button>
+  
+  <div id="result">Results will appear here...</div>
+  
+  <script>
+    const SUPABASE_URL = 'https://hpuqzerpfylevdfwembv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk1MTIwODIsImV4cCI6MjA1NTA4ODA4Mn0.JYRebBYLMwMYX2FRfNMmV7NDzNZHTeADPdy6CIobzaM';
+    
+    async function testApiKey() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Testing API key...';
+      
+      try {
+        // Test a simple GET request to verify the API key works
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions?select=id&limit=1`, {
+          method: 'GET',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+        
+        const data = await response.json();
+        const headers = {};
+        for (const [key, value] of response.headers.entries()) {
+          headers[key] = value;
+        }
+        
+        resultDiv.innerHTML = `
+          <h3>API Key Test Results:</h3>
+          <p>Status: ${response.status} ${response.statusText}</p>
+          <p>Headers sent:</p>
+          <pre>apikey: ${SUPABASE_ANON_KEY.substring(0, 10)}...
+Authorization: Bearer ${SUPABASE_ANON_KEY.substring(0, 10)}...</pre>
+          <p>Response headers:</p>
+          <pre>${JSON.stringify(headers, null, 2)}</pre>
+          <p>Response data:</p>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <h3>Error Testing API Key:</h3>
+          <pre>${error.message}</pre>
+        `;
+      }
+    }
+    
+    async function testSubmission() {
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = 'Testing submission...';
+      
+      const testData = {
+        name: "API Test User",
+        email: "apitest@example.com",
+        business: "API Test Business",
+        about: "This is a test submission from the API test page",
+        type: "contact"
+      };
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/contact_submissions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify(testData)
+        });
+        
+        let responseData;
+        try {
+          responseData = await response.json();
+        } catch (e) {
+          responseData = await response.text();
+        }
+        
+        resultDiv.innerHTML = `
+          <h3>Submission Test Results:</h3>
+          <p>Status: ${response.status} ${response.statusText}</p>
+          <p>Data sent:</p>
+          <pre>${JSON.stringify(testData, null, 2)}</pre>
+          <p>Response:</p>
+          <pre>${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}</pre>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <h3>Error Testing Submission:</h3>
+          <pre>${error.message}</pre>
+        `;
+      }
+    }
+  </script>
+</body>
+</html> 

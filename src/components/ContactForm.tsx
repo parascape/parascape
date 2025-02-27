@@ -17,7 +17,7 @@ import { analytics } from '@/lib/analytics';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, directApiAccess, ContactSubmission } from '@/lib/supabase';
 
 interface SubmissionResponse {
   id: string;
@@ -95,9 +95,12 @@ export function ContactForm({ type }: ContactFormProps) {
 
   async function submitWithRetry(
     values: FormValues,
-    retryCount: number = 0
+    isAuditRequest: boolean,
+    retryCount: number = 0,
+    setRetryCountFn?: (count: number) => void
   ): Promise<SubmissionResponse> {
     try {
+      // First try using the Supabase client
       const { data, error } = await supabase
         .from('contact_submissions')
         .insert([
@@ -117,15 +120,49 @@ export function ContactForm({ type }: ContactFormProps) {
         if (error.message.includes('rate limit')) {
           throw new Error('Rate limit exceeded. Please try again in a few minutes.');
         }
-        throw error;
+        
+        // If there's an error with the Supabase client, try the direct API access
+        console.warn('Supabase client error, trying direct API access:', error);
+        
+        const submission: ContactSubmission = {
+          name: values.name,
+          email: values.email,
+          business: values.business,
+          phone: values.phone,
+          about: values.about,
+          type: isAuditRequest ? 'audit_request' : 'contact',
+        };
+        
+        const result = await directApiAccess.submitForm(submission);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to submit form');
+        }
+        
+        // If direct API access succeeds but we don't have the data, create a minimal response
+        return {
+          id: 'generated-' + Date.now(),
+          created_at: new Date().toISOString(),
+          name: values.name,
+          email: values.email,
+          business: values.business,
+          phone: values.phone,
+          about: values.about,
+          type: isAuditRequest ? 'audit_request' : 'contact',
+          status: 'pending',
+          email_sent: false
+        };
       }
 
       return data as SubmissionResponse;
     } catch (error) {
       if (retryCount < MAX_RETRIES) {
-        setRetryCount(retryCount + 1);
+        const nextRetryCount = retryCount + 1;
+        if (setRetryCountFn) {
+          setRetryCountFn(nextRetryCount);
+        }
         await delay(RETRY_DELAY * Math.pow(2, retryCount));
-        return submitWithRetry(values, retryCount + 1);
+        return submitWithRetry(values, isAuditRequest, nextRetryCount, setRetryCountFn);
       }
       throw error;
     }
@@ -145,7 +182,7 @@ export function ContactForm({ type }: ContactFormProps) {
         throw new Error('Bot detected');
       }
 
-      const data = await submitWithRetry(values);
+      const data = await submitWithRetry(values, isAuditRequest, 0, setRetryCount);
 
       analytics.track({
         name: 'form_submission',
@@ -171,9 +208,12 @@ export function ContactForm({ type }: ContactFormProps) {
 
       setSubmitError(errorMessage);
       toast.error(errorMessage);
+      
+      // Log the error for debugging
+      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
-      setRetryCount(0);
+      setRetryCount(0); // Reset retry count
       // Release the lock after a short delay to prevent double submissions
       setTimeout(() => {
         submitLock.current = false;
