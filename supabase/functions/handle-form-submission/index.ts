@@ -129,7 +129,7 @@ serve(async (req) => {
       // Send welcome email
       console.log('Attempting to send welcome email to:', email)
       const welcomeResult = await resend.emails.send({
-        from: 'Parascape <hello@parascape.com>',
+        from: 'onboarding@resend.dev',
         to: email,
         subject: emailSubject,
         html: emailBody
@@ -149,7 +149,7 @@ serve(async (req) => {
     try {
       console.log('Attempting to send admin notification')
       const adminResult = await resend.emails.send({
-        from: 'Parascape Forms <forms@parascape.com>',
+        from: 'onboarding@resend.dev',
         to: 'recordsparascape@gmail.com',
         subject: type === 'audit_request' 
           ? `New Audit Request: ${business}`

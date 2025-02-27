@@ -2,11 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-<<<<<<< HEAD
-project_id = "parascape-progressive-landing-main"
-=======
 project_id = "parascape-master"
->>>>>>> 58f5cb9a1562e0bacf9a89ba4e7f54bce409b662
 
 [api]
 enabled = true

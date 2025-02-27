@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION handle_new_submission()
 RETURNS TRIGGER AS $$
 DECLARE
   edge_function_url TEXT := 'https://hpuqzerpfylevdfwembv.supabase.co/functions/v1/send-confirmation-email';
-  service_role_key TEXT := current_setting('request.jwt.claim.role', true);
+  anon_key TEXT := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhwdXF6ZXJwZnlsZXZkZndlbWJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk1MTIwODIsImV4cCI6MjA1NTA4ODA4Mn0.JYRebBYLMwMYX2FRfNMmV7NDzNZHTeADPdy6CIobzaM';
 BEGIN
   -- Make HTTP request to Edge Function
   PERFORM
@@ -22,7 +22,7 @@ BEGIN
       )::text,
       headers := json_build_object(
         'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || service_role_key
+        'Authorization', 'Bearer ' || anon_key
       )
     );
   RETURN NEW;
