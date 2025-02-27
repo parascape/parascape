@@ -6,6 +6,13 @@ const RESEND_API_KEY = 're_LUbgSRFx_D4kWoD9rpsptLJnhoa5zBMEN'
 // Default Resend email address - using Resend's default
 const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev'
 
+// CORS headers to allow requests from any origin
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 console.log('Starting Edge Function with Resend default configuration')
 
 interface EmailPayload {
@@ -17,6 +24,11 @@ interface EmailPayload {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     // Simple logging
     console.log('Request received')
@@ -32,7 +44,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Invalid JSON payload' }),
         { 
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -46,7 +58,7 @@ serve(async (req) => {
         JSON.stringify({ error: 'Missing required fields' }),
         { 
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -106,7 +118,7 @@ serve(async (req) => {
         JSON.stringify({ message: 'Email sent successfully', data: responseData }),
         { 
           status: 200,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     } catch (fetchError) {
@@ -118,7 +130,7 @@ serve(async (req) => {
         }),
         { 
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -131,7 +143,7 @@ serve(async (req) => {
       }),
       { 
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }

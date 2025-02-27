@@ -17,6 +17,16 @@ extra_search_path = ["public", "extensions"]
 # for accidental or malicious requests.
 max_rows = 1000
 
+# CORS configuration
+[api.cors]
+enabled = true
+allowed_origins = ["*"]
+allowed_methods = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+allowed_headers = ["Authorization", "Content-Type", "apikey", "x-client-info"]
+exposed_headers = []
+max_age = 3600
+credentials = false
+
 [api.tls]
 # Enable HTTPS endpoints locally using a self-signed certificate.
 enabled = false
@@ -250,13 +260,13 @@ policy = "oneshot"
 inspector_port = 8083
 
 # Use these configurations to customize your Edge Function.
-# [functions.MY_FUNCTION_NAME]
-# enabled = true
-# verify_jwt = true
-# import_map = "./functions/MY_FUNCTION_NAME/deno.json"
+[functions.send-confirmation-email]
+enabled = true
+verify_jwt = false
+import_map = "./functions/send-confirmation-email/import_map.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-# entrypoint = "./functions/MY_FUNCTION_NAME/index.ts"
+entrypoint = "./functions/send-confirmation-email/index.ts"
 
 [analytics]
 enabled = true
