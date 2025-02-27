@@ -3,12 +3,10 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 // Hardcoded API key
 const RESEND_API_KEY = 're_LUbgSRFx_D4kWoD9rpsptLJnhoa5zBMEN'
 
-// Default Resend email address
+// Default Resend email address - using Resend's default
 const DEFAULT_FROM_EMAIL = 'onboarding@resend.dev'
 
-console.log('Starting Edge Function with configuration:', {
-  RESEND_API_KEY_SET: !!RESEND_API_KEY
-})
+console.log('Starting Edge Function with Resend default configuration')
 
 interface EmailPayload {
   id: string
@@ -20,44 +18,18 @@ interface EmailPayload {
 
 serve(async (req) => {
   try {
-    // Log request method and URL
-    console.log(`Request received: ${req.method} ${req.url}`)
-    
-    // Log request headers for debugging
-    console.log('Request headers:', Object.fromEntries(req.headers.entries()))
-    
-    // Check if request body exists
-    const contentLength = req.headers.get('content-length')
-    console.log(`Content length: ${contentLength}`)
-    
-    if (!contentLength || parseInt(contentLength) === 0) {
-      console.error('Empty request body')
-      return new Response(
-        JSON.stringify({ error: 'Empty request body' }),
-        { 
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      )
-    }
+    // Simple logging
+    console.log('Request received')
     
     // Parse JSON payload with error handling
     let payload: EmailPayload
-    let rawBody: string = ''
-    
     try {
-      // Get raw body for logging
-      rawBody = await req.text()
-      console.log('Raw request body:', rawBody)
-      
-      // Parse the JSON
-      payload = JSON.parse(rawBody)
-      console.log('Successfully parsed JSON payload:', payload)
+      payload = await req.json()
+      console.log('Payload received:', payload)
     } catch (jsonError) {
       console.error('Failed to parse JSON payload:', jsonError)
-      console.error('Raw body was:', rawBody)
       return new Response(
-        JSON.stringify({ error: 'Invalid JSON payload', details: jsonError.message, rawBody }),
+        JSON.stringify({ error: 'Invalid JSON payload' }),
         { 
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -67,17 +39,11 @@ serve(async (req) => {
     
     const { name, email, business, type } = payload
 
-    // Log payload for debugging
-    console.log('Processing payload:', payload)
-
     // Validate request
     if (!name || !email || !business || !type) {
-      console.error('Missing required fields in payload:', { name, email, business, type })
+      console.error('Missing required fields in payload')
       return new Response(
-        JSON.stringify({ 
-          error: 'Missing required fields',
-          received: { name, email, business, type }
-        }),
+        JSON.stringify({ error: 'Missing required fields' }),
         { 
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -87,9 +53,8 @@ serve(async (req) => {
 
     console.log('Sending email to:', email)
 
-    // Send email using Resend
+    // Send email using Resend with default configuration
     try {
-      console.log('Preparing to call Resend API')
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -121,15 +86,17 @@ serve(async (req) => {
         })
       })
 
-      console.log('Resend API response status:', response.status)
-      
-      // Get raw response for logging
       const responseText = await response.text()
       console.log('Resend API raw response:', responseText)
       
-      // Parse the response
-      const responseData = JSON.parse(responseText)
-      console.log('Resend API parsed response:', responseData)
+      let responseData
+      try {
+        responseData = JSON.parse(responseText)
+        console.log('Resend API parsed response:', responseData)
+      } catch (e) {
+        console.error('Failed to parse Resend response:', e)
+        responseData = { text: responseText }
+      }
 
       if (!response.ok) {
         throw new Error(`Failed to send email: ${responseText}`)
