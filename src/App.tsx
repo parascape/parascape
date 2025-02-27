@@ -17,6 +17,7 @@ const About = lazy(() => import('@/pages/About'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
+const Success = lazy(() => import('@/pages/Success'));
 
 const ScrollToTop = memo(function ScrollToTop() {
   const { pathname } = useLocation();
@@ -65,6 +66,7 @@ export default function App() {
                     <Route path="/services/*" element={<Services />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/contact/:type?" element={<Contact />} />
+                    <Route path="/success" element={<Success />} />
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="*" element={<Navigate to="/" replace />} />

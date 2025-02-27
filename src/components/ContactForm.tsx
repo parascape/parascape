@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { analytics } from '@/lib/analytics';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -65,6 +65,7 @@ export function ContactForm({ type }: ContactFormProps) {
   const [retryCount, setRetryCount] = useState(0);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const submitLock = useRef(false);
+  const navigate = useNavigate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -154,11 +155,13 @@ export function ContactForm({ type }: ContactFormProps) {
         }
       });
 
-      toast.success(
-        isAuditRequest
-          ? "Thank you! We'll send your audit within 24 hours."
-          : "Thank you for your message! We'll be in touch soon."
-      );
+      // Instead of showing a toast, redirect to success page
+      navigate('/success', { 
+        state: { 
+          formType: isAuditRequest ? 'audit_request' : 'contact' 
+        } 
+      });
+      
       form.reset();
     } catch (error) {
       const errorMessage =
